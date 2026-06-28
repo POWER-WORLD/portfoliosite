@@ -81,7 +81,6 @@ const SNAKE_CONFIGS: SnakeConfig[] = [
   },
 ];
 
-const CURSOR_ORBIT_RADIUS = 60;
 const BORDER_DETECTION_PADDING = 8;
 const TRANSITION_SPEED = 0.035; // Slower, high-inertia transition for realistic glide
 
@@ -313,7 +312,6 @@ export default function AlienSnakes() {
 
       // 2. Overlapping Glossy Sci-Fi Scales
       for (let i = wavySegments.length - 1; i >= 1; i--) {
-        const ratio = 1 - i / wavySegments.length;
         const xVal = i / wavySegments.length;
         const pulse = 1 + Math.sin(time * 5 + i * 0.4) * 0.08;
         const width = config.bodyWidth * getProfile(xVal) * pulse * dpr * sizeScale;
@@ -430,7 +428,6 @@ export default function AlienSnakes() {
       ctx.fill();
 
       // Tiny antennae curving forward/outward
-      const antennaLen = headSize * 1.3;
       ctx.strokeStyle = config.color;
       ctx.lineWidth = 1.6 * dpr;
       ctx.lineCap = 'round';
