@@ -34,7 +34,7 @@ export default function Navbar({ activeSection }: NavbarProps) {
   };
 
   return (
-    <header className="fixed top-0 left-0 w-full z-50 border-b border-white/[0.04] bg-bg-dark/20 backdrop-blur-md transition-all duration-300">
+    <header className="fixed top-0 left-0 w-full z-50 transition-all duration-300">
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
         {/* Custom Premium Logo */}
         <a
@@ -45,7 +45,7 @@ export default function Navbar({ activeSection }: NavbarProps) {
           }}
           className="font-display font-black text-2xl tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-accent to-secondary hover:scale-105 transition-transform duration-300 select-none"
         >
-          ALEX<span className="text-white">.</span>DEV
+          PAWAN<span className="text-white">.</span>DEV
         </a>
 
         {/* Desktop Menu */}

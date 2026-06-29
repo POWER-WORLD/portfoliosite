@@ -27,12 +27,12 @@ export default function Footer() {
           onClick={handleScrollToTop}
           className="font-display font-black text-xl tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-accent to-secondary hover:scale-105 hover:text-glow transition-all duration-300 select-none cursor-pointer"
         >
-          ALEX<span className="text-white">.</span>DEV
+          PAWAN<span className="text-white">.</span>DEV
         </a>
 
         {/* Copyright notice */}
         <p className="text-xs text-gray-500 font-medium tracking-wide">
-          &copy; {currentYear} Alex Mercer. All Rights Reserved. Built with React & Vite.
+          &copy; {currentYear} Pawan Kumar. All Rights Reserved. Built with React & Vite.
         </p>
 
         {/* Social Icons list */}

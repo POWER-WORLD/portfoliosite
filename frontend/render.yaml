@@ -1,10 +1,9 @@
 services:
-  - type: web
+  - type: static
     name: portfolio-frontend
-    runtime: static
     rootDir: frontend
     buildCommand: npm run build
-    publishPath: dist
+    staticPublishPath: dist
     routes:
       - src: /*
         dest: /index.html

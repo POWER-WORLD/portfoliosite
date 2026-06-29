@@ -29,11 +29,11 @@ export const SOCIAL_LINKS = [
 ];
 
 export const PERSONAL_INFO = {
-  name: 'Alex Mercer',
+  name: 'Pawan Kumar',
   title: 'Senior Frontend Architect & React Engineer',
   tagline: 'Crafting pixel-perfect, highly-performant, and visually stunning digital experiences on the web.',
   location: 'San Francisco, CA',
-  email: 'alex.mercer@dev.io',
+  email: 'pawan.kumar@dev.io',
   resumeUrl: '#', // Placeholder/Static PDF link
 };
 
