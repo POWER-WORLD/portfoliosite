@@ -97,6 +97,7 @@ function lerpAngle(a: number, b: number, t: number): number {
   return a + diff * t;
 }
 
+// Distance helper
 function dist(a: Vec2, b: Vec2): number {
   return Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
 }

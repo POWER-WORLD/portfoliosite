@@ -39,7 +39,7 @@ const UFO = ({ isOpen, onClick }: { isOpen: boolean; onClick: () => void }) => {
             <stop offset="70%" stopColor="#6C63FF" stopOpacity="0.4" />
             <stop offset="100%" stopColor="#050816" stopOpacity="0.2" />
           </radialGradient>
-          
+
           {/* Metallic Hull gradient */}
           <linearGradient id="ufoHullGrad" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#374151" />
@@ -93,7 +93,7 @@ const UFO = ({ isOpen, onClick }: { isOpen: boolean; onClick: () => void }) => {
           stroke="#4B5563"
           strokeWidth="1.5"
         />
-        
+
         {/* Saucer lower hull */}
         <path
           d="M 28 39 C 32 46, 68 46, 72 39 Z"
@@ -191,12 +191,8 @@ export default function Navbar({ activeSection }: NavbarProps) {
   };
 
   return (
-    <header 
-      className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${
-        scrolled 
-          ? 'bg-bg-dark/85 backdrop-blur-md border-b border-white/[0.04] shadow-[0_4px_30px_rgba(0,0,0,0.3)]' 
-          : 'bg-transparent'
-      }`}
+    <header
+      className="fixed top-0 left-0 w-full z-50 transition-all"
     >
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between relative">
         {/* Custom Premium Logo (navbarlogo2.png) */}
@@ -218,7 +214,7 @@ export default function Navbar({ activeSection }: NavbarProps) {
         {/* Center Slot for UFO Menu Toggle */}
         <div className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 z-50 flex flex-col items-center">
           <UFO isOpen={isOpen} onClick={() => setIsOpen(!isOpen)} />
-          
+
           {/* Subtle text label pointing to the UFO */}
           {/* <span className="text-[8px] font-share-tech tracking-[0.2em] text-gray-500 uppercase mt-[-4px] select-none pointer-events-none animate-pulse">
             {isOpen ? '[CLOSE]' : '[MENU]'}
@@ -237,7 +233,7 @@ export default function Navbar({ activeSection }: NavbarProps) {
             <span className="absolute top-0 right-0 w-1.5 h-1.5 border-t border-r border-secondary opacity-60 group-hover:opacity-100" />
             <span className="absolute bottom-0 left-0 w-1.5 h-1.5 border-b border-l border-secondary opacity-60 group-hover:opacity-100" />
             <span className="absolute bottom-0 right-0 w-1.5 h-1.5 border-b border-r border-secondary opacity-60 group-hover:opacity-100" />
-            
+
             <FaEnvelope className="text-sm md:text-base relative z-10 transition-transform duration-300 group-hover:scale-110" />
 
             {/* Glowing dot in the corner of the contact button */}
@@ -268,7 +264,7 @@ export default function Navbar({ activeSection }: NavbarProps) {
                   </radialGradient>
                 </defs>
                 <polygon points="46,0 54,0 95,100 5,100" fill="url(#beamGrad)" />
-                
+
                 {/* Dynamic scanner light sweep */}
                 <line x1="0" y1="0" x2="100" y2="0" stroke="#00E5FF" strokeWidth="0.8" opacity="0.6">
                   <animateTransform
@@ -317,7 +313,7 @@ export default function Navbar({ activeSection }: NavbarProps) {
                 {NAV_ITEMS.map((item, index) => {
                   const isActive = activeSection === item.id;
                   const formattedIndex = String(index + 1).padStart(2, '0');
-                  
+
                   return (
                     <motion.button
                       key={item.id}
@@ -326,15 +322,14 @@ export default function Navbar({ activeSection }: NavbarProps) {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -15 }}
                       transition={{ duration: 0.3, delay: index * 0.05 }}
-                      className={`group flex items-center justify-between md:justify-center w-full md:w-auto px-4 py-2.5 md:px-4 md:py-4 rounded text-left md:text-center transition-all duration-300 relative cursor-pointer overflow-hidden ${
-                        isActive 
-                          ? 'bg-secondary/10 border border-secondary/30 text-white' 
+                      className={`group flex items-center justify-between md:justify-center w-full md:w-auto px-4 py-2.5 md:px-4 md:py-4 rounded text-left md:text-center transition-all duration-300 relative cursor-pointer overflow-hidden ${isActive
+                          ? 'bg-secondary/10 border border-secondary/30 text-white'
                           : 'border border-transparent text-gray-400 hover:text-secondary'
-                      }`}
+                        }`}
                     >
                       {/* Hover highlight background */}
                       <span className="absolute inset-0 w-full h-full bg-gradient-to-r md:bg-gradient-to-b from-secondary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      
+
                       <div className="flex md:flex-col items-start md:items-center gap-3 md:gap-1 font-share-tech tracking-wider text-sm relative z-10 pb-0 md:pb-1">
                         <span className={`text-[9px] font-orbitron ${isActive ? 'text-secondary' : 'text-gray-600 group-hover:text-secondary/50'}`}>
                           [{formattedIndex}]

@@ -1,7 +1,6 @@
 import { type ReactNode, useEffect } from 'react';
 import Lenis from 'lenis';
 import GalaxyBackground from '../components/GalaxyBackground';
-import AlienSnakes from '../components/AlienSnakes';
 import Navbar from '../components/Navbar';
 import { useScrollSpy } from '../hooks/useScrollSpy';
 import { NAV_ITEMS } from '../constants';
@@ -50,9 +49,6 @@ export default function MainLayout({ children }: MainLayoutProps) {
       <main className="relative z-10 w-full overflow-hidden pt-20">
         {children}
       </main>
-
-      {/* Alien Snake Animation Overlay */}
-      <AlienSnakes />
     </div>
   );
 }
