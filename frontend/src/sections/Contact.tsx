@@ -2,8 +2,18 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaEnvelope, FaMapMarkerAlt, FaPaperPlane, FaCheckCircle, FaLinkedin, FaGithub } from 'react-icons/fa';
 import { PERSONAL_INFO } from '../constants';
+import { submitContactMessage } from '../services/api';
 
-export default function Contact() {
+interface ContactProps {
+  personalInfo?: {
+    email: string;
+    location: string;
+  };
+}
+
+export default function Contact({ personalInfo }: ContactProps) {
+  const profile = personalInfo && personalInfo.email ? personalInfo : PERSONAL_INFO;
+
   const [formState, setFormState] = useState({
     name: '',
     email: '',
@@ -14,6 +24,7 @@ export default function Contact() {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const validate = () => {
     const tempErrors: { [key: string]: string } = {};
@@ -50,15 +61,20 @@ export default function Contact() {
     if (!validate()) return;
 
     setIsSubmitting(true);
+    setErrorMessage('');
     
-    // Simulate API Call (Backend-Ready)
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      setIsSuccess(true);
-      setFormState({ name: '', email: '', subject: '', message: '' });
-      setTimeout(() => setIsSuccess(false), 5000); // hide success alert after 5s
+      const success = await submitContactMessage(formState);
+      if (success) {
+        setIsSuccess(true);
+        setFormState({ name: '', email: '', subject: '', message: '' });
+        setTimeout(() => setIsSuccess(false), 5000); // hide success alert after 5s
+      } else {
+        setErrorMessage('Failed to transmit message. Please verify your connection.');
+      }
     } catch (err) {
       console.error(err);
+      setErrorMessage('An unexpected error occurred. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -121,8 +137,8 @@ export default function Contact() {
                 </div>
                 <div>
                   <span className="block text-[10px] text-gray-500 uppercase tracking-wider font-semibold">Email</span>
-                  <a href={`mailto:${PERSONAL_INFO.email}`} className="text-white hover:text-accent font-semibold transition-colors duration-300">
-                    {PERSONAL_INFO.email}
+                  <a href={`mailto:${profile.email}`} className="text-white hover:text-accent font-semibold transition-colors duration-300">
+                    {profile.email}
                   </a>
                 </div>
               </motion.div>
@@ -133,11 +149,12 @@ export default function Contact() {
                 </div>
                 <div>
                   <span className="block text-[10px] text-gray-500 uppercase tracking-wider font-semibold">Location</span>
-                  <span className="text-white font-semibold">{PERSONAL_INFO.location}</span>
+                  <span className="text-white font-semibold">{profile.location}</span>
                 </div>
               </motion.div>
             </div>
           </div>
+
 
           {/* Social icons */}
           <motion.div variants={itemVariants} className="flex items-center gap-4 pt-6">
@@ -261,7 +278,7 @@ export default function Contact() {
               )}
             </button>
 
-            {/* Success Message Banner */}
+            {/* Success/Error Message Banner */}
             <AnimatePresence>
               {isSuccess && (
                 <motion.div
@@ -272,6 +289,17 @@ export default function Contact() {
                 >
                   <FaCheckCircle className="text-base" />
                   Your message has been successfully transmitted. I will get back to you shortly!
+                </motion.div>
+              )}
+              {errorMessage && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  className="flex items-center gap-3 p-4 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm font-semibold"
+                >
+                  <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                  {errorMessage}
                 </motion.div>
               )}
             </AnimatePresence>

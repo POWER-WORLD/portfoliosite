@@ -26,7 +26,7 @@ export async function fetchPortfolioData() {
 /**
  * Sends contact message (optional helper)
  */
-export async function submitContactMessage(formData: { name: string; email: string; message: string }) {
+export async function submitContactMessage(formData: { name: string; email: string; subject: string; message: string }) {
   try {
     const res = await fetch(`${API_BASE_URL}/contact`, {
       method: 'POST',

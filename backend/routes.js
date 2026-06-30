@@ -9,7 +9,8 @@ import {
   Experience, 
   Certificate, 
   Achievement,
-  AdminPassword
+  AdminPassword,
+  ContactMessage
 } from './models.js';
 
 const router = express.Router();
@@ -310,4 +311,23 @@ router.delete('/achievements/:id', authMiddleware, async (req, res) => {
   }
 });
 
+// ----------------------------------------------------
+// CONTACT (POST)
+// ----------------------------------------------------
+router.post('/contact', async (req, res) => {
+  try {
+    const { name, email, subject, message } = req.body;
+    if (!name || !email || !subject || !message) {
+      return res.status(400).json({ error: 'All fields are required.' });
+    }
+    const newMsg = new ContactMessage({ name, email, subject, message });
+    await newMsg.save();
+    res.status(201).json({ success: true, message: 'Message saved successfully' });
+  } catch (error) {
+    console.error('Contact submit error:', error);
+    res.status(500).json({ error: 'Failed to submit contact message' });
+  }
+});
+
 export default router;
+

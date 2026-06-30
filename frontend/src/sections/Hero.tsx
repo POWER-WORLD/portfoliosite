@@ -2,7 +2,20 @@ import { motion } from 'framer-motion';
 import { FaArrowRight, FaDownload } from 'react-icons/fa';
 import { PERSONAL_INFO, SOCIAL_LINKS } from '../constants';
 
-export default function Hero() {
+interface HeroProps {
+  data?: {
+    name: string;
+    title: string;
+    tagline: string;
+    location: string;
+    email: string;
+    resumeUrl: string;
+  };
+}
+
+export default function Hero({ data }: HeroProps) {
+  const profile = data && data.name ? data : PERSONAL_INFO;
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -28,7 +41,7 @@ export default function Hero() {
   };
 
   // Letter animations for the name
-  const nameLetters = Array.from(PERSONAL_INFO.name);
+  const nameLetters = Array.from(profile.name);
   const letterVariants = {
     hidden: { y: 50, opacity: 0 },
     visible: (i: number) => ({
@@ -98,7 +111,7 @@ export default function Hero() {
           variants={itemVariants}
           className="font-display text-xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-accent via-secondary to-accent bg-[length:200%_auto] animate-[shimmer_5s_linear_infinite] mb-6"
         >
-          {PERSONAL_INFO.title}
+          {profile.title}
         </motion.h2>
 
         {/* Tagline */}
@@ -106,7 +119,7 @@ export default function Hero() {
           variants={itemVariants}
           className="text-base md:text-lg text-gray-400 max-w-2xl leading-relaxed mb-10"
         >
-          {PERSONAL_INFO.tagline}
+          {profile.tagline}
         </motion.p>
 
         {/* CTA Buttons */}
@@ -123,13 +136,14 @@ export default function Hero() {
           </button>
           
           <a
-            href={PERSONAL_INFO.resumeUrl}
+            href={profile.resumeUrl || '#'}
             className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3.5 rounded-full border border-white/10 hover:border-white/30 bg-white/[0.02] hover:bg-white/[0.05] text-white font-semibold tracking-wider transition-all duration-300"
           >
             Download Resume
             <FaDownload className="text-xs" />
           </a>
         </motion.div>
+
 
         {/* Social Icons */}
         <motion.div

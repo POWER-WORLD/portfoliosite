@@ -1,7 +1,20 @@
 import { motion } from 'framer-motion';
 import { EXPERIENCE_DATA } from '../constants';
 
-export default function Experience() {
+interface Job {
+  role: string;
+  company: string;
+  period: string;
+  description: string;
+}
+
+interface ExperienceProps {
+  data?: Job[];
+}
+
+export default function Experience({ data }: ExperienceProps) {
+  const jobs = data && data.length > 0 ? data : EXPERIENCE_DATA;
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -40,7 +53,7 @@ export default function Experience() {
         viewport={{ once: true, margin: '-10% 0px' }}
         className="relative border-l border-white/[0.06] pl-8 md:pl-12 ml-4 md:ml-12 max-w-4xl mx-auto space-y-16"
       >
-        {EXPERIENCE_DATA.map((job, idx) => (
+        {jobs.map((job, idx) => (
           <motion.div
             key={idx}
             variants={itemVariants}

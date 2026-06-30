@@ -1,7 +1,15 @@
-import { SOCIAL_LINKS } from '../constants';
+import { SOCIAL_LINKS, PERSONAL_INFO } from '../constants';
 
-export default function Footer() {
+interface FooterProps {
+  personalInfo?: {
+    name: string;
+  };
+}
+
+export default function Footer({ personalInfo }: FooterProps) {
+  const profile = personalInfo && personalInfo.name ? personalInfo : PERSONAL_INFO;
   const currentYear = new Date().getFullYear();
+  const firstName = (profile.name || 'PAWAN').split(' ')[0].toUpperCase();
 
   const handleScrollToTop = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -27,13 +35,14 @@ export default function Footer() {
           onClick={handleScrollToTop}
           className="font-display font-black text-xl tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-accent to-secondary hover:scale-105 hover:text-glow transition-all duration-300 select-none cursor-pointer"
         >
-          PAWAN<span className="text-white">.</span>DEV
+          {firstName}<span className="text-white">.</span>DEV
         </a>
 
         {/* Copyright notice */}
         <p className="text-xs text-gray-500 font-medium tracking-wide">
-          &copy; {currentYear} Pawan Kumar. All Rights Reserved. Built with React & Vite.
+          &copy; {currentYear} {profile.name}. All Rights Reserved. Built with React & Vite.
         </p>
+
 
         {/* Social Icons list */}
         <div className="flex items-center gap-4">

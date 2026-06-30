@@ -48,7 +48,19 @@ function Counter({ value, duration = 1500 }: CounterProps) {
   return <span ref={elementRef}>{count}</span>;
 }
 
-export default function Achievements() {
+interface StatItem {
+  value: number;
+  label: string;
+  suffix: string;
+}
+
+interface AchievementsProps {
+  data?: StatItem[];
+}
+
+export default function Achievements({ data }: AchievementsProps) {
+  const stats = data && data.length > 0 ? data : ACHIEVEMENTS_DATA;
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -76,7 +88,7 @@ export default function Achievements() {
         viewport={{ once: true, margin: '-10% 0px' }}
         className="grid grid-cols-2 lg:grid-cols-4 gap-8 justify-center items-center"
       >
-        {ACHIEVEMENTS_DATA.map((stat, idx) => (
+        {stats.map((stat, idx) => (
           <motion.div
             key={idx}
             variants={itemVariants}

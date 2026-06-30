@@ -1,7 +1,17 @@
 import { motion } from 'framer-motion';
 import { ABOUT_DATA } from '../constants';
 
-export default function About() {
+interface AboutProps {
+  data?: {
+    story: string;
+    highlights: { title: string; desc: string }[];
+    education: { degree: string; school: string; year: string; description: string }[];
+  };
+}
+
+export default function About({ data }: AboutProps) {
+  const aboutInfo = data && data.story ? data : ABOUT_DATA;
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -44,7 +54,7 @@ export default function About() {
             variants={itemVariants}
             className="text-gray-400 text-base md:text-lg leading-relaxed font-light"
           >
-            {ABOUT_DATA.story}
+            {aboutInfo.story}
           </motion.p>
 
           {/* Stat highlights (Transparent, floating border blocks) */}
@@ -52,7 +62,7 @@ export default function About() {
             variants={itemVariants}
             className="grid grid-cols-3 gap-6 pt-4"
           >
-            {ABOUT_DATA.highlights.map((highlight, idx) => (
+            {aboutInfo.highlights && aboutInfo.highlights.map((highlight, idx) => (
               <div
                 key={idx}
                 className="glass-panel p-6 rounded-2xl flex flex-col items-center justify-center text-center group hover:border-accent/40 transition-all duration-500 hover:-translate-y-1"
@@ -82,7 +92,7 @@ export default function About() {
 
           {/* Vertical Timeline */}
           <div className="relative border-l border-white/[0.06] pl-8 ml-2 space-y-12">
-            {ABOUT_DATA.education.map((edu, idx) => (
+            {aboutInfo.education && aboutInfo.education.map((edu, idx) => (
               <motion.div
                 key={idx}
                 variants={itemVariants}
@@ -116,3 +126,4 @@ export default function About() {
     </section>
   );
 }
+

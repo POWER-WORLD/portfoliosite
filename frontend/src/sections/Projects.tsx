@@ -1,14 +1,19 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaGithub, FaExternalLinkAlt } from 'react-icons/fa';
-import { PROJECTS_DATA, type Project } from '../constants';
+import { PROJECTS_DATA } from '../constants';
 
 type CategoryFilter = 'all' | 'frontend' | 'fullstack' | 'creative';
 
-export default function Projects() {
-  const [filter, setFilter] = useState<CategoryFilter>('all');
+interface ProjectsProps {
+  data?: any[];
+}
 
-  const filteredProjects = PROJECTS_DATA.filter((project) => {
+export default function Projects({ data }: ProjectsProps) {
+  const [filter, setFilter] = useState<CategoryFilter>('all');
+  const projects = data && data.length > 0 ? data : PROJECTS_DATA;
+
+  const filteredProjects = projects.filter((project) => {
     if (filter === 'all') return true;
     return project.category === filter;
   });
@@ -59,14 +64,14 @@ export default function Projects() {
         className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch"
       >
         <AnimatePresence mode="popLayout">
-          {filteredProjects.map((project: Project) => (
+          {filteredProjects.map((project: any) => (
             <motion.div
               layout
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
               transition={{ duration: 0.4 }}
-              key={project.id}
+              key={project._id || project.id}
               className="glass-panel rounded-3xl overflow-hidden flex flex-col justify-between group hover:border-accent/40 hover:shadow-[0_0_30px_rgba(108,99,255,0.1)] transition-all duration-500"
             >
               {/* Project Image & Overlay */}
@@ -105,7 +110,7 @@ export default function Projects() {
                 <div className="space-y-6 pt-4 border-t border-white/[0.04]">
                   {/* Tech Tags Grid */}
                   <div className="flex flex-wrap gap-2">
-                    {project.tags.map((tag, idx) => (
+                    {project.tags?.map((tag: string, idx: number) => (
                       <span
                         key={idx}
                         className="px-3 py-1 rounded-full text-[10px] md:text-xs font-medium tracking-wide text-gray-400 bg-white/[0.02] border border-white/[0.04] group-hover:border-white/[0.08] transition-colors duration-300"

@@ -75,6 +75,14 @@ const AdminPasswordSchema = new mongoose.Schema({
   hash: { type: String, required: true }
 });
 
+// Contact Message Schema
+const ContactMessageSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  email: { type: String, required: true },
+  subject: { type: String, required: true },
+  message: { type: String, required: true }
+}, { timestamps: true });
+
 export const PersonalInfo = mongoose.model('PersonalInfo', PersonalInfoSchema);
 export const About = mongoose.model('About', AboutSchema);
 export const SkillCategory = mongoose.model('SkillCategory', SkillCategorySchema);
@@ -83,3 +91,5 @@ export const Experience = mongoose.model('Experience', ExperienceSchema);
 export const Certificate = mongoose.model('Certificate', CertificateSchema);
 export const Achievement = mongoose.model('Achievement', AchievementSchema);
 export const AdminPassword = mongoose.model('AdminPassword', AdminPasswordSchema);
+export const ContactMessage = mongoose.model('ContactMessage', ContactMessageSchema);
+

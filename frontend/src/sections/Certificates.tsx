@@ -3,8 +3,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FaAward, FaExternalLinkAlt, FaTimes } from 'react-icons/fa';
 import { CERTIFICATES_DATA, type Certificate } from '../constants';
 
-export default function Certificates() {
+interface CertificatesProps {
+  data?: Certificate[];
+}
+
+export default function Certificates({ data }: CertificatesProps) {
   const [selectedCert, setSelectedCert] = useState<Certificate | null>(null);
+  const certs = data && data.length > 0 ? data : CERTIFICATES_DATA;
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -44,7 +49,7 @@ export default function Certificates() {
         viewport={{ once: true, margin: '-10% 0px' }}
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
       >
-        {CERTIFICATES_DATA.map((cert, idx) => (
+        {certs.map((cert, idx) => (
           <motion.div
             key={idx}
             variants={cardVariants}

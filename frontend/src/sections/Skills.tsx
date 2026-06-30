@@ -1,7 +1,33 @@
 import { motion } from 'framer-motion';
 import { SKILL_CATEGORIES } from '../constants';
+import * as FaIcons from 'react-icons/fa';
 
-export default function Skills() {
+interface Skill {
+  name: string;
+  level: number;
+}
+
+interface SkillCategory {
+  title: string;
+  icon: any;
+  skills: Skill[];
+}
+
+interface SkillsProps {
+  data?: SkillCategory[];
+}
+
+function getIconComponent(icon: any) {
+  if (typeof icon === 'string') {
+    const IconComponent = (FaIcons as any)[icon];
+    return IconComponent || FaIcons.FaCode;
+  }
+  return icon || FaIcons.FaCode;
+}
+
+export default function Skills({ data }: SkillsProps) {
+  const categories = data && data.length > 0 ? data : SKILL_CATEGORIES;
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -40,8 +66,8 @@ export default function Skills() {
         viewport={{ once: true, margin: '-10% 0px' }}
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
       >
-        {SKILL_CATEGORIES.map((category, catIdx) => {
-          const Icon = category.icon;
+        {categories.map((category, catIdx) => {
+          const Icon = getIconComponent(category.icon);
           return (
             <motion.div
               key={catIdx}
@@ -91,3 +117,4 @@ export default function Skills() {
     </section>
   );
 }
+
