@@ -90,6 +90,15 @@ interface CosmicDust {
   color: string;
 }
 
+interface AccretionParticle {
+  r: number;
+  theta: number;
+  speed: number;
+  size: number;
+  color: string;
+  y: number;
+}
+
 interface ConstellationStar {
   x: number;
   y: number;
@@ -149,13 +158,32 @@ export default function GalaxyBackground() {
 
     const handleScroll = () => {
       currentScrollY = window.scrollY;
-      const diff = currentScrollY - lastScrollY;
-      scrollVel += diff * 0.24;
-      scrollSpeed += Math.abs(diff) * 0.24;
+      if (transitState === 'idle') {
+        const diff = currentScrollY - lastScrollY;
+        scrollVel += diff * 0.24;
+        scrollSpeed += Math.abs(diff) * 0.24;
+      }
       lastScrollY = currentScrollY;
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
+
+    // Wormhole Transit State Machine
+    let transitState: 'idle' | 'collapsing' | 'recovering' = 'idle';
+    let transitProgress = 0; // 0 to 1 during collapse, then 1 to 0 during recovery
+    let transitTargetScrollY = 0;
+
+    const handleTransit = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      if (customEvent.detail && typeof customEvent.detail.targetScrollY === 'number') {
+        customEvent.preventDefault(); // Cancel default behavior indicator
+        transitState = 'collapsing';
+        transitProgress = 0;
+        transitTargetScrollY = customEvent.detail.targetScrollY;
+      }
+    };
+
+    window.addEventListener('trigger-blackhole-transit', handleTransit);
 
     const handleResize = () => {
       if (!canvas) return;
@@ -269,10 +297,42 @@ export default function GalaxyBackground() {
       cContext.stroke();
     };
 
+    // Helper: Gravitational lensing warp logic around center black hole
+    const applyLensing = (
+      px: number,
+      py: number,
+      k: number, // Transit collapse progress (0 to 1)
+      bhX: number,
+      bhY: number,
+      bhNormScale: number
+    ): { x: number; y: number; visible: boolean } => {
+      const dx = px - bhX;
+      const dy = py - bhY;
+      const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+
+      // Scale black hole gravity strength and horizon radius dynamically during transit collapse
+      const baseHorizon = 8.5;
+      const horizonRadius = (baseHorizon + Math.pow(k, 3) * Math.max(width, height) * 0.85) * bhNormScale;
+      const lensingStrength = (180 + Math.pow(k, 3) * Math.max(width, height) * 0.9) * bhNormScale * bhNormScale;
+
+      if (dist < horizonRadius) {
+        return { x: px, y: py, visible: false }; // Swallowed
+      }
+
+      // Einstein light path deflection
+      const warp = 1 + lensingStrength / (dist * dist + 15);
+      return {
+        x: bhX + dx * warp,
+        y: bhY + dy * warp,
+        visible: true,
+      };
+    };
+
     // 1. Generate Galaxy Structure
     const galaxyParticles: GalaxyParticle[] = [];
     const nebulaClouds: NebulaCloud[] = [];
     const dustParticles: DustParticle[] = [];
+    const accretionParticles: AccretionParticle[] = [];
 
     const galaxyCount = 1350;
     const maxRadius = Math.min(width, height) * 0.52;
@@ -376,6 +436,23 @@ export default function GalaxyBackground() {
       const z = x_prime * Math.sin(node) + z_prime * Math.cos(incl) * Math.cos(node);
 
       dustParticles.push({ x, y, z, r, theta, speed, size, color, incl, node });
+    }
+
+    // D. Generate Accretion Disk particles
+    const accretionCount = 75;
+    for (let i = 0; i < accretionCount; i++) {
+      const r = 8.5 + Math.random() * 18;
+      const theta = Math.random() * Math.PI * 2;
+      const speed = 0.05 + Math.random() * 0.08;
+      const size = Math.random() * 1.4 + 0.4;
+      const y = (Math.random() - 0.5) * 1.5;
+      
+      const rand = Math.random();
+      const color = rand < 0.45 
+        ? 'rgba(255, 110, 0, ' 
+        : (rand < 0.8 ? 'rgba(255, 205, 0, ' : 'rgba(255, 255, 255, ');
+
+      accretionParticles.push({ r, theta, speed, size, color, y });
     }
 
     // 2. Generate Travel Stars (Depth tunnel background stars)
@@ -524,10 +601,36 @@ export default function GalaxyBackground() {
 
       autoRotAngle += 0.00035;
 
-      const cosX = Math.cos(rotX);
-      const sinX = Math.sin(rotX);
-      const cosY = Math.cos(rotY + autoRotAngle);
-      const sinY = Math.sin(rotY + autoRotAngle);
+      // Wormhole transit state updates
+      const k = transitProgress; // Collapse ratio (0.0 to 1.0)
+      if (transitState === 'collapsing') {
+        transitProgress += 0.038; // Collapses in ~26 frames (~430ms)
+        if (transitProgress >= 1.0) {
+          transitProgress = 1.0;
+
+          // Reposition window at peak collapse
+          window.scrollTo(0, transitTargetScrollY);
+          currentScrollY = transitTargetScrollY;
+          lerpScrollY = transitTargetScrollY;
+
+          transitState = 'recovering';
+        }
+      } else if (transitState === 'recovering') {
+        transitProgress -= 0.038;
+        if (transitProgress <= 0) {
+          transitProgress = 0;
+          transitState = 'idle';
+        }
+      }
+
+      const currentRotX = rotX;
+      // During transit, rotate the camera rapidly to simulate rotational gravity vortex
+      const currentRotY = rotY + autoRotAngle + Math.pow(k, 1.8) * 1.8;
+
+      const cosX = Math.cos(currentRotX);
+      const sinX = Math.sin(currentRotX);
+      const cosY = Math.cos(currentRotY);
+      const sinY = Math.sin(currentRotY);
 
       // Scroll speed damping
       scrollVel *= 0.93;
@@ -537,7 +640,7 @@ export default function GalaxyBackground() {
       // Small bounded vertical drift (clamped to ~55px max via tanh)
       const galaxyScrollOffset = Math.tanh(lerpScrollY * 0.0003) * 55;
 
-      // Compute projected galaxy center position in 3D space
+      // Compute projected black hole position in 3D space
       const bhTempY = -galaxyScrollOffset;
       const bhRy = bhTempY * cosX;
       const bhFinalZ = bhTempY * sinX;
@@ -564,6 +667,14 @@ export default function GalaxyBackground() {
         isSupergiant: boolean;
       }> = [];
 
+      const fgAccretionQueue: Array<{
+        x: number;
+        y: number;
+        size: number;
+        color: string;
+        alpha: number;
+      }> = [];
+
       const fgDustQueue: Array<{
         x: number;
         y: number;
@@ -572,7 +683,8 @@ export default function GalaxyBackground() {
         alpha: number;
       }> = [];
 
-      // Draw background glow nebulae
+      // Draw background glow nebulae (fade them out during collapse)
+      const nebulaFade = (1.0 - k * 0.8);
       const neb1Grad = ctx.createRadialGradient(
         bhX - rotY * 140,
         bhY - rotX * 140,
@@ -581,8 +693,8 @@ export default function GalaxyBackground() {
         bhY - rotX * 140,
         maxRadius * 1.5
       );
-      neb1Grad.addColorStop(0, `rgba(102, 0, 255, 0.08)`);
-      neb1Grad.addColorStop(0.5, `rgba(255, 0, 110, 0.025)`);
+      neb1Grad.addColorStop(0, `rgba(102, 0, 255, ${0.08 * nebulaFade})`);
+      neb1Grad.addColorStop(0.5, `rgba(255, 0, 110, ${0.025 * nebulaFade})`);
       neb1Grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
       ctx.fillStyle = neb1Grad;
       ctx.fillRect(0, 0, width, height);
@@ -595,14 +707,14 @@ export default function GalaxyBackground() {
         bhY + rotX * 130,
         maxRadius * 1.2
       );
-      neb2Grad.addColorStop(0, `rgba(0, 242, 254, 0.06)`);
-      neb2Grad.addColorStop(0.6, `rgba(255, 215, 0, 0.015)`);
+      neb2Grad.addColorStop(0, `rgba(0, 242, 254, ${0.06 * nebulaFade})`);
+      neb2Grad.addColorStop(0.6, `rgba(255, 215, 0, ${0.015 * nebulaFade})`);
       neb2Grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
       ctx.fillStyle = neb2Grad;
       ctx.fillRect(0, 0, width, height);
 
       // ----------------------------------------------------
-      // DRAW LAYER 0: Deep Background Gemini Constellations
+      // DRAW LAYER 0: Deep Background Gemini Constellations (Lighter)
       // ----------------------------------------------------
       ctx.globalCompositeOperation = 'lighter';
       for (let i = 0; i < constellations.length; i++) {
@@ -611,7 +723,8 @@ export default function GalaxyBackground() {
         const ccx = c.relX * width;
         const ccy = c.relY * height;
 
-        const targetZ = c.z;
+        // Project center constellation in 3D (Shifted back by cameraDistance = 250, collapse z towards center)
+        const targetZ = c.z * (1.0 - k * 0.95);
         let rx = ccx * cosY - targetZ * sinY;
         let rz = ccx * sinY + targetZ * cosY;
         let ry = ccy * cosX - rz * sinX;
@@ -632,25 +745,29 @@ export default function GalaxyBackground() {
 
         const projectedStars = c.stars.map((s) => {
           s.phase += c.speed;
-          const localScale = c.scale * scale;
+          // Scale local offsets inward during collapse
+          const localScale = c.scale * scale * (1.0 - k * 0.95);
           const lx = (s.x * cosConst - s.y * sinConst) * localScale;
           const ly = (s.x * sinConst + s.y * cosConst) * localScale;
           
           const rawX = projCX + lx;
           const rawY = projCY + ly;
           const starSize = s.size * scale;
-          const starAlpha = (0.12 + 0.58 * (Math.sin(s.phase) * 0.5 + 0.5));
+          const starAlpha = (0.12 + 0.58 * (Math.sin(s.phase) * 0.5 + 0.5)) * (1.0 - k * 0.8);
+
+          // Apply lensing to deep background stars
+          const lensed = applyLensing(rawX, rawY, k, bhX, bhY, bhNormalizedScale);
 
           return {
-            x: rawX,
-            y: rawY,
+            x: lensed.x,
+            y: lensed.y,
             size: starSize,
-            alpha: starAlpha,
+            alpha: lensed.visible ? starAlpha : 0,
           };
         });
 
         // Draw connections
-        ctx.strokeStyle = `rgba(0, 242, 254, 0.08)`;
+        ctx.strokeStyle = `rgba(0, 242, 254, ${(0.08 * (1.0 - k * 0.9)).toFixed(2)})`;
         ctx.lineWidth = 0.55;
         c.connections.forEach(([startIdx, endIdx]) => {
           const start = projectedStars[startIdx];
@@ -685,9 +802,11 @@ export default function GalaxyBackground() {
       for (let i = 0; i < nebulaClouds.length; i++) {
         const p = nebulaClouds[i];
 
-        p.theta += p.speed;
+        // Angular momentum boost: spin gas clouds faster during collapse
+        const cloudSpinBoost = 1.0 + k * 18;
+        p.theta += p.speed * cloudSpinBoost;
 
-        const currentR = p.r;
+        const currentR = p.r * (1.0 - k * 0.95);
         const x_prime = currentR * Math.cos(p.theta);
         const z_prime = currentR * Math.sin(p.theta);
 
@@ -697,7 +816,8 @@ export default function GalaxyBackground() {
 
         let rx = p.x * cosY - p.z * sinY;
         let rz = p.x * sinY + p.z * cosY;
-        const tempY = p.y - galaxyScrollOffset;
+        // Apply scrolling Y parallax offset
+        const tempY = p.y * (1.0 - k * 0.95) - galaxyScrollOffset;
         let ry = tempY * cosX - rz * sinX;
         let finalZ = tempY * sinX + rz * cosX;
 
@@ -709,10 +829,10 @@ export default function GalaxyBackground() {
 
         if (projX < -p.size || projX > width + p.size || projY < -p.size || projY > height + p.size) continue;
 
-        const size = p.size * scale;
+        const size = p.size * scale * (1.0 - k * 0.92);
         if (size < 2) continue;
 
-        const alpha = 0.045;
+        const alpha = 0.045 * (1.0 - k * 0.7);
 
         if (finalZ > bhFinalZ) {
           const cloudGrad = ctx.createRadialGradient(projX, projY, 0, projX, projY, size);
@@ -730,12 +850,12 @@ export default function GalaxyBackground() {
       }
 
       // ----------------------------------------------------
-      // DRAW LAYER 1.5: Volumetric Galactic Nucleus Glow
+      // DRAW LAYER 1.5: Volumetric Galactic Nucleus Glow (Lighter Blending)
       // ----------------------------------------------------
       const nucleusGlow = ctx.createRadialGradient(bhX, bhY, 0, bhX, bhY, maxRadius * 0.45 * bhNormalizedScale);
-      nucleusGlow.addColorStop(0, 'rgba(255, 240, 215, 0.28)'); // hot core glow
-      nucleusGlow.addColorStop(0.2, 'rgba(255, 175, 90, 0.16)'); // stellar density
-      nucleusGlow.addColorStop(0.55, 'rgba(110, 99, 255, 0.05)'); // violet transition
+      nucleusGlow.addColorStop(0, 'rgba(255, 240, 215, ' + (0.28 * (1.0 - k * 0.8)).toFixed(3) + ')'); // hot core glow
+      nucleusGlow.addColorStop(0.2, 'rgba(255, 175, 90, ' + (0.16 * (1.0 - k * 0.8)).toFixed(3) + ')'); // stellar density
+      nucleusGlow.addColorStop(0.55, 'rgba(110, 99, 255, ' + (0.05 * (1.0 - k * 0.8)).toFixed(3) + ')'); // violet transition
       nucleusGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
       
       ctx.fillStyle = nucleusGlow;
@@ -744,14 +864,16 @@ export default function GalaxyBackground() {
       ctx.fill();
 
       // ----------------------------------------------------
-      // DRAW LAYER 2: Galaxy Particles (Lighter)
+      // DRAW LAYER 2: Galaxy Particles & Accretion Disk (Lighter)
       // ----------------------------------------------------
       for (let i = 0; i < galaxyParticles.length; i++) {
         const p = galaxyParticles[i];
 
-        p.theta += p.speed;
+        // Angular momentum boost: spin galaxy stars faster during collapse
+        const starSpinBoost = 1.0 + k * 22;
+        p.theta += p.speed * starSpinBoost;
 
-        const currentR = p.r;
+        const currentR = p.r * (1.0 - k * 0.95);
         const x_prime = currentR * Math.cos(p.theta);
         const z_prime = currentR * Math.sin(p.theta);
 
@@ -761,7 +883,7 @@ export default function GalaxyBackground() {
 
         let rx = p.x * cosY - p.z * sinY;
         let rz = p.x * sinY + p.z * cosY;
-        const tempY = p.y - galaxyScrollOffset;
+        const tempY = p.y * (1.0 - k * 0.95) - galaxyScrollOffset;
         let ry = tempY * cosX - rz * sinX;
         let finalZ = tempY * sinX + rz * cosX;
 
@@ -780,17 +902,20 @@ export default function GalaxyBackground() {
         const depthFactor = (finalZ + maxRadius) / (maxRadius * 2);
         const extinction = Math.max(0.18, 1.0 - depthFactor * 0.72);
         
-        const alpha = 0.78 * twinkle * extinction;
-        const size = p.size * scale;
+        const alpha = 0.78 * twinkle * extinction * (1.0 - k * 0.55);
+        const size = p.size * scale * (1.0 - k * 0.85);
 
         if (finalZ > bhFinalZ) {
+          const lensed = applyLensing(projX, projY, k, bhX, bhY, bhNormalizedScale);
+          if (!lensed.visible) continue;
+
           if (p.isSupergiant && size > 1.2 && alpha > 0.25) {
-            drawGeminiLogoStar(ctx, projX, projY, size, alpha);
+            drawGeminiLogoStar(ctx, lensed.x, lensed.y, size, alpha);
           } else if (size > 2.5 && alpha > 0.45) {
-            drawStarFlare(ctx, projX, projY, size, p.color, alpha);
+            drawStarFlare(ctx, lensed.x, lensed.y, size, p.color, alpha);
           } else {
             ctx.beginPath();
-            ctx.arc(projX, projY, size, 0, 2 * Math.PI);
+            ctx.arc(lensed.x, lensed.y, size, 0, 2 * Math.PI);
             ctx.fillStyle = p.color + alpha.toFixed(2) + ')';
             ctx.fill();
           }
@@ -806,6 +931,67 @@ export default function GalaxyBackground() {
         }
       }
 
+      // Draw Accretion Disk particles orbiting the Event Horizon
+      for (let i = 0; i < accretionParticles.length; i++) {
+        const p = accretionParticles[i];
+
+        const accretionSpinBoost = 1.0 + k * 28;
+        p.theta += p.speed * accretionSpinBoost;
+        
+        const currentAccretionR = p.r * (1.0 - k * 0.9);
+        const x = currentAccretionR * Math.cos(p.theta);
+        const z = currentAccretionR * Math.sin(p.theta);
+
+        let rx = x * cosY - z * sinY;
+        let rz = x * sinY + z * cosY;
+        const tempY = p.y * (1.0 - k * 0.9) - galaxyScrollOffset;
+        let ry = tempY * cosX - rz * sinX;
+        let finalZ = tempY * sinX + rz * cosX;
+
+        const scale = fov / (fov + finalZ + 250);
+        if (finalZ + 250 < -fov) continue;
+
+        const projX = rx * scale + width / 2;
+        const projY = ry * scale + height / 2;
+
+        const size = p.size * scale * 1.5 * (1.0 + k * 1.8);
+
+        // Relativistic Beaming (Doppler Beaming Effect)
+        const beaming = -Math.cos(p.theta); // ranges from -1 to 1 (left approaching = bright, right receding = dim)
+        const beamAlpha = 0.45 + 0.55 * (beaming * 0.5 + 0.5); // 0.45 to 1.0
+        const baseAlpha = 0.95 * (1.0 - k * 0.25);
+        const alpha = baseAlpha * beamAlpha;
+
+        let particleColor = p.color;
+        if (beaming > 0.4) {
+          particleColor = 'rgba(230, 245, 255, '; // Hot bright white-blue
+        } else if (beaming > 0.0) {
+          particleColor = 'rgba(255, 235, 180, '; // Bright yellow-white
+        } else if (beaming > -0.5) {
+          particleColor = 'rgba(255, 120, 0, ';  // Warm orange
+        } else {
+          particleColor = 'rgba(230, 40, 10, ';   // Cooler crimson/red
+        }
+
+        if (finalZ > bhFinalZ) {
+          const lensed = applyLensing(projX, projY, k, bhX, bhY, bhNormalizedScale);
+          if (!lensed.visible) continue;
+
+          ctx.beginPath();
+          ctx.arc(lensed.x, lensed.y, size, 0, 2 * Math.PI);
+          ctx.fillStyle = particleColor + alpha.toFixed(2) + ')';
+          ctx.fill();
+        } else {
+          fgAccretionQueue.push({
+            x: projX,
+            y: projY,
+            size,
+            color: particleColor,
+            alpha,
+          });
+        }
+      }
+
       // ----------------------------------------------------
       // DRAW LAYER 3: Dark Dust Lanes (Source-over, light-absorbing)
       // ----------------------------------------------------
@@ -813,9 +999,10 @@ export default function GalaxyBackground() {
       for (let i = 0; i < dustParticles.length; i++) {
         const p = dustParticles[i];
 
-        p.theta += p.speed;
+        const dustSpinBoost = 1.0 + k * 22;
+        p.theta += p.speed * dustSpinBoost;
 
-        const currentR = p.r;
+        const currentR = p.r * (1.0 - k * 0.95);
         const x_prime = currentR * Math.cos(p.theta);
         const z_prime = currentR * Math.sin(p.theta);
 
@@ -825,7 +1012,7 @@ export default function GalaxyBackground() {
 
         let rx = p.x * cosY - p.z * sinY;
         let rz = p.x * sinY + p.z * cosY;
-        const tempY = p.y - galaxyScrollOffset;
+        const tempY = p.y * (1.0 - k * 0.95) - galaxyScrollOffset;
         let ry = tempY * cosX - rz * sinX;
         let finalZ = tempY * sinX + rz * cosX;
 
@@ -840,12 +1027,15 @@ export default function GalaxyBackground() {
         const depthFactor = (finalZ + maxRadius) / (maxRadius * 2);
         const extinction = Math.max(0.2, 1.0 - depthFactor * 0.65);
 
-        const size = p.size * scale * 1.45;
-        const alpha = 0.26 * extinction;
+        const size = p.size * scale * 1.45 * (1.0 - k * 0.9);
+        const alpha = 0.26 * extinction * (1.0 - k);
 
         if (finalZ > bhFinalZ) {
+          const lensed = applyLensing(projX, projY, k, bhX, bhY, bhNormalizedScale);
+          if (!lensed.visible) continue;
+
           ctx.beginPath();
-          ctx.arc(projX, projY, size, 0, 2 * Math.PI);
+          ctx.arc(lensed.x, lensed.y, size, 0, 2 * Math.PI);
           ctx.fillStyle = p.color + alpha.toFixed(2) + ')';
           ctx.fill();
         } else {
@@ -860,7 +1050,148 @@ export default function GalaxyBackground() {
       }
 
       // ----------------------------------------------------
-      // DRAW LAYER 4: Draw Foreground Queues (Source-over/Lighter)
+      // DRAW LAYER 4: Lensed Accretion Disk (Background) & Event Horizon
+      // ----------------------------------------------------
+      // Scale horizon and rings exponentially during transit collapse
+      const currentHorizonRadius = (7.5 + Math.pow(k, 3) * Math.max(width, height) * 0.85) * bhNormalizedScale;
+      const currentRingRadius = (11 + Math.pow(k, 3) * Math.max(width, height) * 0.88) * bhNormalizedScale;
+
+      // Draw lensed Einstein Ring (Double-layered for extreme realism)
+      // 1. Soft blue/cyan outer lensing glow
+      ctx.beginPath();
+      ctx.arc(bhX, bhY, currentRingRadius, 0, 2 * Math.PI);
+      ctx.strokeStyle = 'rgba(0, 242, 254, ' + (0.35 * (1.0 - k * 0.6)).toFixed(2) + ')';
+      ctx.lineWidth = (4.0 + k * 15.0) * bhNormalizedScale;
+      ctx.stroke();
+
+      // 2. Core intense white ring
+      ctx.beginPath();
+      ctx.arc(bhX, bhY, currentRingRadius, 0, 2 * Math.PI);
+      ctx.strokeStyle = 'rgba(255, 255, 255, ' + (0.95 * (1.0 - k * 0.6)).toFixed(2) + ')';
+      ctx.lineWidth = (1.5 + k * 8.0) * bhNormalizedScale;
+      ctx.stroke();
+
+      // Draw lensed accretion disk gas rings
+      const fgDiskSegments: Array<{
+        x1: number;
+        y1: number;
+        x2: number;
+        y2: number;
+        color: string;
+        lineWidth: number;
+      }> = [];
+
+      const ringCount = 12;
+      const segmentCount = 72; // every 5 degrees
+
+      for (let rIdx = 0; rIdx < ringCount; rIdx++) {
+        const rFactor = rIdx / (ringCount - 1);
+        const R = (13.5 + rFactor * 28.0) * bhNormalizedScale;
+        const baseWidth = (1.5 + (1.0 - rFactor) * 2.0) * bhNormalizedScale;
+
+        for (let sIdx = 0; sIdx < segmentCount; sIdx++) {
+          const theta1 = (sIdx * 2 * Math.PI) / segmentCount;
+          const theta2 = ((sIdx + 1) * 2 * Math.PI) / segmentCount;
+
+          // Point 1
+          const x1 = R * Math.cos(theta1);
+          const z1 = R * Math.sin(theta1);
+          const rx1 = x1 * cosY - z1 * sinY;
+          const rz1 = x1 * sinY + z1 * cosY;
+          const tempY1 = -galaxyScrollOffset;
+          const projRy1 = tempY1 * cosX - rz1 * sinX;
+          const projFinalZ1 = tempY1 * sinX + rz1 * cosX;
+          const scale1 = fov / (fov + projFinalZ1 + 250);
+          const projX1 = rx1 * scale1 + width / 2;
+          const projY1 = projRy1 * scale1 + height / 2;
+
+          // Point 2
+          const x2 = R * Math.cos(theta2);
+          const z2 = R * Math.sin(theta2);
+          const rx2 = x2 * cosY - z2 * sinY;
+          const rz2 = x2 * sinY + z2 * cosY;
+          const tempY2 = -galaxyScrollOffset;
+          const projRy2 = tempY2 * cosX - rz2 * sinX;
+          const projFinalZ2 = tempY2 * sinX + rz2 * cosX;
+          const scale2 = fov / (fov + projFinalZ2 + 250);
+          const projX2 = rx2 * scale2 + width / 2;
+          const projY2 = projRy2 * scale2 + height / 2;
+
+          // Relativistic Beaming
+          const midTheta = (theta1 + theta2) / 2;
+          const beaming = -Math.cos(midTheta);
+          const beamFactor = 0.45 + 0.55 * (beaming * 0.5 + 0.5);
+          const alpha = (0.28 * (1.0 - k * 0.3) * beamFactor) / (0.7 + rFactor * 0.9);
+
+          let strokeColor = 'rgba(255, 120, 0, ';
+          if (beaming > 0.4) {
+            strokeColor = 'rgba(230, 245, 255, '; // Hot bright white-blue
+          } else if (beaming > 0.0) {
+            strokeColor = 'rgba(255, 235, 180, '; // Bright yellow-white
+          } else if (beaming > -0.5) {
+            strokeColor = 'rgba(255, 120, 0, ';  // Warm orange
+          } else {
+            strokeColor = 'rgba(230, 40, 10, ';   // Cooler crimson/red
+          }
+
+          const colorStr = strokeColor + alpha.toFixed(3) + ')';
+          const lineWidth = baseWidth * (0.8 + 0.4 * beamFactor);
+
+          const midFinalZ = (projFinalZ1 + projFinalZ2) / 2;
+
+          if (midFinalZ > bhFinalZ) {
+            // Background segment: Lens it!
+            const lensed1 = applyLensing(projX1, projY1, k, bhX, bhY, bhNormalizedScale);
+            const lensed2 = applyLensing(projX2, projY2, k, bhX, bhY, bhNormalizedScale);
+
+            if (lensed1.visible && lensed2.visible) {
+              ctx.strokeStyle = colorStr;
+              ctx.lineWidth = lineWidth;
+              ctx.lineCap = 'round';
+              ctx.beginPath();
+              ctx.moveTo(lensed1.x, lensed1.y);
+              ctx.lineTo(lensed2.x, lensed2.y);
+              ctx.stroke();
+            }
+          } else {
+            // Foreground segment: Queue it!
+            fgDiskSegments.push({
+              x1: projX1,
+              y1: projY1,
+              x2: projX2,
+              y2: projY2,
+              color: colorStr,
+              lineWidth: lineWidth,
+            });
+          }
+        }
+      }
+
+      // Event Horizon shadow (pure absolute dark void)
+      ctx.beginPath();
+      ctx.arc(bhX, bhY, currentHorizonRadius, 0, 2 * Math.PI);
+      ctx.fillStyle = '#010103';
+      ctx.fill();
+
+      // Draw Foreground Accretion Disk segments (Layer 4.1)
+      fgDiskSegments.forEach((seg) => {
+        ctx.strokeStyle = seg.color;
+        ctx.lineWidth = seg.lineWidth;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(seg.x1, seg.y1);
+        ctx.lineTo(seg.x2, seg.y2);
+        ctx.stroke();
+      });
+
+      // Mask screen fully at peak collapse to hide page scroll jump
+      if (k > 0.96) {
+        ctx.fillStyle = '#010103';
+        ctx.fillRect(0, 0, width, height);
+      }
+
+      // ----------------------------------------------------
+      // DRAW LAYER 4.5: Draw Foreground Queues (Source-over/Lighter)
       // ----------------------------------------------------
       // A. Draw foreground Nebulae
       ctx.globalCompositeOperation = 'lighter';
@@ -892,7 +1223,16 @@ export default function GalaxyBackground() {
         }
       }
 
-      // C. Draw foreground Dust particles (Source-over)
+      // C. Draw foreground Accretion particles
+      for (let i = 0; i < fgAccretionQueue.length; i++) {
+        const a = fgAccretionQueue[i];
+        ctx.beginPath();
+        ctx.arc(a.x, a.y, a.size, 0, 2 * Math.PI);
+        ctx.fillStyle = a.color + a.alpha.toFixed(2) + ')';
+        ctx.fill();
+      }
+
+      // D. Draw foreground Dust particles (Source-over)
       ctx.globalCompositeOperation = 'source-over';
       for (let i = 0; i < fgDustQueue.length; i++) {
         const d = fgDustQueue[i];
@@ -907,7 +1247,7 @@ export default function GalaxyBackground() {
       // ----------------------------------------------------
       ctx.globalCompositeOperation = 'lighter';
 
-      // A. Draw traveling tunnel stars
+      // A. Draw traveling tunnel stars (with Warp Streaks & Scroll Parallax)
       for (let i = 0; i < fallingStars.length; i++) {
         const s = fallingStars[i];
 
@@ -919,9 +1259,12 @@ export default function GalaxyBackground() {
           s.y = (Math.random() - 0.5) * height * 2.5;
         }
 
-        const tempX = s.x;
-        const tempY = s.y;
-        const tempZ = s.z;
+        // Pull stars into central singularity during wormhole transit
+        const tempX = s.x * (1.0 - k * 0.98);
+        
+        const tempY = s.y * (1.0 - k * 0.98);
+        
+        const tempZ = s.z * (1.0 - k * 0.94);
 
         let rx = tempX * cosY - tempZ * sinY;
         let rz = tempX * sinY + tempZ * cosY;
@@ -937,17 +1280,28 @@ export default function GalaxyBackground() {
         if (projX < 0 || projX > width || projY < 0 || projY > height) continue;
 
         s.twinklePhase += s.twinkleSpeed;
-        const alpha = (0.22 + 0.78 * (Math.sin(s.twinklePhase) * 0.5 + 0.5));
-        const size = s.size * scale;
+        const alpha = (0.22 + 0.78 * (Math.sin(s.twinklePhase) * 0.5 + 0.5)) * (1.0 - k * 0.85);
+        const size = s.size * scale * (1.0 - k * 0.85);
         if (size <= 0.2 || alpha <= 0.05) continue;
 
+        // Apply lensing if the star is behind the black hole!
+        let drawX = projX;
+        let drawY = projY;
+
+        if (finalZ > bhFinalZ) {
+          const lensed = applyLensing(projX, projY, k, bhX, bhY, bhNormalizedScale);
+          if (!lensed.visible) continue;
+          drawX = lensed.x;
+          drawY = lensed.y;
+        }
+
         if (s.isSupergiant && size > 1.2 && alpha > 0.25) {
-          drawGeminiLogoStar(ctx, projX, projY, size, alpha);
+          drawGeminiLogoStar(ctx, drawX, drawY, size, alpha);
         } else if (size > 2.6 && alpha > 0.5) {
-          drawStarFlare(ctx, projX, projY, size, s.color, alpha);
+          drawStarFlare(ctx, drawX, drawY, size, s.color, alpha);
         } else {
           ctx.beginPath();
-          ctx.arc(projX, projY, size, 0, 2 * Math.PI);
+          ctx.arc(drawX, drawY, size, 0, 2 * Math.PI);
           ctx.fillStyle = s.color + alpha.toFixed(2) + ')';
           ctx.fill();
         }
@@ -958,6 +1312,7 @@ export default function GalaxyBackground() {
         const d = cosmicDust[i];
 
         const oldY = d.y;
+        // Scrolling counteracts gravity
         d.y += d.speedY - scrollVel * 0.38;
         d.x += Math.sin(d.twinklePhase + lerpScrollY * 0.003) * d.driftRange * 0.16;
         d.twinklePhase += d.twinkleSpeed;
@@ -970,13 +1325,15 @@ export default function GalaxyBackground() {
           d.x = Math.random() * width;
         }
 
+        // Fade out stardust during scroll
         const scrollFade = Math.max(0, 1.0 - scrollSpeed * 0.8);
-        const alpha = (0.16 + 0.65 * (Math.sin(d.twinklePhase) * 0.5 + 0.5)) * scrollFade;
+        const alpha = (0.16 + 0.65 * (Math.sin(d.twinklePhase) * 0.5 + 0.5)) * (1.0 - k) * scrollFade;
         if (alpha <= 0.02) continue;
 
-        const tempX = d.x;
-        const tempY = d.y;
-        const tempOldY = oldY;
+        // Pull stardust towards black hole during transit collapse
+        const tempX = d.x * (1.0 - k) + bhX * k;
+        const tempY = d.y * (1.0 - k) + bhY * k;
+        const tempOldY = oldY * (1.0 - k) + bhY * k;
 
         ctx.beginPath();
         ctx.moveTo(tempX, tempOldY);
@@ -987,8 +1344,8 @@ export default function GalaxyBackground() {
         ctx.stroke();
       }
 
-      // C. Update & Draw Shooting Stars (Diagonal meteors)
-      if (shootingStars.length < 5 && Math.random() < 0.018) {
+      // C. Update & Draw Shooting Stars (Diagonal meteors responding to transit collapse)
+      if (shootingStars.length < 5 && Math.random() < 0.018 && transitState === 'idle') {
         const startX = Math.random() * width;
         const startY = Math.random() * height * 0.35;
         const speed = 12 + Math.random() * 10;
@@ -1014,6 +1371,7 @@ export default function GalaxyBackground() {
         s.y += s.dy;
         s.life++;
 
+        // Spawn trailing sparks along the path
         if (Math.random() < 0.35) {
           const sparkAngle = Math.random() * Math.PI * 2;
           const sparkSpeed = 0.5 + Math.random() * 1.5;
@@ -1030,34 +1388,38 @@ export default function GalaxyBackground() {
           });
         }
 
-        if (s.life >= s.maxLife) {
-          for (let k = 0; k < 8; k++) {
-            const burstAngle = Math.random() * Math.PI * 2;
-            const burstSpeed = 1.2 + Math.random() * 2.8;
-            meteorSparks.push({
-              x: s.x,
-              y: s.y,
-              dx: s.dx * 0.35 + Math.cos(burstAngle) * burstSpeed,
-              dy: s.dy * 0.35 + Math.sin(burstAngle) * burstSpeed,
-              color: s.color,
-              size: Math.random() * 1.3 + 0.4,
-              alpha: 1.0,
-              life: 0,
-              maxLife: 16 + Math.random() * 16,
-            });
+        if (s.life >= s.maxLife || transitState === 'collapsing') {
+          // Trigger explosion sparks on burnout
+          if (transitState === 'idle') {
+            for (let k = 0; k < 8; k++) {
+              const burstAngle = Math.random() * Math.PI * 2;
+              const burstSpeed = 1.2 + Math.random() * 2.8;
+              meteorSparks.push({
+                x: s.x,
+                y: s.y,
+                dx: s.dx * 0.35 + Math.cos(burstAngle) * burstSpeed,
+                dy: s.dy * 0.35 + Math.sin(burstAngle) * burstSpeed,
+                color: s.color,
+                size: Math.random() * 1.3 + 0.4,
+                alpha: 1.0,
+                life: 0,
+                maxLife: 16 + Math.random() * 16,
+              });
+            }
           }
           shootingStars.splice(i, 1);
           continue;
         }
 
-        const alpha = Math.sin((s.life / s.maxLife) * Math.PI);
+        const alpha = Math.sin((s.life / s.maxLife) * Math.PI) * (1.0 - k);
         if (alpha <= 0.05) continue;
 
-        const tempX = s.x;
-        const tempY = s.y;
+        // Pull coordinates during transit collapse
+        const tempX = s.x * (1.0 - k) + bhX * k;
+        const tempY = s.y * (1.0 - k) + bhY * k;
 
-        const tailX = (s.x - s.dx * (s.length / s.speed));
-        const tailY = (s.y - s.dy * (s.length / s.speed));
+        const tailX = (s.x - s.dx * (s.length / s.speed)) * (1.0 - k) + bhX * k;
+        const tailY = (s.y - s.dy * (s.length / s.speed)) * (1.0 - k) + bhY * k;
 
         const grad = ctx.createLinearGradient(tailX, tailY, tempX, tempY);
         grad.addColorStop(0, s.color + '0)');
@@ -1078,7 +1440,7 @@ export default function GalaxyBackground() {
         ctx.fill();
       }
 
-      // D. Update & Draw Meteor Sparks
+      // D. Update & Draw Meteor Sparks (Sparkle explosion trails)
       for (let i = meteorSparks.length - 1; i >= 0; i--) {
         const sp = meteorSparks[i];
         sp.x += sp.dx;
@@ -1092,11 +1454,12 @@ export default function GalaxyBackground() {
           continue;
         }
 
-        const alpha = sp.alpha * (1.0 - sp.life / sp.maxLife);
+        const alpha = sp.alpha * (1.0 - sp.life / sp.maxLife) * (1.0 - k);
         if (alpha <= 0.05) continue;
 
-        const tempX = sp.x;
-        const tempY = sp.y;
+        // Pull coordinates during transit collapse
+        const tempX = sp.x * (1.0 - k) + bhX * k;
+        const tempY = sp.y * (1.0 - k) + bhY * k;
 
         ctx.beginPath();
         ctx.arc(tempX, tempY, sp.size, 0, 2 * Math.PI);
@@ -1104,33 +1467,35 @@ export default function GalaxyBackground() {
         ctx.fill();
       }
 
-      // E. Draw Cinematic Camera Lens Flare
-      const fx = mouseX - bhX;
-      const fy = mouseY - bhY;
-      const flareElements = [
-        { offset: -0.3, size: 45, color: 'rgba(0, 242, 254, 0.012)' },
-        { offset: -0.15, size: 90, color: 'rgba(110, 99, 255, 0.008)' },
-        { offset: 0.1, size: 18, color: 'rgba(255, 215, 0, 0.016)' },
-        { offset: 0.25, size: 140, color: 'rgba(255, 0, 110, 0.006)' },
-        { offset: 0.42, size: 35, color: 'rgba(0, 255, 198, 0.012)' },
-        { offset: 0.68, size: 70, color: 'rgba(255, 75, 43, 0.008)' },
-        { offset: 0.95, size: 180, color: 'rgba(0, 242, 254, 0.005)' },
-      ];
+      // E. Draw Cinematic Camera Lens Flare (faded out during collapse)
+      if (transitState === 'idle') {
+        const fx = mouseX - bhX;
+        const fy = mouseY - bhY;
+        const flareElements = [
+          { offset: -0.3, size: 45, color: 'rgba(0, 242, 254, 0.012)' },
+          { offset: -0.15, size: 90, color: 'rgba(110, 99, 255, 0.008)' },
+          { offset: 0.1, size: 18, color: 'rgba(255, 215, 0, 0.016)' },
+          { offset: 0.25, size: 140, color: 'rgba(255, 0, 110, 0.006)' },
+          { offset: 0.42, size: 35, color: 'rgba(0, 255, 198, 0.012)' },
+          { offset: 0.68, size: 70, color: 'rgba(255, 75, 43, 0.008)' },
+          { offset: 0.95, size: 180, color: 'rgba(0, 242, 254, 0.005)' },
+        ];
 
-      flareElements.forEach((el) => {
-        const ex = bhX + fx * el.offset;
-        const ey = bhY + fy * el.offset;
+        flareElements.forEach((el) => {
+          const ex = bhX + fx * el.offset;
+          const ey = bhY + fy * el.offset;
 
-        const grad = ctx.createRadialGradient(ex, ey, 0, ex, ey, el.size);
-        grad.addColorStop(0, el.color);
-        grad.addColorStop(0.8, el.color.replace(/[\d.]+\)$/, '0.002)'));
-        grad.addColorStop(1, 'rgba(0,0,0,0)');
+          const grad = ctx.createRadialGradient(ex, ey, 0, ex, ey, el.size);
+          grad.addColorStop(0, el.color);
+          grad.addColorStop(0.8, el.color.replace(/[\d.]+\)$/, '0.002)'));
+          grad.addColorStop(1, 'rgba(0,0,0,0)');
 
-        ctx.fillStyle = grad;
-        ctx.beginPath();
-        ctx.arc(ex, ey, el.size, 0, 2 * Math.PI);
-        ctx.fill();
-      });
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          ctx.arc(ex, ey, el.size, 0, 2 * Math.PI);
+          ctx.fill();
+        });
+      }
 
       ctx.globalCompositeOperation = 'source-over';
       animationId = requestAnimationFrame(render);
@@ -1142,6 +1507,7 @@ export default function GalaxyBackground() {
       cancelAnimationFrame(animationId);
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('trigger-blackhole-transit', handleTransit);
       window.removeEventListener('resize', handleResize);
     };
   }, []);

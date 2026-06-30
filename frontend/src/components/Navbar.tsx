@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaEnvelope } from 'react-icons/fa';
 import { NAV_ITEMS } from '../constants';
@@ -156,16 +156,6 @@ const UFO = ({ isOpen, onClick }: { isOpen: boolean; onClick: () => void }) => {
 
 export default function Navbar({ activeSection }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-
-  // Monitor scroll for header background transitions
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   const handleScrollTo = (id: string) => {
     setIsOpen(false);
