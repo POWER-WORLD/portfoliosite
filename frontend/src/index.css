@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Orbitron:wght@400;500;600;700;800;900&family=Share+Tech+Mono&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&family=Orbitron:wght@400;500;600;700;800;900&family=Share+Tech+Mono&display=swap');
 
 @import "tailwindcss";
 
@@ -15,6 +15,10 @@
 }
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     background-color: #050816;
     color: #ffffff;
@@ -23,39 +27,69 @@
   }
   
   ::selection {
-    background-color: rgba(108, 99, 255, 0.3);
+    background-color: rgba(108, 99, 255, 0.35);
     color: #ffffff;
+  }
+}
+
+/* Custom Keyframe Animations */
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes floatSlow {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.75;
+    transform: scale(1.08);
   }
 }
 
 /* Custom Utilities for Premium Glassmorphism & Effects */
 .glass-panel {
   background: rgba(255, 255, 255, 0.02);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .glass-panel-hover {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .glass-panel-hover:hover {
   background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(108, 99, 255, 0.3);
-  box-shadow: 0 0 25px rgba(108, 99, 255, 0.15);
-  transform: translateY(-4px);
+  border-color: rgba(108, 99, 255, 0.35);
+  box-shadow: 0 0 30px rgba(108, 99, 255, 0.2);
+  transform: translateY(-5px);
 }
 
 .text-glow {
-  text-shadow: 0 0 10px rgba(108, 99, 255, 0.5);
+  text-shadow: 0 0 12px rgba(108, 99, 255, 0.6);
 }
 
 .text-glow-secondary {
-  text-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
+  text-shadow: 0 0 12px rgba(0, 229, 255, 0.6);
 }
 
 .border-glow {
-  box-shadow: 0 0 15px rgba(108, 99, 255, 0.2);
+  box-shadow: 0 0 20px rgba(108, 99, 255, 0.25);
 }
 
 /* Hide scrollbar */
@@ -90,11 +124,11 @@ html.lenis, html.lenis body {
 
 /* Custom Hologram and Cyberpunk styling */
 .hologram-panel {
-  background: rgba(5, 8, 22, 0.9);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(0, 229, 255, 0.25);
-  box-shadow: 0 0 25px rgba(0, 229, 255, 0.15), inset 0 0 15px rgba(0, 229, 255, 0.08);
+  background: rgba(5, 8, 22, 0.92);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  box-shadow: 0 0 30px rgba(0, 229, 255, 0.2), inset 0 0 20px rgba(0, 229, 255, 0.1);
 }
 
 .hologram-panel::before {
@@ -115,11 +149,11 @@ html.lenis, html.lenis body {
 
 /* Pulsing alien engine glows */
 .alien-glow {
-  filter: drop-shadow(0 0 8px rgba(57, 255, 20, 0.7));
+  filter: drop-shadow(0 0 8px rgba(57, 255, 20, 0.75));
 }
 
 .cyan-glow {
-  filter: drop-shadow(0 0 8px rgba(0, 229, 255, 0.7));
+  filter: drop-shadow(0 0 8px rgba(0, 229, 255, 0.75));
 }
 
 .alien-text-glow {
@@ -129,4 +163,3 @@ html.lenis, html.lenis body {
 .cyan-text-glow {
   text-shadow: 0 0 8px rgba(0, 229, 255, 0.6);
 }
-

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaAward, FaExternalLinkAlt, FaTimes } from 'react-icons/fa';
-import { CERTIFICATES_DATA, type Certificate } from '../constants';
+import { type Certificate } from '../constants';
 
 interface CertificatesProps {
   data?: Certificate[];
@@ -9,7 +9,11 @@ interface CertificatesProps {
 
 export default function Certificates({ data }: CertificatesProps) {
   const [selectedCert, setSelectedCert] = useState<Certificate | null>(null);
-  const certs = data && data.length > 0 ? data : CERTIFICATES_DATA;
+  const certs = data && data.length > 0 ? data : [];
+
+  if (certs.length === 0) {
+    return null;
+  }
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -53,21 +57,22 @@ export default function Certificates({ data }: CertificatesProps) {
           <motion.div
             key={idx}
             variants={cardVariants}
+            whileHover={{ y: -6, transition: { duration: 0.3 } }}
             onClick={() => setSelectedCert(cert)}
-            className="glass-panel p-8 rounded-3xl cursor-pointer group hover:border-secondary/40 hover:shadow-[0_0_25px_rgba(0,229,255,0.05)] transition-all duration-500 flex flex-col justify-between items-start text-left relative overflow-hidden"
+            className="glass-panel p-6 sm:p-8 rounded-3xl cursor-pointer group hover:border-secondary/40 hover:shadow-[0_0_25px_rgba(0,229,255,0.1)] transition-all duration-500 flex flex-col justify-between items-start text-left relative overflow-hidden"
           >
             {/* Background vector glow */}
-            <div className="absolute -right-12 -top-12 w-24 h-24 bg-secondary/5 rounded-full blur-2xl group-hover:bg-secondary/10 transition-all duration-500" />
+            <div className="absolute -right-12 -top-12 w-24 h-24 bg-secondary/5 rounded-full blur-2xl group-hover:bg-secondary/15 transition-all duration-500" />
 
-            <div className="space-y-6 w-full">
+            <div className="space-y-6 w-full relative z-10">
               {/* Badge Icon */}
-              <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/[0.04] text-secondary group-hover:text-accent group-hover:border-accent/30 transition-all duration-500 w-fit text-2xl">
+              <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06] text-secondary group-hover:text-accent group-hover:border-accent/30 transition-all duration-500 w-fit text-2xl">
                 <FaAward />
               </div>
 
               {/* Text info */}
               <div className="space-y-2">
-                <span className="text-[10px] font-bold tracking-widest text-gray-500 uppercase">
+                <span className="text-[10px] font-bold tracking-widest text-gray-400 uppercase font-mono">
                   {cert.organization}
                 </span>
                 <h3 className="font-display font-bold text-lg text-white group-hover:text-glow-secondary transition-all duration-300 leading-snug">
@@ -77,7 +82,7 @@ export default function Certificates({ data }: CertificatesProps) {
             </div>
 
             {/* Card Footer (Date) */}
-            <div className="w-full flex items-center justify-between mt-8 pt-4 border-t border-white/[0.04] text-xs font-mono text-gray-500">
+            <div className="w-full flex items-center justify-between mt-8 pt-4 border-t border-white/[0.06] text-xs font-mono text-gray-400 relative z-10">
               <span>{cert.date}</span>
               <span className="text-secondary opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-1.5 font-sans font-semibold">
                 View Credentials <FaExternalLinkAlt className="text-[10px]" />
@@ -106,7 +111,7 @@ export default function Certificates({ data }: CertificatesProps) {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
               transition={{ type: 'spring' as const, stiffness: 300, damping: 25 }}
-              className="relative w-full max-w-2xl glass-panel rounded-3xl p-6 md:p-10 text-center overflow-hidden z-10 shadow-[0_0_50px_rgba(108,99,255,0.15)]"
+              className="relative w-full max-w-2xl glass-panel rounded-3xl p-6 md:p-10 text-center overflow-hidden z-10 shadow-[0_0_50px_rgba(108,99,255,0.2)]"
             >
               {/* Close Button */}
               <button
@@ -136,17 +141,17 @@ export default function Certificates({ data }: CertificatesProps) {
                     </h3>
                   </div>
 
-                  <p className="text-sm text-gray-400 font-light max-w-md mx-auto leading-relaxed">
+                  <p className="text-sm text-gray-300 font-light max-w-md mx-auto leading-relaxed">
                     This document certifies that the individual has successfully completed all coursework, assignments, and examinations required by the issuing organization.
                   </p>
 
-                  <div className="grid grid-cols-2 gap-4 max-w-sm mx-auto pt-4 text-xs font-mono text-gray-500">
+                  <div className="grid grid-cols-2 gap-4 max-w-sm mx-auto pt-4 text-xs font-mono text-gray-400">
                     <div className="border-r border-white/[0.06] pr-2">
-                      <span className="block text-[10px] text-gray-600 uppercase tracking-widest mb-1">Organization</span>
+                      <span className="block text-[10px] text-gray-500 uppercase tracking-widest mb-1">Organization</span>
                       <span className="text-white font-sans font-semibold">{selectedCert.organization}</span>
                     </div>
                     <div className="pl-2">
-                      <span className="block text-[10px] text-gray-600 uppercase tracking-widest mb-1">Issue Date</span>
+                      <span className="block text-[10px] text-gray-500 uppercase tracking-widest mb-1">Issue Date</span>
                       <span className="text-white font-sans font-semibold">{selectedCert.date}</span>
                     </div>
                   </div>
@@ -155,15 +160,17 @@ export default function Certificates({ data }: CertificatesProps) {
 
               {/* Actions Footer */}
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
-                <a
-                  href={selectedCert.credentialUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-accent to-secondary text-bg-dark font-bold tracking-wider hover:shadow-[0_0_15px_rgba(108,99,255,0.3)] transition-all duration-300 text-sm"
-                >
-                  Verify Credential
-                  <FaExternalLinkAlt className="text-xs" />
-                </a>
+                {selectedCert.credentialUrl && selectedCert.credentialUrl !== '#' && (
+                  <a
+                    href={selectedCert.credentialUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-accent to-secondary text-bg-dark font-bold tracking-wider hover:shadow-[0_0_15px_rgba(108,99,255,0.3)] transition-all duration-300 text-sm"
+                  >
+                    Verify Credential
+                    <FaExternalLinkAlt className="text-xs" />
+                  </a>
+                )}
                 <button
                   onClick={() => setSelectedCert(null)}
                   className="w-full sm:w-auto px-6 py-3 rounded-full border border-white/10 hover:border-white/20 bg-white/[0.01] text-gray-300 hover:text-white font-semibold text-sm transition-all duration-300 cursor-pointer"

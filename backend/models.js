@@ -12,7 +12,7 @@ const PersonalInfoSchema = new mongoose.Schema({
 
 // About Schema
 const AboutSchema = new mongoose.Schema({
-  story: { type: String, required: true },
+  story: { type: String, default: '' },
   highlights: [{
     title: { type: String, required: true },
     desc: { type: String, required: true }
@@ -21,7 +21,7 @@ const AboutSchema = new mongoose.Schema({
     degree: { type: String, required: true },
     school: { type: String, required: true },
     year: { type: String, required: true },
-    description: { type: String }
+    description: { type: String, default: '' }
   }]
 }, { timestamps: true });
 

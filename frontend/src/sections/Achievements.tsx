@@ -1,6 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { ACHIEVEMENTS_DATA } from '../constants';
 
 interface CounterProps {
   value: number;
@@ -59,7 +58,11 @@ interface AchievementsProps {
 }
 
 export default function Achievements({ data }: AchievementsProps) {
-  const stats = data && data.length > 0 ? data : ACHIEVEMENTS_DATA;
+  const stats = data && data.length > 0 ? data : [];
+
+  if (stats.length === 0) {
+    return null;
+  }
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -86,16 +89,17 @@ export default function Achievements({ data }: AchievementsProps) {
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: '-10% 0px' }}
-        className="grid grid-cols-2 lg:grid-cols-4 gap-8 justify-center items-center"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 justify-center items-center"
       >
         {stats.map((stat, idx) => (
           <motion.div
             key={idx}
             variants={itemVariants}
-            className="glass-panel p-8 rounded-3xl text-center flex flex-col items-center justify-center relative overflow-hidden group hover:border-accent/40 transition-all duration-500 hover:-translate-y-1"
+            whileHover={{ y: -5, scale: 1.02, transition: { duration: 0.3 } }}
+            className="glass-panel p-6 sm:p-8 rounded-3xl text-center flex flex-col items-center justify-center relative overflow-hidden group hover:border-accent/40 transition-all duration-500 hover:shadow-[0_0_25px_rgba(108,99,255,0.15)]"
           >
             {/* Soft backdrop blur spot */}
-            <div className="absolute inset-0 bg-gradient-to-br from-white/[0.01] to-transparent pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent pointer-events-none" />
 
             {/* Counter value */}
             <div className="font-display font-black text-4xl md:text-5xl lg:text-6xl text-white tracking-tight flex items-center justify-center">
@@ -106,7 +110,7 @@ export default function Achievements({ data }: AchievementsProps) {
             </div>
 
             {/* Sub text label */}
-            <span className="text-xs md:text-sm text-gray-500 uppercase tracking-widest font-bold mt-3 max-w-[150px] leading-relaxed">
+            <span className="text-xs md:text-sm text-gray-400 uppercase tracking-widest font-bold mt-3 max-w-[150px] leading-relaxed">
               {stat.label}
             </span>
           </motion.div>

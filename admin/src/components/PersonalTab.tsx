@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { adminApi } from '../api';
 
 interface PersonalTabProps {
@@ -32,6 +32,26 @@ export default function PersonalTab({ initialInfo, initialAbout, onRefresh }: Pe
   const [successMsg, setSuccessMsg] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
+  // Sync state when props load or change
+  useEffect(() => {
+    if (initialInfo) {
+      setName(initialInfo.name || '');
+      setTitle(initialInfo.title || '');
+      setTagline(initialInfo.tagline || '');
+      setLocation(initialInfo.location || '');
+      setEmail(initialInfo.email || '');
+      setResumeUrl(initialInfo.resumeUrl || '');
+    }
+  }, [initialInfo]);
+
+  useEffect(() => {
+    if (initialAbout) {
+      setStory(initialAbout.story || '');
+      setHighlights(initialAbout.highlights || []);
+      setEducation(initialAbout.education || []);
+    }
+  }, [initialAbout]);
+
   const savePersonalInfo = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -39,7 +59,7 @@ export default function PersonalTab({ initialInfo, initialAbout, onRefresh }: Pe
     setErrorMsg('');
     try {
       await adminApi.updatePersonalInfo({ name, title, tagline, location, email, resumeUrl });
-      setSuccessMsg('Personal Info updated successfully!');
+      setSuccessMsg('Personal Core Profile saved successfully!');
       onRefresh();
     } catch (err: any) {
       setErrorMsg(err.message || 'Failed to update personal info.');
@@ -55,7 +75,7 @@ export default function PersonalTab({ initialInfo, initialAbout, onRefresh }: Pe
     setErrorMsg('');
     try {
       await adminApi.updateAbout({ story, highlights, education });
-      setSuccessMsg('About story and academic details updated successfully!');
+      setSuccessMsg('Biography & Academic Details updated successfully!');
       onRefresh();
     } catch (err: any) {
       setErrorMsg(err.message || 'Failed to update about details.');
@@ -78,7 +98,7 @@ export default function PersonalTab({ initialInfo, initialAbout, onRefresh }: Pe
   // Add/remove education helpers
   const addEducation = () => {
     if (!newEdu.degree.trim() || !newEdu.school.trim() || !newEdu.year.trim()) return;
-    setEducation([...education, newEdu]);
+    setEducation([...education, { ...newEdu }]);
     setNewEdu({ degree: '', school: '', year: '', description: '' });
   };
 
@@ -119,11 +139,11 @@ export default function PersonalTab({ initialInfo, initialAbout, onRefresh }: Pe
           <div className="form-row">
             <div className="form-group">
               <label>Location</label>
-              <input type="text" value={location} onChange={(e) => setLocation(e.target.value)} required />
+              <input type="text" value={location} onChange={(e) => setLocation(e.target.value)} />
             </div>
             <div className="form-group">
               <label>Contact Email</label>
-              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
             </div>
             <div className="form-group">
               <label>Resume Download URL</label>
@@ -132,7 +152,7 @@ export default function PersonalTab({ initialInfo, initialAbout, onRefresh }: Pe
           </div>
 
           <button type="submit" className="btn btn-primary" disabled={loading}>
-            Save Core Profile
+            {loading ? 'Saving...' : 'Save Core Profile'}
           </button>
         </form>
       </div>
@@ -143,12 +163,12 @@ export default function PersonalTab({ initialInfo, initialAbout, onRefresh }: Pe
         <form onSubmit={saveAboutStory} className="space-y-6">
           <div className="form-group">
             <label>My Story / About Paragraph</label>
-            <textarea value={story} onChange={(e) => setStory(e.target.value)} rows={6} required />
+            <textarea value={story} onChange={(e) => setStory(e.target.value)} rows={5} placeholder="Write your background, interests, and engineering approach..." />
           </div>
 
           {/* Highlights Editor */}
           <div style={{ marginBottom: '2rem' }}>
-            <label>Key Highlights / Metric Cards</label>
+            <label style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-white)', marginBottom: '0.75rem' }}>Key Highlights / Metric Cards</label>
             
             {/* Added list */}
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', marginBottom: '1rem' }}>
@@ -190,7 +210,7 @@ export default function PersonalTab({ initialInfo, initialAbout, onRefresh }: Pe
 
           {/* Education Timeline Editor */}
           <div style={{ marginBottom: '2rem' }}>
-            <label>Education & Academic Milestones</label>
+            <label style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-white)', marginBottom: '0.75rem' }}>Education & Academic Milestones</label>
             
             {/* Added list */}
             <div className="data-table-container" style={{ marginBottom: '1rem' }}>
@@ -259,7 +279,7 @@ export default function PersonalTab({ initialInfo, initialAbout, onRefresh }: Pe
           </div>
 
           <button type="submit" className="btn btn-primary" disabled={loading}>
-            Save Biography & Timeline Details
+            {loading ? 'Saving...' : 'Save Biography & Academic Details'}
           </button>
         </form>
       </div>

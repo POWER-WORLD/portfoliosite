@@ -6,13 +6,13 @@ import { submitContactMessage } from '../services/api';
 
 interface ContactProps {
   personalInfo?: {
-    email: string;
-    location: string;
+    email?: string;
+    location?: string;
   };
 }
 
 export default function Contact({ personalInfo }: ContactProps) {
-  const profile = personalInfo && personalInfo.email ? personalInfo : PERSONAL_INFO;
+  const profile = personalInfo && (personalInfo.email || personalInfo.location) ? personalInfo : PERSONAL_INFO;
 
   const [formState, setFormState] = useState({
     name: '',
@@ -68,7 +68,7 @@ export default function Contact({ personalInfo }: ContactProps) {
       if (success) {
         setIsSuccess(true);
         setFormState({ name: '', email: '', subject: '', message: '' });
-        setTimeout(() => setIsSuccess(false), 5000); // hide success alert after 5s
+        setTimeout(() => setIsSuccess(false), 5000);
       } else {
         setErrorMessage('Failed to transmit message. Please verify your connection.');
       }
@@ -115,54 +115,57 @@ export default function Contact({ personalInfo }: ContactProps) {
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: '-10% 0px' }}
-        className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-stretch"
+        className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-stretch"
       >
         {/* Left Column: Personal info */}
-        <div className="lg:col-span-5 flex flex-col justify-between space-y-12">
+        <div className="lg:col-span-5 flex flex-col justify-between space-y-8 lg:space-y-12">
           <div className="space-y-8">
             <motion.div variants={itemVariants} className="space-y-4">
               <h3 className="font-display font-bold text-2xl md:text-3xl">
                 Let's construct something epic.
               </h3>
-              <p className="text-gray-400 font-light leading-relaxed max-w-sm">
-                Have a proposal, an opening, or want to discuss frontend architectures? Feel free to reach out.
+              <p className="text-gray-300 font-light leading-relaxed max-w-sm">
+                Have a proposal, an opening, or want to discuss project architectures? Feel free to reach out.
               </p>
             </motion.div>
 
             {/* Info Items */}
             <div className="space-y-6">
-              <motion.div variants={itemVariants} className="flex items-center gap-4 group">
-                <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/[0.04] text-accent group-hover:text-secondary group-hover:border-secondary/30 transition-all duration-300 text-lg">
-                  <FaEnvelope />
-                </div>
-                <div>
-                  <span className="block text-[10px] text-gray-500 uppercase tracking-wider font-semibold">Email</span>
-                  <a href={`mailto:${profile.email}`} className="text-white hover:text-accent font-semibold transition-colors duration-300">
-                    {profile.email}
-                  </a>
-                </div>
-              </motion.div>
+              {profile.email && (
+                <motion.div variants={itemVariants} className="flex items-center gap-4 group">
+                  <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06] text-accent group-hover:text-secondary group-hover:border-secondary/30 transition-all duration-300 text-lg">
+                    <FaEnvelope />
+                  </div>
+                  <div>
+                    <span className="block text-[10px] text-gray-400 uppercase tracking-wider font-semibold">Email</span>
+                    <a href={`mailto:${profile.email}`} className="text-white hover:text-accent font-semibold transition-colors duration-300">
+                      {profile.email}
+                    </a>
+                  </div>
+                </motion.div>
+              )}
 
-              <motion.div variants={itemVariants} className="flex items-center gap-4 group">
-                <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/[0.04] text-secondary group-hover:text-accent group-hover:border-accent/30 transition-all duration-300 text-lg">
-                  <FaMapMarkerAlt />
-                </div>
-                <div>
-                  <span className="block text-[10px] text-gray-500 uppercase tracking-wider font-semibold">Location</span>
-                  <span className="text-white font-semibold">{profile.location}</span>
-                </div>
-              </motion.div>
+              {profile.location && (
+                <motion.div variants={itemVariants} className="flex items-center gap-4 group">
+                  <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06] text-secondary group-hover:text-accent group-hover:border-accent/30 transition-all duration-300 text-lg">
+                    <FaMapMarkerAlt />
+                  </div>
+                  <div>
+                    <span className="block text-[10px] text-gray-400 uppercase tracking-wider font-semibold">Location</span>
+                    <span className="text-white font-semibold">{profile.location}</span>
+                  </div>
+                </motion.div>
+              )}
             </div>
           </div>
 
-
           {/* Social icons */}
-          <motion.div variants={itemVariants} className="flex items-center gap-4 pt-6">
+          <motion.div variants={itemVariants} className="flex items-center gap-4 pt-4">
             <a
               href="https://github.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="p-4 rounded-2xl border border-white/[0.04] bg-white/[0.01] hover:border-accent/30 hover:text-accent hover:shadow-[0_0_15px_rgba(108,99,255,0.15)] text-gray-400 hover:text-white transition-all duration-300 text-xl"
+              className="p-4 rounded-2xl border border-white/[0.06] bg-white/[0.02] hover:border-accent/40 hover:text-accent hover:shadow-[0_0_15px_rgba(108,99,255,0.2)] text-gray-400 hover:text-white transition-all duration-300 text-xl"
               aria-label="GitHub"
             >
               <FaGithub />
@@ -171,7 +174,7 @@ export default function Contact({ personalInfo }: ContactProps) {
               href="https://linkedin.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="p-4 rounded-2xl border border-white/[0.04] bg-white/[0.01] hover:border-secondary/30 hover:text-secondary hover:shadow-[0_0_15px_rgba(0,229,255,0.15)] text-gray-400 hover:text-white transition-all duration-300 text-xl"
+              className="p-4 rounded-2xl border border-white/[0.06] bg-white/[0.02] hover:border-secondary/40 hover:text-secondary hover:shadow-[0_0_15px_rgba(0,229,255,0.2)] text-gray-400 hover:text-white transition-all duration-300 text-xl"
               aria-label="LinkedIn"
             >
               <FaLinkedin />
@@ -182,7 +185,7 @@ export default function Contact({ personalInfo }: ContactProps) {
         {/* Right Column: Glassmorphic form */}
         <motion.div
           variants={itemVariants}
-          className="lg:col-span-7 glass-panel p-8 md:p-10 rounded-3xl relative overflow-hidden"
+          className="lg:col-span-7 glass-panel p-6 sm:p-8 md:p-10 rounded-3xl relative overflow-hidden"
         >
           {/* Subtle decoration blur */}
           <div className="absolute -bottom-16 -right-16 w-32 h-32 bg-accent/5 rounded-full blur-3xl pointer-events-none" />
@@ -191,7 +194,7 @@ export default function Contact({ personalInfo }: ContactProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Name */}
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+                <label className="text-xs font-semibold text-gray-300 uppercase tracking-wide">
                   Name
                 </label>
                 <input
@@ -200,16 +203,16 @@ export default function Contact({ personalInfo }: ContactProps) {
                   value={formState.name}
                   onChange={handleInputChange}
                   className={`w-full px-4 py-3 rounded-2xl bg-white/[0.02] border focus:bg-white/[0.04] text-white focus:outline-none transition-all duration-300 ${
-                    errors.name ? 'border-red-500/50 focus:border-red-500' : 'border-white/10 focus:border-accent focus:shadow-[0_0_12px_rgba(108,99,255,0.15)]'
+                    errors.name ? 'border-red-500/50 focus:border-red-500' : 'border-white/10 focus:border-accent focus:shadow-[0_0_12px_rgba(108,99,255,0.2)]'
                   }`}
-                  placeholder="John Doe"
+                  placeholder="Your Name"
                 />
                 {errors.name && <p className="text-xs text-red-400 mt-1">{errors.name}</p>}
               </div>
 
               {/* Email */}
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+                <label className="text-xs font-semibold text-gray-300 uppercase tracking-wide">
                   Email
                 </label>
                 <input
@@ -218,9 +221,9 @@ export default function Contact({ personalInfo }: ContactProps) {
                   value={formState.email}
                   onChange={handleInputChange}
                   className={`w-full px-4 py-3 rounded-2xl bg-white/[0.02] border focus:bg-white/[0.04] text-white focus:outline-none transition-all duration-300 ${
-                    errors.email ? 'border-red-500/50 focus:border-red-500' : 'border-white/10 focus:border-accent focus:shadow-[0_0_12px_rgba(108,99,255,0.15)]'
+                    errors.email ? 'border-red-500/50 focus:border-red-500' : 'border-white/10 focus:border-accent focus:shadow-[0_0_12px_rgba(108,99,255,0.2)]'
                   }`}
-                  placeholder="john@example.com"
+                  placeholder="your.email@example.com"
                 />
                 {errors.email && <p className="text-xs text-red-400 mt-1">{errors.email}</p>}
               </div>
@@ -228,7 +231,7 @@ export default function Contact({ personalInfo }: ContactProps) {
 
             {/* Subject */}
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+              <label className="text-xs font-semibold text-gray-300 uppercase tracking-wide">
                 Subject
               </label>
               <input
@@ -237,7 +240,7 @@ export default function Contact({ personalInfo }: ContactProps) {
                 value={formState.subject}
                 onChange={handleInputChange}
                 className={`w-full px-4 py-3 rounded-2xl bg-white/[0.02] border focus:bg-white/[0.04] text-white focus:outline-none transition-all duration-300 ${
-                  errors.subject ? 'border-red-500/50 focus:border-red-500' : 'border-white/10 focus:border-accent focus:shadow-[0_0_12px_rgba(108,99,255,0.15)]'
+                  errors.subject ? 'border-red-500/50 focus:border-red-500' : 'border-white/10 focus:border-accent focus:shadow-[0_0_12px_rgba(108,99,255,0.2)]'
                 }`}
                 placeholder="Collaboration Opportunity"
               />
@@ -246,7 +249,7 @@ export default function Contact({ personalInfo }: ContactProps) {
 
             {/* Message */}
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+              <label className="text-xs font-semibold text-gray-300 uppercase tracking-wide">
                 Message
               </label>
               <textarea
@@ -255,7 +258,7 @@ export default function Contact({ personalInfo }: ContactProps) {
                 onChange={handleInputChange}
                 rows={5}
                 className={`w-full px-4 py-3 rounded-2xl bg-white/[0.02] border focus:bg-white/[0.04] text-white focus:outline-none transition-all duration-300 resize-none ${
-                  errors.message ? 'border-red-500/50 focus:border-red-500' : 'border-white/10 focus:border-accent focus:shadow-[0_0_12px_rgba(108,99,255,0.15)]'
+                  errors.message ? 'border-red-500/50 focus:border-red-500' : 'border-white/10 focus:border-accent focus:shadow-[0_0_12px_rgba(108,99,255,0.2)]'
                 }`}
                 placeholder="Tell me about your project..."
               />

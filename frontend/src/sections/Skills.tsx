@@ -1,5 +1,4 @@
 import { motion } from 'framer-motion';
-import { SKILL_CATEGORIES } from '../constants';
 import * as FaIcons from 'react-icons/fa';
 
 interface Skill {
@@ -26,7 +25,11 @@ function getIconComponent(icon: any) {
 }
 
 export default function Skills({ data }: SkillsProps) {
-  const categories = data && data.length > 0 ? data : SKILL_CATEGORIES;
+  const categories = data && data.length > 0 ? data : [];
+
+  if (categories.length === 0) {
+    return null;
+  }
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -72,11 +75,15 @@ export default function Skills({ data }: SkillsProps) {
             <motion.div
               key={catIdx}
               variants={cardVariants}
-              className="glass-panel p-8 rounded-3xl relative overflow-hidden group hover:border-accent/40 transition-all duration-500 hover:-translate-y-1"
+              whileHover={{ scale: 1.02, transition: { duration: 0.3 } }}
+              className="glass-panel p-6 sm:p-8 rounded-3xl relative overflow-hidden group hover:border-accent/40 transition-all duration-500 hover:shadow-[0_0_25px_rgba(108,99,255,0.15)]"
             >
+              {/* Background Accent Glow */}
+              <div className="absolute top-0 right-0 w-32 h-32 bg-accent/5 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
               {/* Top Row: Icon + Title */}
-              <div className="flex items-center gap-4 mb-8">
-                <div className="p-3.5 rounded-2xl bg-white/[0.02] border border-white/[0.04] text-accent group-hover:text-secondary group-hover:border-secondary/30 transition-all duration-500 text-xl">
+              <div className="flex items-center gap-4 mb-8 relative z-10">
+                <div className="p-3.5 rounded-2xl bg-white/[0.02] border border-white/[0.06] text-accent group-hover:text-secondary group-hover:border-secondary/30 transition-all duration-500 text-xl">
                   <Icon />
                 </div>
                 <h3 className="font-display font-bold text-xl text-white group-hover:text-glow transition-all duration-300">
@@ -85,26 +92,26 @@ export default function Skills({ data }: SkillsProps) {
               </div>
 
               {/* Progress bars list */}
-              <div className="space-y-6">
-                {category.skills.map((skill, skillIdx) => (
+              <div className="space-y-6 relative z-10">
+                {category.skills?.map((skill, skillIdx) => (
                   <div key={skillIdx} className="space-y-2">
                     <div className="flex justify-between items-center text-sm font-medium">
                       <span className="text-gray-300 group-hover:text-white transition-colors duration-300">
                         {skill.name}
                       </span>
-                      <span className="text-secondary font-mono">
+                      <span className="text-secondary font-mono font-semibold">
                         {skill.level}%
                       </span>
                     </div>
 
                     {/* Progress track */}
-                    <div className="w-full h-1.5 rounded-full bg-white/[0.04] overflow-hidden">
+                    <div className="w-full h-2 rounded-full bg-white/[0.04] overflow-hidden p-0.5 border border-white/[0.02]">
                       <motion.div
                         initial={{ width: 0 }}
                         whileInView={{ width: `${skill.level}%` }}
                         viewport={{ once: true }}
                         transition={{ duration: 1.2, ease: 'easeOut' }}
-                        className="h-full bg-gradient-to-r from-accent to-secondary rounded-full"
+                        className="h-full bg-gradient-to-r from-accent via-secondary to-accent rounded-full shadow-[0_0_10px_rgba(0,229,255,0.5)]"
                       />
                     </div>
                   </div>
@@ -117,4 +124,3 @@ export default function Skills({ data }: SkillsProps) {
     </section>
   );
 }
-
