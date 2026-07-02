@@ -1,4 +1,10 @@
-const API_BASE_URL = 'http://localhost:5000/api';
+const base = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+// Automatically handle trailing slashes and ensure /api endpoint is present
+let tempBase = base.endsWith('/') ? base.slice(0, -1) : base;
+if (!tempBase.endsWith('/api')) {
+  tempBase += '/api';
+}
+const API_BASE_URL = tempBase;
 
 let portfolioPromise: Promise<any> | null = null;
 

@@ -172,9 +172,9 @@ const ACHIEVEMENTS_DATA = [
 ];
 
 async function seed() {
-  const mongoUri = process.env.MONGO_DB;
+  const mongoUri = process.env.MONGO_DB || process.env.MONGODB_URI;
   if (!mongoUri) {
-    console.error('MONGO_DB environment variable not set.');
+    console.error('Neither MONGO_DB nor MONGODB_URI environment variable is set.');
     process.exit(1);
   }
 

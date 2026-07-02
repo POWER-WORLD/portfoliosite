@@ -1,0 +1,52 @@
+services:
+  # 1. Backend Web Service
+  - type: web
+    name: portfolio-backend
+    env: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: MONGO_DB
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: PORT
+        value: 5000
+      - key: ALLOWED_ORIGINS
+        value: '*'
+
+  # 2. Frontend Static Site
+  - type: static
+    name: portfolio-frontend
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    routes:
+      - src: /*
+        dest: /index.html
+    envVars:
+      - key: VITE_API_BASE_URL
+        fromService:
+          type: web
+          name: portfolio-backend
+          property: host
+
+  # 3. Admin Panel Static Site
+  - type: static
+    name: portfolio-admin
+    rootDir: admin
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    routes:
+      - src: /*
+        dest: /index.html
+    envVars:
+      - key: VITE_API_BASE_URL
+        fromService:
+          type: web
+          name: portfolio-backend
+          property: host
