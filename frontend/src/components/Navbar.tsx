@@ -7,6 +7,45 @@ interface NavbarProps {
   activeSection: string;
 }
 
+// Preset wave gradient color themes applied to each menu item for maximum visual animation
+const NAV_ITEM_THEMES = [
+  // 1. HOME: Dynamic Cyan -> Indigo -> Fuchsia Wave
+  {
+    gradient: 'from-cyan-400 via-indigo-300 to-fuchsia-400',
+    dropShadow: 'drop-shadow-[0_0_10px_rgba(0,229,255,0.7)]',
+    badgeColor: 'text-cyan-400',
+    glowColor: '#00E5FF',
+  },
+  // 2. ABOUT: Radiant Amber -> Rose -> Purple Wave
+  {
+    gradient: 'from-amber-400 via-rose-400 to-purple-400',
+    dropShadow: 'drop-shadow-[0_0_10px_rgba(255,0,127,0.7)]',
+    badgeColor: 'text-rose-400',
+    glowColor: '#FF007F',
+  },
+  // 3. SKILLS: Emerald -> Neon Teal -> Cyan Wave
+  {
+    gradient: 'from-emerald-400 via-teal-300 to-cyan-400',
+    dropShadow: 'drop-shadow-[0_0_10px_rgba(57,255,20,0.7)]',
+    badgeColor: 'text-emerald-400',
+    glowColor: '#39FF14',
+  },
+  // 4. PROJECTS: Sky Blue -> Violet -> Pink Wave
+  {
+    gradient: 'from-sky-400 via-violet-400 to-pink-500',
+    dropShadow: 'drop-shadow-[0_0_10px_rgba(168,85,247,0.7)]',
+    badgeColor: 'text-violet-400',
+    glowColor: '#A855F7',
+  },
+  // 5. CONTACT: Electric Teal -> Fuchsia -> Amber Wave
+  {
+    gradient: 'from-teal-300 via-fuchsia-400 to-amber-300',
+    dropShadow: 'drop-shadow-[0_0_10px_rgba(217,70,239,0.7)]',
+    badgeColor: 'text-fuchsia-400',
+    glowColor: '#D946EF',
+  },
+];
+
 // 1. UFO SVG Component
 const UFO = ({ isOpen, onClick }: { isOpen: boolean; onClick: () => void }) => {
   return (
@@ -22,7 +61,7 @@ const UFO = ({ isOpen, onClick }: { isOpen: boolean; onClick: () => void }) => {
           ? { duration: 0.5, ease: 'easeInOut' }
           : { repeat: Infinity, repeatType: 'reverse', duration: 3, ease: 'easeInOut' }
       }
-      whileHover={{ scale: 1.1, filter: 'drop-shadow(0 0 12px rgba(0, 229, 255, 0.8))' }}
+      whileHover={{ scale: 1.1, filter: 'drop-shadow(0 0 15px rgba(0, 229, 255, 0.9))' }}
       whileTap={{ scale: 0.95 }}
     >
       <svg
@@ -185,50 +224,49 @@ export default function Navbar({ activeSection }: NavbarProps) {
       className="fixed top-0 left-0 w-full z-50 transition-all"
     >
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between relative">
-        {/* Custom Premium Logo (navbarlogo2.png) */}
+        {/* Custom Premium Logo (navbarlogo2.png) with Animated Wave Gradient Border */}
         <a
           href="#home"
           onClick={(e) => {
             e.preventDefault();
             handleScrollTo('home');
           }}
-          className="hover:scale-105 transition-transform duration-300 select-none flex items-center"
+          className="group relative p-[1.5px] rounded-xl bg-gradient-to-r from-cyan-400 via-indigo-500 to-fuchsia-400 animate-wave-gradient bg-[length:200%_200%] shadow-[0_0_15px_rgba(0,229,255,0.3)] hover:shadow-[0_0_25px_rgba(0,229,255,0.7)] hover:scale-105 transition-all duration-300 select-none flex items-center overflow-hidden"
         >
-          <img
-            src="/navbarlogo2.png"
-            alt="Logo"
-            className="h-12 w-auto inline-block"
-          />
+          <div className="bg-slate-950/80 px-2.5 py-1 rounded-[10px] backdrop-blur-md flex items-center justify-center">
+            <img
+              src="/navbarlogo2.png"
+              alt="Logo"
+              className="h-10 sm:h-11 w-auto inline-block filter drop-shadow-[0_0_8px_rgba(0,229,255,0.5)] transition-all duration-300 group-hover:brightness-110"
+            />
+          </div>
         </a>
 
         {/* Center Slot for UFO Menu Toggle */}
         <div className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 z-50 flex flex-col items-center">
           <UFO isOpen={isOpen} onClick={() => setIsOpen(!isOpen)} />
-
-          {/* Subtle text label pointing to the UFO */}
-          {/* <span className="text-[8px] font-share-tech tracking-[0.2em] text-gray-500 uppercase mt-[-4px] select-none pointer-events-none animate-pulse">
-            {isOpen ? '[CLOSE]' : '[MENU]'}
-          </span> */}
         </div>
 
-        {/* Futuristic Envelope Icon for "Get In Touch" (Visible on all sizes) */}
+        {/* Futuristic Envelope Icon for "Get In Touch" with Animated Wave Gradient Border */}
         <div className="flex items-center">
-          <button
-            onClick={() => handleScrollTo('contact')}
-            aria-label="Get In Touch"
-            className="relative p-3 rounded-full border border-secondary/30 bg-secondary/5 text-secondary hover:text-white hover:border-secondary/80 hover:bg-secondary/20 hover:shadow-[0_0_15px_rgba(0,229,255,0.4)] transition-all duration-300 cursor-pointer flex items-center justify-center group overflow-hidden"
-          >
-            {/* Corner Bracket Overlays for a HUD design */}
-            <span className="absolute top-0 left-0 w-1.5 h-1.5 border-t border-l border-secondary opacity-60 group-hover:opacity-100" />
-            <span className="absolute top-0 right-0 w-1.5 h-1.5 border-t border-r border-secondary opacity-60 group-hover:opacity-100" />
-            <span className="absolute bottom-0 left-0 w-1.5 h-1.5 border-b border-l border-secondary opacity-60 group-hover:opacity-100" />
-            <span className="absolute bottom-0 right-0 w-1.5 h-1.5 border-b border-r border-secondary opacity-60 group-hover:opacity-100" />
+          <div className="p-[1.5px] rounded-full bg-gradient-to-r from-cyan-400 via-fuchsia-500 via-indigo-500 to-emerald-400 animate-wave-gradient bg-[length:250%_250%] shadow-[0_0_20px_rgba(0,229,255,0.4)] hover:shadow-[0_0_30px_rgba(0,229,255,0.8)] transition-all duration-300 group hover:scale-105">
+            <button
+              onClick={() => handleScrollTo('contact')}
+              aria-label="Get In Touch"
+              className="relative p-3 rounded-full bg-slate-950/80 text-cyan-300 hover:text-white transition-all duration-300 cursor-pointer flex items-center justify-center overflow-hidden backdrop-blur-md"
+            >
+              {/* Corner Bracket Overlays with HUD wave gradient colors */}
+              <span className="absolute top-0.5 left-0.5 w-1.5 h-1.5 border-t border-l border-cyan-400 opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all" />
+              <span className="absolute top-0.5 right-0.5 w-1.5 h-1.5 border-t border-r border-fuchsia-400 opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all" />
+              <span className="absolute bottom-0.5 left-0.5 w-1.5 h-1.5 border-b border-l border-indigo-400 opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all" />
+              <span className="absolute bottom-0.5 right-0.5 w-1.5 h-1.5 border-b border-r border-emerald-400 opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all" />
 
-            <FaEnvelope className="text-sm md:text-base relative z-10 transition-transform duration-300 group-hover:scale-110" />
+              <FaEnvelope className="text-sm md:text-base relative z-10 transition-transform duration-300 group-hover:scale-125 group-hover:rotate-6 text-cyan-400 filter drop-shadow-[0_0_8px_rgba(0,229,255,0.7)]" />
 
-            {/* Glowing dot in the corner of the contact button */}
-            <span className="absolute top-1.5 right-1.5 w-1 h-1 rounded-full bg-alien-green animate-ping" />
-          </button>
+              {/* Glowing dot in the corner of the contact button */}
+              <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-alien-green shadow-[0_0_8px_#39FF14] animate-ping" />
+            </button>
+          </div>
         </div>
       </div>
 
@@ -236,7 +274,7 @@ export default function Navbar({ activeSection }: NavbarProps) {
       <AnimatePresence>
         {isOpen && (
           <>
-            {/* Tapered Tractor Beam Projection (Behind dropdown, responsive sizing) */}
+            {/* Tapered Tractor Beam Projection */}
             <motion.div
               initial={{ opacity: 0, scaleY: 0 }}
               animate={{ opacity: 1, scaleY: 1 }}
@@ -278,80 +316,121 @@ export default function Navbar({ activeSection }: NavbarProps) {
               className="fixed inset-0 bg-black/40 backdrop-blur-xs z-20"
             />
 
-            {/* Holographic HUD Container (responsive: wide on desktop, compact on mobile) */}
+            {/* Holographic HUD Container with Outer Animated Wave Gradient Border */}
             <motion.div
               initial={{ opacity: 0, y: -20, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -20, scale: 0.95 }}
               transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-              className="absolute top-[88px] left-1/2 -translate-x-1/2 w-[300px] md:w-[850px] hologram-panel rounded-xl overflow-hidden z-40 border border-secondary/30 flex flex-col items-center py-6 px-4 transition-all duration-500"
+              className="absolute top-[88px] left-1/2 -translate-x-1/2 w-[310px] md:w-[860px] p-[1.5px] rounded-xl bg-gradient-to-r from-cyan-500 via-indigo-500 via-fuchsia-500 to-emerald-400 animate-wave-gradient bg-[length:300%_300%] shadow-[0_0_35px_rgba(0,229,255,0.35)] z-40 overflow-hidden"
             >
-              {/* Cyber Corners */}
-              <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-secondary" />
-              <div className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-secondary" />
-              <div className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-secondary" />
-              <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-secondary" />
+              <div className="w-full hologram-panel rounded-[10px] flex flex-col items-center py-6 px-4 relative overflow-hidden">
+                {/* Cyber Corners */}
+                <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-cyan-400" />
+                <div className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-fuchsia-400" />
+                <div className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-indigo-400" />
+                <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-emerald-400" />
 
-              {/* Status Header */}
-              <div className="w-full flex justify-between items-center px-2 mb-4 text-[10px] font-share-tech text-secondary/70 tracking-widest uppercase border-b border-secondary/10 pb-2">
-                <span>[SYS: BEAM_ACTIVE]</span>
-                <span className="animate-pulse text-alien-green">● ONLINE</span>
-              </div>
+                {/* Status Header */}
+                <div className="w-full flex justify-between items-center px-3 mb-4 text-[10px] font-share-tech tracking-widest uppercase border-b border-secondary/15 pb-2">
+                  <span className="font-orbitron font-semibold bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-400 bg-clip-text text-transparent animate-wave-gradient bg-[length:200%_200%] drop-shadow-[0_0_8px_rgba(0,229,255,0.6)]">
+                    [SYS: BEAM_ACTIVE]
+                  </span>
+                  <span className="px-2.5 py-0.5 rounded-full border border-emerald-400/40 bg-emerald-950/40 text-alien-green shadow-[0_0_10px_rgba(57,255,20,0.5)] animate-pulse font-mono flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-alien-green shadow-[0_0_6px_#39FF14]" />
+                    ONLINE
+                  </span>
+                </div>
 
-              {/* Staggered Navigation Items (Row on desktop, Column on mobile) */}
-              <div className="flex flex-col md:flex-row w-full gap-2 md:gap-1.5 relative z-10 justify-around">
-                {NAV_ITEMS.map((item, index) => {
-                  const isActive = activeSection === item.id;
-                  const formattedIndex = String(index + 1).padStart(2, '0');
+                {/* Staggered Navigation Items with Wave Gradient Colors & Letter Micro-Animations */}
+                <div className="flex flex-col md:flex-row w-full gap-2.5 md:gap-2 relative z-10 justify-around">
+                  {NAV_ITEMS.map((item, index) => {
+                    const isActive = activeSection === item.id;
+                    const formattedIndex = String(index + 1).padStart(2, '0');
+                    const theme = NAV_ITEM_THEMES[index % NAV_ITEM_THEMES.length];
+                    const itemLetters = Array.from(item.label);
 
-                  return (
-                    <motion.button
-                      key={item.id}
-                      onClick={() => handleScrollTo(item.id)}
-                      initial={{ opacity: 0, y: -20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -15 }}
-                      transition={{ duration: 0.3, delay: index * 0.05 }}
-                      className={`group flex items-center justify-between md:justify-center w-full md:w-auto px-4 py-2.5 md:px-4 md:py-4 rounded text-left md:text-center transition-all duration-300 relative cursor-pointer overflow-hidden ${isActive
-                          ? 'bg-secondary/10 border border-secondary/30 text-white'
-                          : 'border border-transparent text-gray-400 hover:text-secondary'
+                    return (
+                      <motion.div
+                        key={item.id}
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -15 }}
+                        transition={{ duration: 0.3, delay: index * 0.05 }}
+                        className={`p-[1.5px] rounded-lg transition-all duration-300 w-full md:w-auto ${
+                          isActive
+                            ? `bg-gradient-to-r ${theme.gradient} animate-wave-gradient bg-[length:200%_200%] shadow-[0_0_20px_rgba(0,229,255,0.5)] scale-[1.02]`
+                            : 'bg-slate-800/40 hover:bg-gradient-to-r hover:' + theme.gradient + ' hover:animate-wave-gradient hover:bg-[length:200%_200%] hover:shadow-[0_0_15px_rgba(0,229,255,0.3)]'
                         }`}
-                    >
-                      {/* Hover highlight background */}
-                      <span className="absolute inset-0 w-full h-full bg-gradient-to-r md:bg-gradient-to-b from-secondary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      >
+                        <button
+                          onClick={() => handleScrollTo(item.id)}
+                          className="group flex items-center justify-between md:justify-center w-full md:w-auto px-4 py-2.5 md:px-4 md:py-3.5 rounded-[6px] text-left md:text-center transition-all duration-300 relative cursor-pointer overflow-hidden bg-slate-950/90 backdrop-blur-md"
+                        >
+                          {/* Hover subtle glow highlight */}
+                          <span className="absolute inset-0 w-full h-full bg-gradient-to-r md:bg-gradient-to-b from-cyan-500/10 via-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-                      <div className="flex md:flex-col items-start md:items-center gap-3 md:gap-1 font-share-tech tracking-wider text-sm relative z-10 pb-0 md:pb-1">
-                        <span className={`text-[9px] font-orbitron ${isActive ? 'text-secondary' : 'text-gray-600 group-hover:text-secondary/50'}`}>
-                          [{formattedIndex}]
-                        </span>
-                        <span className={`transition-all duration-300 ${isActive ? 'cyan-text-glow font-bold text-secondary' : 'group-hover:translate-x-1 md:group-hover:translate-x-0 md:group-hover:translate-y-[-2px]'}`}>
-                          {item.label}
-                        </span>
-                      </div>
+                          <div className="flex md:flex-col items-start md:items-center gap-3 md:gap-1.5 font-share-tech tracking-wider text-sm relative z-10 pb-0 md:pb-1">
+                            <span className={`text-[10px] font-orbitron font-extrabold ${theme.badgeColor} drop-shadow-[0_0_6px_currentColor]`}>
+                              [{formattedIndex}]
+                            </span>
+                            
+                            {/* Animated Word / Letters with Wave Gradient Fill */}
+                            <span className="inline-flex items-center space-x-[1px]">
+                              {itemLetters.map((char, charIdx) => (
+                                <motion.span
+                                  key={charIdx}
+                                  animate={{
+                                    y: [0, -3, 0],
+                                  }}
+                                  transition={{
+                                    duration: 2.4,
+                                    repeat: Infinity,
+                                    ease: 'easeInOut',
+                                    delay: index * 0.1 + charIdx * 0.08,
+                                  }}
+                                  whileHover={{
+                                    scale: 1.25,
+                                    y: -5,
+                                    rotate: [0, -4, 4, 0],
+                                    transition: { type: 'spring', stiffness: 400, damping: 10 },
+                                  }}
+                                  className={`inline-block font-orbitron font-black text-xs sm:text-sm tracking-widest bg-gradient-to-r ${theme.gradient} bg-[length:250%_250%] animate-wave-gradient bg-clip-text text-transparent ${theme.dropShadow}`}
+                                >
+                                  {char}
+                                </motion.span>
+                              ))}
+                            </span>
+                          </div>
 
-                      {/* Active indicator (Right on mobile, absolute bottom-center on desktop) */}
-                      <div className="flex items-center gap-2 relative z-10 md:absolute md:bottom-1 md:left-1/2 md:-translate-x-1/2">
-                        {isActive ? (
-                          <motion.span
-                            layoutId="activeAlienIndicator"
-                            className="w-1.5 h-1.5 rounded-full bg-secondary shadow-[0_0_8px_#00E5FF]"
-                            transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                          />
-                        ) : (
-                          <span className="text-[10px] font-share-tech text-gray-600 group-hover:text-secondary opacity-0 group-hover:opacity-100 transition-opacity duration-300 md:hidden">
-                            &lt;ENTER&gt;
-                          </span>
-                        )}
-                      </div>
-                    </motion.button>
-                  );
-                })}
-              </div>
+                          {/* Active / Hover Indicator */}
+                          <div className="flex items-center gap-2 relative z-10 md:absolute md:bottom-1 md:left-1/2 md:-translate-x-1/2">
+                            {isActive ? (
+                              <motion.span
+                                layoutId="activeAlienIndicator"
+                                className="w-2 h-2 rounded-full shadow-[0_0_10px_currentColor]"
+                                style={{ backgroundColor: theme.glowColor, color: theme.glowColor }}
+                                transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                              />
+                            ) : (
+                              <span className="text-[9px] font-share-tech text-gray-500 group-hover:text-cyan-300 opacity-0 group-hover:opacity-100 transition-opacity duration-300 md:hidden">
+                                &lt;ENTER&gt;
+                              </span>
+                            )}
+                          </div>
+                        </button>
+                      </motion.div>
+                    );
+                  })}
+                </div>
 
-              {/* Status Footer */}
-              <div className="w-full flex justify-between items-center px-2 mt-4 text-[9px] font-share-tech text-gray-500 tracking-widest border-t border-secondary/10 pt-2">
-                <span>[SECTOR: PORTFOLIO]</span>
-                <span>SYS_v1.0.9</span>
+                {/* Status Footer */}
+                <div className="w-full flex justify-between items-center px-3 mt-4 text-[9px] font-share-tech tracking-widest border-t border-secondary/15 pt-2">
+                  <span className="text-cyan-400/80 font-mono">[SECTOR: PORTFOLIO]</span>
+                  <span className="font-orbitron font-bold bg-gradient-to-r from-cyan-400 via-fuchsia-400 to-amber-300 bg-clip-text text-transparent animate-wave-gradient bg-[length:200%_200%] drop-shadow-[0_0_6px_rgba(0,229,255,0.5)]">
+                    SYS_v1.0.9
+                  </span>
+                </div>
               </div>
             </motion.div>
           </>
@@ -360,3 +439,4 @@ export default function Navbar({ activeSection }: NavbarProps) {
     </header>
   );
 }
+
