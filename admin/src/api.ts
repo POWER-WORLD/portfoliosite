@@ -79,6 +79,32 @@ export const adminApi = {
     });
   },
 
+  updateResumeUrl: async (resumeUrl: string) => {
+    return request('/personal-info/resume', {
+      method: 'PATCH',
+      body: JSON.stringify({ resumeUrl }),
+    });
+  },
+
+  addResume: async (data: { title: string; url: string; isActive?: boolean }) => {
+    return request('/personal-info/resumes', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  setActiveResume: async (id: string) => {
+    return request(`/personal-info/resumes/${id}/active`, {
+      method: 'PATCH',
+    });
+  },
+
+  deleteResume: async (id: string) => {
+    return request(`/personal-info/resumes/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
   updateAbout: async (about: any) => {
     return request('/about', {
       method: 'PUT',

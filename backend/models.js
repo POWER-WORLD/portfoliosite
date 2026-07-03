@@ -2,12 +2,19 @@ import mongoose from 'mongoose';
 
 // Personal Info Schema
 const PersonalInfoSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  title: { type: String, required: true },
-  tagline: { type: String, required: true },
-  location: { type: String, required: true },
-  email: { type: String, required: true },
+  name: { type: String, default: 'Pawan Kumar' },
+  title: { type: String, default: 'Full Stack & React Engineer' },
+  tagline: { type: String, default: 'Crafting high-performance web applications.' },
+  location: { type: String, default: '' },
+  email: { type: String, default: '' },
   resumeUrl: { type: String, default: '#' },
+  resumes: [{
+    id: { type: String, required: true },
+    title: { type: String, required: true },
+    url: { type: String, required: true },
+    isActive: { type: Boolean, default: false },
+    createdAt: { type: Date, default: Date.now }
+  }]
 }, { timestamps: true });
 
 // About Schema

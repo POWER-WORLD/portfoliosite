@@ -47,9 +47,9 @@ app.use(cors({
   credentials: true
 }));
 
-// Configure body parser limit for Base64 image uploads (e.g. 10MB)
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ limit: '10mb', extended: true }));
+// Configure body parser limit for Base64 image & document uploads (e.g. 50MB)
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Register routes
 app.use('/api', apiRoutes);

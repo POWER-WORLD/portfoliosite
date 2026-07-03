@@ -128,6 +128,118 @@ router.put('/personal-info', authMiddleware, async (req, res) => {
   }
 });
 
+// Update Resume URL explicitly
+router.patch('/personal-info/resume', authMiddleware, async (req, res) => {
+  try {
+    const { resumeUrl } = req.body;
+    let info = await PersonalInfo.findOne();
+    if (!info) {
+      info = new PersonalInfo({ resumeUrl: resumeUrl || '#' });
+    } else {
+      info.resumeUrl = resumeUrl || '#';
+    }
+    await info.save();
+    res.json({ success: true, resumeUrl: info.resumeUrl });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// ----------------------------------------------------
+// MULTIPLE RESUMES MANAGEMENT
+// ----------------------------------------------------
+
+// Add a new resume entry
+router.post('/personal-info/resumes', authMiddleware, async (req, res) => {
+  try {
+    const { title, url, isActive } = req.body;
+    if (!title || !url) {
+      return res.status(400).json({ error: 'Title and URL/File are required.' });
+    }
+    let info = await PersonalInfo.findOne();
+    if (!info) {
+      info = new PersonalInfo({});
+    }
+
+    const newResume = {
+      id: Date.now().toString(),
+      title,
+      url,
+      isActive: Boolean(isActive || info.resumes.length === 0),
+      createdAt: new Date()
+    };
+
+    if (newResume.isActive) {
+      info.resumes.forEach(r => r.isActive = false);
+      info.resumeUrl = url;
+    }
+
+    info.resumes.push(newResume);
+    await info.save();
+    res.status(201).json(info);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// Set active resume by ID
+router.patch('/personal-info/resumes/:id/active', authMiddleware, async (req, res) => {
+  try {
+    const { id } = req.params;
+    let info = await PersonalInfo.findOne();
+    if (!info) return res.status(404).json({ error: 'Personal info record not found' });
+
+    let activeUrl = '#';
+    let found = false;
+
+    info.resumes.forEach(r => {
+      if (r.id === id) {
+        r.isActive = true;
+        activeUrl = r.url;
+        found = true;
+      } else {
+        r.isActive = false;
+      }
+    });
+
+    if (!found) {
+      return res.status(404).json({ error: 'Resume entry not found' });
+    }
+
+    info.resumeUrl = activeUrl;
+    await info.save();
+    res.json(info);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// Delete resume entry by ID
+router.delete('/personal-info/resumes/:id', authMiddleware, async (req, res) => {
+  try {
+    const { id } = req.params;
+    let info = await PersonalInfo.findOne();
+    if (!info) return res.status(404).json({ error: 'Personal info record not found' });
+
+    const wasActive = info.resumes.some(r => r.id === id && r.isActive);
+    info.resumes = info.resumes.filter(r => r.id !== id);
+
+    if (wasActive) {
+      if (info.resumes.length > 0) {
+        info.resumes[0].isActive = true;
+        info.resumeUrl = info.resumes[0].url;
+      } else {
+        info.resumeUrl = '#';
+      }
+    }
+
+    await info.save();
+    res.json(info);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
 // ----------------------------------------------------
 // ABOUT (PUT)
 // ----------------------------------------------------
