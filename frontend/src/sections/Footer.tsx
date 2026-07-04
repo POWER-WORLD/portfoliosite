@@ -37,12 +37,12 @@ export default function Footer({ personalInfo }: FooterProps) {
           onClick={handleScrollToTop}
           className="font-display font-black text-xl tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-accent via-secondary to-accent bg-[length:200%_auto] animate-[shimmer_4s_linear_infinite] hover:scale-105 transition-all duration-300 select-none cursor-pointer"
         >
-          {firstName}<span className="text-white">.</span>DEV
+          {firstName}<span className="text-white">.</span>INFO
         </a>
 
         {/* Copyright notice */}
         <p className="text-xs text-gray-500 font-medium tracking-wide text-center">
-          &copy; {currentYear} {profile.name || 'Pawan Kumar'}. All Rights Reserved. Built with React & Vite.
+          &copy; {currentYear} {profile.name || 'Pawan Kumar'}. All Rights Reserved. Built with love by {firstName}<span className="text-white">.</span>INFO.
         </p>
 
         {/* Right Actions: Admin Portal Link + Social Links */}

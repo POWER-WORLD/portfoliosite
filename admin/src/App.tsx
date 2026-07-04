@@ -142,7 +142,7 @@ export default function App() {
       {/* Mobile Top Header */}
       <header className="mobile-header">
         <div className="mobile-header-brand">
-          <span className="brand-logo" style={{ fontSize: '1.2rem' }}>PAWAN.DEV</span>
+          <span className="brand-logo" style={{ fontSize: '1.2rem' }}>PAWAN.INFO</span>
           <span className="brand-tag" style={{ fontSize: '0.65rem' }}>CMS</span>
         </div>
         <button 
@@ -166,7 +166,7 @@ export default function App() {
       <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
         <div>
           <div className="brand">
-            <span className="brand-logo">PAWAN.DEV</span>
+            <span className="brand-logo">PAWAN.INFO</span>
             <span className="brand-tag">CMS</span>
           </div>
 
