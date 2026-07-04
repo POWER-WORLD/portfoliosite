@@ -1,6 +1,7 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
+import dotenv from 'dotenv';
 import { 
   PersonalInfo, 
   About, 
@@ -40,31 +41,15 @@ router.post('/auth/login', async (req, res) => {
     return res.status(400).json({ error: 'Password is required' });
   }
   try {
-    // Look up the admin password record. If it doesn't exist, we will use the ADMIN_PASSWORD environment variable.
-    let adminRecord = await AdminPassword.findOne();
-    const envPassword = process.env.ADMIN_PASSWORD || 'admin123';
-    
-    let isMatch = false;
-    if (!adminRecord) {
-      // If there is no DB record yet, compare with env password directly
-      isMatch = (password === envPassword);
-      // Seed the DB record for next time
-      const salt = await bcrypt.genSalt(10);
-      const hash = await bcrypt.hash(envPassword, salt);
-      adminRecord = new AdminPassword({ hash });
-      await adminRecord.save();
-    } else {
-      isMatch = await bcrypt.compare(password, adminRecord.hash);
-      // If DB has an old hash but env changed, allow env password too and update hash
-      if (!isMatch && password === envPassword) {
-        isMatch = true;
-        const salt = await bcrypt.genSalt(10);
-        adminRecord.hash = await bcrypt.hash(envPassword, salt);
-        await adminRecord.save();
-      }
+    // Dynamically reload .env to ensure any changes to ADMIN_PASSWORD take effect immediately
+    dotenv.config({ override: true });
+
+    const envPassword = process.env.ADMIN_PASSWORD;
+    if (!envPassword) {
+      return res.status(500).json({ error: 'ADMIN_PASSWORD environment variable is not configured.' });
     }
 
-    if (!isMatch) {
+    if (password !== envPassword) {
       return res.status(401).json({ error: 'Invalid admin password' });
     }
 

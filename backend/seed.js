@@ -273,12 +273,16 @@ async function seed() {
       await new Achievement(ach).save();
     }
 
-    // Seed default Admin Password hash
-    console.log('Seeding Admin credentials...');
-    const envPassword = process.env.ADMIN_PASSWORD || 'admin123';
-    const salt = await bcrypt.genSalt(10);
-    const hash = await bcrypt.hash(envPassword, salt);
-    await new AdminPassword({ hash }).save();
+    // Seed default Admin Password hash if ADMIN_PASSWORD is set in env
+    const envPassword = process.env.ADMIN_PASSWORD;
+    if (envPassword) {
+      console.log('Seeding Admin credentials...');
+      const salt = await bcrypt.genSalt(10);
+      const hash = await bcrypt.hash(envPassword, salt);
+      await new AdminPassword({ hash }).save();
+    } else {
+      console.log('Skipping AdminPassword seed (ADMIN_PASSWORD not set in environment).');
+    }
 
     console.log('Database seeded successfully!');
   } catch (error) {

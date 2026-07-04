@@ -128,7 +128,7 @@ A protected content management system allowing real-time edits to the public sit
   * `PORT` = `5000`
   * `MONGO_DB` or `MONGODB_URI` = MongoDB connection string
   * `JWT_SECRET` = Random secure secret key
-  * `ADMIN_PASSWORD` = Initial admin access password (default fallback: `admin123`)
+  * `ADMIN_PASSWORD` = Admin access password (read directly from environment)
   * `FRONTEND_URL` / `ADMIN_URL` / `ALLOWED_ORIGINS` = CORS origins list
 
 * **Frontend & Admin (`.env`)**:
