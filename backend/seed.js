@@ -233,6 +233,7 @@ async function seed() {
     await Experience.deleteMany({});
     await Certificate.deleteMany({});
     await Achievement.deleteMany({});
+    // Clear old AdminPassword records if any exist from legacy schema
     await AdminPassword.deleteMany({});
 
     // Seed Personal Info
@@ -271,17 +272,6 @@ async function seed() {
     console.log('Seeding Achievements metrics...');
     for (const ach of ACHIEVEMENTS_DATA) {
       await new Achievement(ach).save();
-    }
-
-    // Seed default Admin Password hash if ADMIN_PASSWORD is set in env
-    const envPassword = process.env.ADMIN_PASSWORD;
-    if (envPassword) {
-      console.log('Seeding Admin credentials...');
-      const salt = await bcrypt.genSalt(10);
-      const hash = await bcrypt.hash(envPassword, salt);
-      await new AdminPassword({ hash }).save();
-    } else {
-      console.log('Skipping AdminPassword seed (ADMIN_PASSWORD not set in environment).');
     }
 
     console.log('Database seeded successfully!');

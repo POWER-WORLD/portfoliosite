@@ -31,7 +31,7 @@ async function request(endpoint: string, options: RequestInit = {}) {
     headers,
   });
 
-  if (res.status === 401) {
+  if (res.status === 401 && endpoint !== '/auth/login') {
     removeToken();
     window.location.reload();
     throw new Error('Session expired. Please log in again.');

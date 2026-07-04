@@ -10,7 +10,6 @@ import {
   Experience, 
   Certificate, 
   Achievement,
-  AdminPassword,
   ContactMessage
 } from './models.js';
 
