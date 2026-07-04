@@ -40,8 +40,8 @@ router.post('/auth/login', async (req, res) => {
     return res.status(400).json({ error: 'Password is required' });
   }
   try {
-    // Dynamically reload .env to ensure any changes to ADMIN_PASSWORD take effect immediately
-    dotenv.config({ override: true });
+    // Load .env variables if not already set in environment
+    dotenv.config();
 
     const envPassword = process.env.ADMIN_PASSWORD;
     if (!envPassword) {
