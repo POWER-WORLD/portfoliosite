@@ -33,17 +33,18 @@ export default function Certificates({ data }: CertificatesProps) {
   };
 
   return (
-    <section id="certificates" className="py-24 px-6 max-w-7xl mx-auto relative select-none">
-      {/* Section Header */}
-      <div className="flex flex-col items-center text-center space-y-4 mb-20">
-        <span className="text-sm font-semibold tracking-widest text-accent uppercase">
-          Verifications
-        </span>
-        <h2 className="font-display font-bold text-3xl md:text-5xl">
-          Certifications
-        </h2>
-        <div className="w-12 h-1 bg-gradient-to-r from-accent to-secondary rounded-full" />
-      </div>
+    <section id="certificates" className="w-full min-h-[calc(100vh-80px)] flex flex-col justify-center py-12 md:py-16 scroll-mt-20 relative select-none overflow-hidden bg-transparent">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Section Header */}
+        <div className="flex flex-col items-center text-center space-y-3 mb-10 md:mb-12">
+          <span className="text-sm font-semibold tracking-widest text-accent uppercase">
+            Verifications
+          </span>
+          <h2 className="font-display font-bold text-3xl md:text-5xl">
+            Certifications
+          </h2>
+          <div className="w-12 h-1 bg-gradient-to-r from-accent to-secondary rounded-full" />
+        </div>
 
       {/* Grid */}
       <motion.div
@@ -91,6 +92,7 @@ export default function Certificates({ data }: CertificatesProps) {
           </motion.div>
         ))}
       </motion.div>
+      </div>
 
       {/* Certificate Modal */}
       <AnimatePresence>

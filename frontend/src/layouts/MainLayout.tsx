@@ -31,8 +31,19 @@ export default function MainLayout({ children }: MainLayoutProps) {
 
     requestAnimationFrame(raf);
 
+    // Handle smooth navigation scrolling via Lenis
+    const handleTransitScroll = (e: Event) => {
+      const customEvent = e as CustomEvent<{ targetScrollY: number }>;
+      if (customEvent.detail && typeof customEvent.detail.targetScrollY === 'number') {
+        lenis.scrollTo(customEvent.detail.targetScrollY, { duration: 1.2 });
+      }
+    };
+
+    window.addEventListener('trigger-blackhole-transit', handleTransitScroll);
+
     // Clean up
     return () => {
+      window.removeEventListener('trigger-blackhole-transit', handleTransitScroll);
       lenis.destroy();
     };
   }, []);
@@ -46,7 +57,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
       <Navbar activeSection={activeSection || 'home'} />
 
       {/* Main Content Sections (positioned on top, transparent) */}
-      <main className="relative z-10 w-full overflow-hidden pt-20">
+      <main className="relative z-10 w-full overflow-x-hidden pt-20">
         {children}
       </main>
     </div>

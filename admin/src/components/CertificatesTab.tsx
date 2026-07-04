@@ -140,7 +140,7 @@ export default function CertificatesTab({ initialCertificates, initialAchievemen
   };
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '2rem', alignItems: 'start' }}>
+    <div className="grid-split-cert">
       
       {/* Left Pane: Certificates Management */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
@@ -152,7 +152,7 @@ export default function CertificatesTab({ initialCertificates, initialAchievemen
         )}
 
         <div className="glass-panel">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
             <div>
               <h2 style={{ fontSize: '1.5rem' }}>Certificate Credentials</h2>
               <p style={{ color: 'var(--text-gray)', fontSize: '0.85rem' }}>Professional certificates and training completions</p>
@@ -173,7 +173,9 @@ export default function CertificatesTab({ initialCertificates, initialAchievemen
                   borderRadius: '16px',
                   display: 'flex',
                   justifyContent: 'space-between',
-                  alignItems: 'center'
+                  alignItems: 'center',
+                  flexWrap: 'wrap',
+                  gap: '1rem'
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
@@ -184,7 +186,7 @@ export default function CertificatesTab({ initialCertificates, initialAchievemen
                       style={{ width: '48px', height: '48px', objectFit: 'cover', borderRadius: '8px', border: '1px solid var(--border-color)' }} 
                     />
                   ) : (
-                    <div style={{ width: '48px', height: '48px', borderRadius: '8px', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--secondary)' }}>
+                    <div style={{ width: '48px', height: '48px', borderRadius: '8px', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--secondary)', flexShrink: 0 }}>
                       <FaAward style={{ fontSize: '1.5rem' }} />
                     </div>
                   )}
@@ -196,7 +198,7 @@ export default function CertificatesTab({ initialCertificates, initialAchievemen
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <div style={{ display: 'flex', gap: '0.5rem', marginLeft: 'auto' }}>
                   <button type="button" className="btn btn-secondary btn-icon" onClick={() => openCertEditModal(cert)}>
                     <FaEdit />
                   </button>
@@ -354,7 +356,7 @@ export default function CertificatesTab({ initialCertificates, initialAchievemen
                 </div>
               </div>
 
-              <div style={{ display: 'flex', gap: '1rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border-color)', justifyContent: 'flex-end' }}>
+              <div style={{ display: 'flex', gap: '1rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border-color)', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
                 <button type="button" className="btn btn-secondary" onClick={() => setCertModalOpen(false)}>Cancel</button>
                 <button type="submit" className="btn btn-primary" disabled={loading}>
                   {loading ? 'Saving...' : 'Deploy Certificate'}

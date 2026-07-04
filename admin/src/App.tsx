@@ -139,14 +139,28 @@ export default function App() {
 
   return (
     <div className="admin-container">
-      {/* Mobile Menu Button */}
-      <button 
-        type="button" 
-        className="mobile-sidebar-toggle"
-        onClick={() => setSidebarOpen(!sidebarOpen)}
-      >
-        {sidebarOpen ? <FaTimes /> : <FaBars />}
-      </button>
+      {/* Mobile Top Header */}
+      <header className="mobile-header">
+        <div className="mobile-header-brand">
+          <span className="brand-logo" style={{ fontSize: '1.2rem' }}>PAWAN.DEV</span>
+          <span className="brand-tag" style={{ fontSize: '0.65rem' }}>CMS</span>
+        </div>
+        <button 
+          type="button" 
+          className="mobile-sidebar-toggle"
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          aria-label="Toggle Navigation Menu"
+        >
+          {sidebarOpen ? <FaTimes /> : <FaBars />}
+        </button>
+      </header>
+
+      {/* Mobile Sidebar Backdrop Overlay */}
+      <div 
+        className={`sidebar-backdrop ${sidebarOpen ? 'open' : ''}`} 
+        onClick={() => setSidebarOpen(false)} 
+        aria-hidden="true"
+      />
 
       {/* Sidebar Navigation */}
       <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>

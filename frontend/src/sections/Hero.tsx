@@ -167,7 +167,7 @@ export default function Hero({ data, resumeUrl: propResumeUrl }: HeroProps) {
   return (
     <section
       id="home"
-      className="relative min-h-[calc(100vh-80px)] flex flex-col justify-top items-center px-4 sm:px-6 md:px-8 py-12 sm:py-20 text-center select-none overflow-hidden bg-transparent"
+      className="w-full relative min-h-[calc(100vh-80px)] flex flex-col justify-center items-center py-8 md:py-12 scroll-mt-20 text-center select-none overflow-hidden bg-transparent"
     >
 
       {/* Toast Notification */}
@@ -191,7 +191,7 @@ export default function Hero({ data, resumeUrl: propResumeUrl }: HeroProps) {
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="max-w-4xl mx-auto flex flex-col items-center w-full relative z-10"
+        className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center relative z-10"
       >
         {/* 1. WELCOME TO MY UNIVERSE Capsule Pill Badge (Top) */}
         <motion.div variants={itemVariants} className="mb-4 sm:mb-6">

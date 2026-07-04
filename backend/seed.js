@@ -48,34 +48,76 @@ const ABOUT_DATA = {
 
 const SKILL_CATEGORIES = [
   {
-    title: 'Frontend Architecture',
+    title: 'Frontend Engineering & React',
+    categoryType: 'Frontend',
+    description: 'Architecting ultra-fast, modern, micro-frontend client web apps with modern React 19 and Next.js ecosystem.',
     icon: 'FaCode',
+    capabilities: [
+      'Micro-Frontend & SSR Architecture',
+      'Core Web Vitals Optimization (99+ Lighthouse)',
+      'Design System Orchestration & Tokens',
+      'Real-time WebSocket & State Synchronization'
+    ],
     skills: [
-      { name: 'React (19 / Next.js)', level: 95 },
-      { name: 'TypeScript', level: 90 },
-      { name: 'Tailwind CSS', level: 95 },
-      { name: 'Framer Motion', level: 85 },
-      { name: 'State (Redux/Zustand)', level: 90 },
+      { name: 'React 19 / Next.js 15', level: 96, experience: '6+ Yrs', tag: 'Expert' },
+      { name: 'TypeScript & Type Safety', level: 92, experience: '5+ Yrs', tag: 'Core Specialty' },
+      { name: 'Tailwind CSS & CSS Modules', level: 95, experience: '6+ Yrs', tag: 'Mastery' },
+      { name: 'Framer Motion & Micro-UI FX', level: 88, experience: '4+ Yrs', tag: 'Advanced' },
+      { name: 'State Management (Zustand/Redux)', level: 90, experience: '5+ Yrs', tag: 'Advanced' },
     ],
   },
   {
-    title: 'Backend & Databases',
+    title: 'Backend & Database Architecture',
+    categoryType: 'Backend',
+    description: 'Designing resilient REST/GraphQL APIs, highly-available Node.js microservices, and database models.',
     icon: 'FaServer',
+    capabilities: [
+      'High-Performance REST & GraphQL Endpoints',
+      'NoSQL & Relational Schema Modeling (MongoDB/PostgreSQL)',
+      'JWT Authentication & Security Middleware',
+      'Caching Strategies & Rate Limiting'
+    ],
     skills: [
-      { name: 'Node.js / Express', level: 85 },
-      { name: 'MongoDB (Mongoose)', level: 80 },
-      { name: 'PostgreSQL / SQL', level: 75 },
-      { name: 'REST & GraphQL APIs', level: 85 },
+      { name: 'Node.js & Express.js', level: 88, experience: '5+ Yrs', tag: 'Core Specialty' },
+      { name: 'MongoDB & Mongoose ODM', level: 85, experience: '4+ Yrs', tag: 'Advanced' },
+      { name: 'PostgreSQL & Prisma ORM', level: 80, experience: '3+ Yrs', tag: 'Proficient' },
+      { name: 'GraphQL & RESTful Standards', level: 86, experience: '4+ Yrs', tag: 'Advanced' },
     ],
   },
   {
-    title: 'DevOps & Tooling',
-    icon: 'FaToolbox',
+    title: 'DevOps & Cloud Infrastructure',
+    categoryType: 'DevOps',
+    description: 'Automating continuous integration, automated test pipelines, and scalable cloud hosting infrastructure.',
+    icon: 'FaCloud',
+    capabilities: [
+      'Automated GitHub Actions CI/CD Workflows',
+      'Containerization with Docker & Multi-stage builds',
+      'AWS Cloud Infrastructure & Edge Deployments',
+      'Vite & Webpack Build Pipeline Optimization'
+    ],
     skills: [
-      { name: 'Git & GitHub Actions', level: 90 },
-      { name: 'Docker / Containers', level: 70 },
-      { name: 'AWS (S3/EC2/CloudFront)', level: 75 },
-      { name: 'Vite / Webpack', level: 90 },
+      { name: 'Git & GitHub Actions CI/CD', level: 92, experience: '5+ Yrs', tag: 'Expert' },
+      { name: 'Vite & Webpack Bundling', level: 90, experience: '4+ Yrs', tag: 'Mastery' },
+      { name: 'AWS (S3 / CloudFront / EC2)', level: 78, experience: '3+ Yrs', tag: 'Proficient' },
+      { name: 'Docker & Containerization', level: 75, experience: '3+ Yrs', tag: 'Proficient' },
+    ],
+  },
+  {
+    title: 'UI/UX & Dynamic Animation',
+    categoryType: 'Architecture',
+    description: 'Crafting interactive digital canvas interfaces, fluid micro-animations, glassmorphic themes, and accessible UI.',
+    icon: 'FaLayerGroup',
+    capabilities: [
+      'Glassmorphic & Dark Theme UX Systems',
+      'Fluid Page Motion & Scroll FX',
+      'WCAG AA Accessibility Compliance',
+      'Responsive Cross-Device Layout Systems'
+    ],
+    skills: [
+      { name: 'Motion Design & Framer Motion', level: 90, experience: '4+ Yrs', tag: 'Core Specialty' },
+      { name: 'Component UI Architecture', level: 94, experience: '6+ Yrs', tag: 'Expert' },
+      { name: 'Responsive Layouts & Grid Systems', level: 96, experience: '6+ Yrs', tag: 'Mastery' },
+      { name: 'Web Performance & Accessibility', level: 88, experience: '5+ Yrs', tag: 'Advanced' },
     ],
   },
 ];

@@ -322,7 +322,7 @@ export default function Navbar({ activeSection }: NavbarProps) {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -20, scale: 0.95 }}
               transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-              className="absolute top-[88px] left-1/2 -translate-x-1/2 w-[310px] md:w-[860px] p-[1.5px] rounded-xl bg-gradient-to-r from-cyan-500 via-indigo-500 via-fuchsia-500 to-emerald-400 animate-wave-gradient bg-[length:300%_300%] shadow-[0_0_35px_rgba(0,229,255,0.35)] z-40 overflow-hidden"
+              className="absolute top-[88px] left-1/2 -translate-x-1/2 w-[310px] md:w-[900px] p-[1.5px] rounded-xl bg-gradient-to-r from-cyan-500 via-indigo-500 via-fuchsia-500 to-emerald-400 animate-wave-gradient bg-[length:300%_300%] shadow-[0_0_35px_rgba(0,229,255,0.35)] z-40 overflow-hidden"
             >
               <div className="w-full hologram-panel rounded-[10px] flex flex-col items-center py-6 px-4 relative overflow-hidden">
                 {/* Cyber Corners */}

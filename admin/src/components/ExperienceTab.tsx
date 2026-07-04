@@ -179,7 +179,7 @@ export default function ExperienceTab({ initialExperience, onRefresh }: Experien
                 <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={5} required placeholder="Detail key actions, optimizations, scaling statistics, and achievements..." />
               </div>
 
-              <div style={{ display: 'flex', gap: '1rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border-color)', justifyContent: 'flex-end' }}>
+              <div style={{ display: 'flex', gap: '1rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border-color)', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
                 <button type="button" className="btn btn-secondary" onClick={() => setModalOpen(false)}>Cancel</button>
                 <button type="submit" className="btn btn-primary" disabled={loading}>
                   {loading ? 'Saving...' : 'Publish Experience'}

@@ -235,7 +235,7 @@ export default function PersonalTab({ initialInfo, initialAbout, onRefresh }: Pe
               No resumes uploaded yet. Use the form below to add your first resume.
             </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '1rem' }}>
               {resumes.map((resItem) => (
                 <div 
                   key={resItem.id} 
@@ -252,7 +252,7 @@ export default function PersonalTab({ initialInfo, initialAbout, onRefresh }: Pe
                   }}
                 >
                   <div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem', marginBottom: '0.5rem', flexWrap: 'wrap' }}>
                       <strong style={{ fontSize: '1rem', color: '#fff', wordBreak: 'break-word' }}>
                         {resItem.title}
                       </strong>
@@ -433,18 +433,18 @@ export default function PersonalTab({ initialInfo, initialAbout, onRefresh }: Pe
             
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', marginBottom: '1rem' }}>
               {highlights.map((hl, idx) => (
-                <div key={idx} style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)', padding: '0.75rem 1rem', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <div key={idx} style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)', padding: '0.75rem 1rem', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
                   <div>
                     <strong style={{ color: 'var(--secondary)' }}>{hl.title}</strong>
                     <span style={{ marginLeft: '0.5rem', fontSize: '0.85rem', color: 'var(--text-gray)' }}>{hl.desc}</span>
                   </div>
-                  <button type="button" className="btn btn-danger btn-icon" onClick={() => removeHighlight(idx)} style={{ padding: '0.2rem 0.5rem', borderRadius: '6px' }}>&times;</button>
+                  <button type="button" className="btn btn-danger btn-icon" onClick={() => removeHighlight(idx)} style={{ padding: '0.2rem 0.5rem', borderRadius: '6px', marginLeft: 'auto' }}>&times;</button>
                 </div>
               ))}
               {highlights.length === 0 && <p style={{ fontSize: '0.85rem', color: 'var(--text-gray)' }}>No highlights added yet.</p>}
             </div>
 
-            <div className="form-row" style={{ background: 'rgba(255,255,255,0.01)', padding: '1rem', borderRadius: '16px', border: '1px solid var(--border-color)' }}>
+            <div className="form-row-responsive" style={{ background: 'rgba(255,255,255,0.01)', padding: '1rem', borderRadius: '16px', border: '1px solid var(--border-color)', alignItems: 'center' }}>
               <div className="form-group" style={{ marginBottom: 0 }}>
                 <input 
                   type="text" 

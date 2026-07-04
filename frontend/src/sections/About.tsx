@@ -35,14 +35,15 @@ export default function About({ data }: AboutProps) {
   };
 
   return (
-    <section id="about" className="py-24 px-6 max-w-7xl mx-auto relative select-none">
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: '-10% 0px' }}
-        className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start"
-      >
+    <section id="about" className="w-full min-h-[calc(100vh-80px)] flex flex-col justify-center py-12 md:py-16 scroll-mt-20 relative select-none overflow-hidden bg-transparent">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-10% 0px' }}
+          className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start"
+        >
         {/* Left Column: Biography & Highlights */}
         <div className="lg:col-span-7 space-y-8 md:space-y-10">
           <motion.div variants={itemVariants} className="space-y-4">
@@ -134,6 +135,7 @@ export default function About({ data }: AboutProps) {
           </div>
         )}
       </motion.div>
+      </div>
     </section>
   );
 }

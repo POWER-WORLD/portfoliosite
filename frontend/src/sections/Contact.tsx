@@ -98,17 +98,18 @@ export default function Contact({ personalInfo }: ContactProps) {
   };
 
   return (
-    <section id="contact" className="py-24 px-6 max-w-7xl mx-auto relative select-none">
-      {/* Header */}
-      <div className="flex flex-col items-center text-center space-y-4 mb-20">
-        <span className="text-sm font-semibold tracking-widest text-accent uppercase">
-          Get In Touch
-        </span>
-        <h2 className="font-display font-bold text-3xl md:text-5xl">
-          Contact Me
-        </h2>
-        <div className="w-12 h-1 bg-gradient-to-r from-accent to-secondary rounded-full" />
-      </div>
+    <section id="contact" className="w-full min-h-[calc(100vh-80px)] flex flex-col justify-center py-12 md:py-16 scroll-mt-20 relative select-none overflow-hidden bg-transparent">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="flex flex-col items-center text-center space-y-3 mb-10 md:mb-12">
+          <span className="text-sm font-semibold tracking-widest text-accent uppercase">
+            Get In Touch
+          </span>
+          <h2 className="font-display font-bold text-3xl md:text-5xl">
+            Contact Me
+          </h2>
+          <div className="w-12 h-1 bg-gradient-to-r from-accent to-secondary rounded-full" />
+        </div>
 
       <motion.div
         variants={containerVariants}
@@ -309,6 +310,7 @@ export default function Contact({ personalInfo }: ContactProps) {
           </form>
         </motion.div>
       </motion.div>
+      </div>
     </section>
   );
 }

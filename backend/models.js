@@ -35,10 +35,16 @@ const AboutSchema = new mongoose.Schema({
 // Skill Schema
 const SkillCategorySchema = new mongoose.Schema({
   title: { type: String, required: true },
+  categoryType: { type: String, default: 'Technical' }, // e.g. 'Frontend', 'Backend', 'DevOps', 'Architecture', 'Leadership'
+  description: { type: String, default: '' },
   icon: { type: String, required: true }, // Name of the Fa icon component, e.g. "FaCode"
+  capabilities: [{ type: String }], // Array of domain capability highlights
   skills: [{
     name: { type: String, required: true },
-    level: { type: Number, required: true, min: 0, max: 100 }
+    level: { type: Number, required: true, min: 0, max: 100 },
+    experience: { type: String, default: '' }, // e.g. "5+ Years", "4 Years"
+    tag: { type: String, default: 'Advanced' }, // e.g. "Expert", "Advanced", "Proficient", "Core Specialty"
+    icon: { type: String, default: '' }
   }]
 }, { timestamps: true });
 
