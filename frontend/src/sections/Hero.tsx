@@ -7,7 +7,8 @@ import {
   FaLinkedin, 
   FaEnvelope, 
   FaTwitter,
-  FaInfoCircle
+  FaInfoCircle,
+  FaDiscord
 } from 'react-icons/fa';
 
 // Hardcoded Hero Profile Details (Only Resume URL is dynamic via props from Admin Panel)
@@ -17,10 +18,11 @@ const HERO_STATIC_DATA = {
   tagline: 'Transforming complex business requirements into elegant, high-performance software solutions with clean, scalable code.',
   availability: 'WELCOME TO MY UNIVERSE',
   socials: [
-    { name: 'GitHub', icon: FaGithub, url: 'https://github.com' },
-    { name: 'LinkedIn', icon: FaLinkedin, url: 'https://linkedin.com' },
-    { name: 'Twitter', icon: FaTwitter, url: 'https://x.com' },
-    { name: 'Email', icon: FaEnvelope, url: 'mailto:pawankumar@example.com' },
+    { name: 'GitHub', icon: FaGithub, url: 'https://github.com/POWER-WORLD' },
+    { name: 'LinkedIn', icon: FaLinkedin, url: 'https://www.linkedin.com/in/pawankumar3253702/' },
+    { name: 'Twitter', icon: FaTwitter, url: 'https://x.com/Pawan3253702' },
+    { name: 'Email', icon: FaEnvelope, url: 'mailto:pk0403564@gmail.com' },
+    { name: 'Discord', icon: FaDiscord, url: 'https://discord.com/users/pawankumar3253702' },
   ],
 };
 
