@@ -2,6 +2,26 @@ import React, { useState } from 'react';
 import { adminApi } from '../api';
 import { FaPlus, FaTrash, FaEdit, FaGithub, FaExternalLinkAlt, FaTimes } from 'react-icons/fa';
 
+const CATEGORY_OPTIONS = [
+  { label: 'Full Stack', value: 'fullstack' },
+  { label: 'Frontend', value: 'frontend' },
+  { label: 'Backend', value: 'backend' },
+  { label: 'Android Application', value: 'android' },
+  { label: 'IOS Application', value: 'ios' },
+  { label: 'Desktop Application', value: 'desktop' },
+  { label: 'Game Development', value: 'game' },
+  { label: 'Web3', value: 'web3' },
+  { label: 'Python Scripts', value: 'python' },
+  { label: 'AI & ML', value: 'ai_ml' },
+  { label: 'Other', value: 'other' },
+  { label: 'Creative Tech', value: 'creative' },
+];
+
+const getCategoryLabel = (val: string) => {
+  const found = CATEGORY_OPTIONS.find((opt) => opt.value === val);
+  return found ? found.label : val;
+};
+
 interface ProjectsTabProps {
   initialProjects: any[];
   onRefresh: () => void;
@@ -15,7 +35,7 @@ export default function ProjectsTab({ initialProjects, onRefresh }: ProjectsTabP
   // Form Fields State
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [category, setCategory] = useState<'frontend' | 'fullstack' | 'creative'>('frontend');
+  const [category, setCategory] = useState<string>('frontend');
   const [tagsText, setTagsText] = useState('');
   const [githubUrl, setGithubUrl] = useState('');
   const [liveUrl, setLiveUrl] = useState('');
@@ -154,7 +174,7 @@ export default function ProjectsTab({ initialProjects, onRefresh }: ProjectsTabP
               <div className="item-card-header">
                 <div>
                   <h3 className="item-card-title">{proj.title}</h3>
-                  <span className="item-card-subtitle" style={{ textTransform: 'uppercase', fontSize: '0.75rem' }}>{proj.category}</span>
+                  <span className="item-card-subtitle" style={{ textTransform: 'uppercase', fontSize: '0.75rem' }}>{getCategoryLabel(proj.category)}</span>
                 </div>
               </div>
               
@@ -216,9 +236,11 @@ export default function ProjectsTab({ initialProjects, onRefresh }: ProjectsTabP
                 <div className="form-group">
                   <label>Category</label>
                   <select value={category} onChange={(e: any) => setCategory(e.target.value)}>
-                    <option value="frontend">Frontend Work</option>
-                    <option value="fullstack">Full Stack System</option>
-                    <option value="creative">Creative Tech</option>
+                    {CATEGORY_OPTIONS.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div className="form-group">

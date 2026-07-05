@@ -42,11 +42,53 @@ export const ABOUT_DATA = {
 
 export const SKILL_CATEGORIES: any[] = [];
 
+export type CategoryFilter = 
+  | 'all' 
+  | 'fullstack' 
+  | 'frontend' 
+  | 'backend' 
+  | 'android' 
+  | 'ios' 
+  | 'desktop' 
+  | 'game' 
+  | 'web3' 
+  | 'python' 
+  | 'ai_ml' 
+  | 'other' 
+  | 'creative';
+
+export interface CategoryOption {
+  label: string;
+  value: CategoryFilter;
+}
+
+export const PROJECT_CATEGORIES: CategoryOption[] = [
+  { label: 'All Projects', value: 'all' },
+  { label: 'Full Stack', value: 'fullstack' },
+  { label: 'Frontend', value: 'frontend' },
+  { label: 'Backend', value: 'backend' },
+  { label: 'Android Application', value: 'android' },
+  { label: 'IOS Application', value: 'ios' },
+  { label: 'Desktop Application', value: 'desktop' },
+  { label: 'Game Development', value: 'game' },
+  { label: 'Web3', value: 'web3' },
+  { label: 'Python Scripts', value: 'python' },
+  { label: 'AI & ML', value: 'ai_ml' },
+  { label: 'Other', value: 'other' },
+];
+
+export const getCategoryLabel = (categoryValue: string): string => {
+  const found = PROJECT_CATEGORIES.find((cat) => cat.value === categoryValue);
+  if (found) return found.label;
+  if (categoryValue === 'creative') return 'Creative Tech';
+  return categoryValue;
+};
+
 export interface Project {
   id: string;
   title: string;
   description: string;
-  category: 'frontend' | 'fullstack' | 'creative';
+  category: CategoryFilter;
   tags: string[];
   githubUrl: string;
   liveUrl: string;

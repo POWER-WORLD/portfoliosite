@@ -52,7 +52,11 @@ const SkillCategorySchema = new mongoose.Schema({
 const ProjectSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: { type: String, required: true },
-  category: { type: String, required: true, enum: ['frontend', 'fullstack', 'creative'] },
+  category: { 
+    type: String, 
+    required: true, 
+    enum: ['all', 'fullstack', 'frontend', 'backend', 'android', 'ios', 'desktop', 'game', 'web3', 'python', 'ai_ml', 'other', 'creative'] 
+  },
   tags: [{ type: String }],
   githubUrl: { type: String, default: '' },
   liveUrl: { type: String, default: '' },

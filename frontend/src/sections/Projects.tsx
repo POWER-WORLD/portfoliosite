@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaGithub, FaExternalLinkAlt, FaFolderOpen } from 'react-icons/fa';
 
-type CategoryFilter = 'all' | 'frontend' | 'fullstack' | 'creative';
+import { CategoryFilter, PROJECT_CATEGORIES, getCategoryLabel } from '../constants';
 
 interface ProjectsProps {
   data?: any[];
@@ -17,12 +17,20 @@ export default function Projects({ data }: ProjectsProps) {
     return project.category === filter;
   });
 
-  const categories: { label: string; value: CategoryFilter }[] = [
-    { label: 'All Projects', value: 'all' },
-    { label: 'Full Stack', value: 'fullstack' },
-    { label: 'Frontend', value: 'frontend' },
-    { label: 'Creative Tech', value: 'creative' },
-  ];
+  const availableCategories = PROJECT_CATEGORIES.filter((cat) => {
+    if (cat.value === 'all') return true;
+    return projects.some((p) => p.category === cat.value);
+  });
+
+  const existingCategoryValues = new Set<string>(projects.map((p) => p.category));
+  const additionalCategories = Array.from(existingCategoryValues)
+    .filter((catVal) => catVal && !PROJECT_CATEGORIES.some((c) => c.value === catVal))
+    .map((catVal) => ({
+      label: getCategoryLabel(catVal),
+      value: catVal as CategoryFilter,
+    }));
+
+  const categories = [...availableCategories, ...additionalCategories];
 
   if (projects.length === 0) {
     return (
@@ -131,7 +139,7 @@ export default function Projects({ data }: ProjectsProps) {
                   {/* Category Indicator & Title */}
                   <div className="space-y-1">
                     <span className="text-[10px] font-bold tracking-wider text-secondary uppercase font-mono">
-                      {project.category}
+                      {getCategoryLabel(project.category)}
                     </span>
                     <h3 className="font-display font-bold text-xl md:text-2xl text-white group-hover:text-glow transition-all duration-300">
                       {project.title}
