@@ -13,7 +13,11 @@ const PORT = process.env.PORT || 5000;
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:5174',
-  'http://localhost:4173'
+  'http://localhost:4173',
+  'https://pawankumar.info',
+  'https://www.pawankumar.info',
+  'http://pawankumar.info',
+  'http://www.pawankumar.info'
 ];
 
 if (process.env.FRONTEND_URL) {
@@ -36,12 +40,16 @@ app.use(cors({
     const isAllowed = allowedOrigins.some(allowed => {
       if (allowed === '*') return true;
       return allowed.toLowerCase() === cleanOrigin.toLowerCase();
-    }) || cleanOrigin.endsWith('.onrender.com');
+    }) || 
+    cleanOrigin.endsWith('.onrender.com') ||
+    cleanOrigin.endsWith('.pawankumar.info') ||
+    cleanOrigin.includes('pawankumar.info');
 
     if (isAllowed) {
       callback(null, true);
     } else {
-      callback(new Error(`Origin ${origin} not allowed by CORS`));
+      console.warn(`[CORS] Request from origin ${origin} not matched.`);
+      callback(null, false);
     }
   },
   credentials: true
@@ -57,6 +65,17 @@ app.use('/api', apiRoutes);
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.json({ status: 'healthy', db: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected' });
+});
+
+// Global error handler (ensures CORS headers are preserved even on 500 errors)
+app.use((err, req, res, next) => {
+  console.error('Unhandled server error:', err);
+  const origin = req.headers.origin;
+  if (origin) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+  }
+  res.status(500).json({ error: err.message || 'Internal Server Error' });
 });
 
 // Connect to MongoDB and start server
