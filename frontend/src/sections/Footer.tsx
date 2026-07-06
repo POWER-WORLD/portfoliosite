@@ -42,7 +42,7 @@ export default function Footer({ personalInfo }: FooterProps) {
 
         {/* Copyright notice */}
         <p className="text-xs text-gray-500 font-medium tracking-wide text-center">
-          &copy; {currentYear} {profile.name || 'Pawan Kumar'}. All Rights Reserved. Built with love by {firstName}<span className="text-white">.</span>INFO.
+          &copy; {currentYear} {profile.name || 'Pawan Kumar'}. All Rights Reserved. Built with love by {firstName}KUMAR<span className="text-white">.</span>INFO.
         </p>
 
         {/* Right Actions: Admin Portal Link + Social Links */}

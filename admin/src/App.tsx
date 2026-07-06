@@ -154,7 +154,7 @@ export default function App() {
         {/* Mobile Top Header */}
         <header className="mobile-header">
           <div className="mobile-header-brand">
-            <span className="brand-logo" style={{ fontSize: '1.2rem' }}>PAWAN.INFO</span>
+            <span className="brand-logo" style={{ fontSize: '1.2rem' }}>PAWANKUMAR.INFO</span>
             <span className="brand-tag" style={{ fontSize: '0.65rem' }}>CMS</span>
           </div>
           <button 
