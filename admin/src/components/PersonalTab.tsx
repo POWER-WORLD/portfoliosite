@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { adminApi } from '../api';
+import ConfirmModal from './ConfirmModal';
+import { sanitizeUrl } from '../utils/security';
 
 interface PersonalTabProps {
   initialInfo: any;
@@ -18,6 +20,7 @@ export default function PersonalTab({ initialInfo, initialAbout, onRefresh }: Pe
   // Resumes list & new resume state
   const [resumes, setResumes] = useState<any[]>(initialInfo?.resumes || []);
   const [activeResumeUrl, setActiveResumeUrl] = useState<string>(initialInfo?.resumeUrl || '');
+  const [deleteResumeItem, setDeleteResumeItem] = useState<{ id: string; title: string } | null>(null);
   
   const [newTitle, setNewTitle] = useState('');
   const [newUrl, setNewUrl] = useState('');
@@ -108,7 +111,7 @@ export default function PersonalTab({ initialInfo, initialAbout, onRefresh }: Pe
     try {
       await adminApi.addResume({
         title: newTitle.trim(),
-        url: newUrl.trim(),
+        url: sanitizeUrl(newUrl.trim()),
         isActive: setAsActive
       });
 
@@ -138,8 +141,10 @@ export default function PersonalTab({ initialInfo, initialAbout, onRefresh }: Pe
   };
 
   // Delete resume
-  const handleDeleteResume = async (id: string, title: string) => {
-    if (!window.confirm(`Are you sure you want to delete "${title}"?`)) return;
+  const confirmDeleteResume = async () => {
+    if (!deleteResumeItem) return;
+    const { id, title } = deleteResumeItem;
+    setDeleteResumeItem(null);
     setSuccessMsg('');
     setErrorMsg('');
     try {
@@ -157,7 +162,7 @@ export default function PersonalTab({ initialInfo, initialAbout, onRefresh }: Pe
     setSuccessMsg('');
     setErrorMsg('');
     try {
-      await adminApi.updatePersonalInfo({ name, title, tagline, location, email, resumeUrl: activeResumeUrl, resumes });
+      await adminApi.updatePersonalInfo({ name, title, tagline, location, email, resumeUrl: sanitizeUrl(activeResumeUrl), resumes });
       setSuccessMsg('Personal Core Profile saved successfully!');
       onRefresh();
     } catch (err: any) {
@@ -206,6 +211,16 @@ export default function PersonalTab({ initialInfo, initialAbout, onRefresh }: Pe
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
       
+      {/* Confirm Delete Modal */}
+      <ConfirmModal
+        isOpen={Boolean(deleteResumeItem)}
+        title="Delete Resume File"
+        message={`Are you sure you want to delete "${deleteResumeItem?.title}"?`}
+        confirmLabel="Delete Resume"
+        onConfirm={confirmDeleteResume}
+        onCancel={() => setDeleteResumeItem(null)}
+      />
+
       {/* Alert Messages */}
       {(successMsg || errorMsg) && (
         <div className={`alert ${successMsg ? 'alert-success' : 'alert-danger'}`}>
@@ -296,7 +311,7 @@ export default function PersonalTab({ initialInfo, initialAbout, onRefresh }: Pe
                     <button
                       type="button"
                       className="btn btn-danger btn-icon"
-                      onClick={() => handleDeleteResume(resItem.id, resItem.title)}
+                      onClick={() => setDeleteResumeItem({ id: resItem.id, title: resItem.title })}
                       style={{ fontSize: '0.75rem', padding: '0.35rem 0.6rem', marginLeft: 'auto' }}
                     >
                       Delete

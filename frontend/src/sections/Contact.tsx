@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FaEnvelope, FaMapMarkerAlt, FaPaperPlane, FaCheckCircle, FaLinkedin, FaGithub } from 'react-icons/fa';
 import { PERSONAL_INFO } from '../constants';
 import { submitContactMessage } from '../services/api';
+import { sanitizeUrl } from '../utils/security';
 
 interface ContactProps {
   personalInfo?: {
@@ -139,7 +140,7 @@ export default function Contact({ personalInfo }: ContactProps) {
                   </div>
                   <div>
                     <span className="block text-[10px] text-gray-400 uppercase tracking-wider font-semibold">Email</span>
-                    <a href={`mailto:${profile.email}`} className="text-white hover:text-accent font-semibold transition-colors duration-300">
+                    <a href={sanitizeUrl(`mailto:${profile.email}`)} className="text-white hover:text-accent font-semibold transition-colors duration-300">
                       {profile.email}
                     </a>
                   </div>
@@ -163,7 +164,7 @@ export default function Contact({ personalInfo }: ContactProps) {
           {/* Social icons */}
           <motion.div variants={itemVariants} className="flex items-center gap-4 pt-4">
             <a
-              href="https://github.com"
+              href={sanitizeUrl('https://github.com')}
               target="_blank"
               rel="noopener noreferrer"
               className="p-4 rounded-2xl border border-white/[0.06] bg-white/[0.02] hover:border-accent/40 hover:text-accent hover:shadow-[0_0_15px_rgba(108,99,255,0.2)] text-gray-400 hover:text-white transition-all duration-300 text-xl"
@@ -172,7 +173,7 @@ export default function Contact({ personalInfo }: ContactProps) {
               <FaGithub />
             </a>
             <a
-              href="https://linkedin.com"
+              href={sanitizeUrl('https://linkedin.com')}
               target="_blank"
               rel="noopener noreferrer"
               className="p-4 rounded-2xl border border-white/[0.06] bg-white/[0.02] hover:border-secondary/40 hover:text-secondary hover:shadow-[0_0_15px_rgba(0,229,255,0.2)] text-gray-400 hover:text-white transition-all duration-300 text-xl"

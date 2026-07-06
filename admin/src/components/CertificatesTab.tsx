@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { adminApi } from '../api';
 import { FaPlus, FaTrash, FaEdit, FaTimes, FaAward, FaCrown } from 'react-icons/fa';
+import ConfirmModal from './ConfirmModal';
+import { sanitizeUrl } from '../utils/security';
 
 interface CertificatesTabProps {
   initialCertificates: any[];
@@ -15,6 +17,8 @@ export default function CertificatesTab({ initialCertificates, initialAchievemen
   // Certificate Modal State
   const [certModalOpen, setCertModalOpen] = useState(false);
   const [editingCert, setEditingCert] = useState<any | null>(null);
+  const [deleteCertId, setDeleteCertId] = useState<string | null>(null);
+  const [deleteAchId, setDeleteAchId] = useState<string | null>(null);
 
   // Certificate Form state
   const [title, setTitle] = useState('');
@@ -55,6 +59,11 @@ export default function CertificatesTab({ initialCertificates, initialAchievemen
     const file = e.target.files?.[0];
     if (!file) return;
 
+    if (file.size > 5 * 1024 * 1024) {
+      setAlert({ type: 'danger', text: 'File size exceeds 5MB limit.' });
+      return;
+    }
+
     const reader = new FileReader();
     reader.onloadend = () => {
       setCertImageUrl(reader.result as string); // base64 string
@@ -68,7 +77,13 @@ export default function CertificatesTab({ initialCertificates, initialAchievemen
 
     setLoading(true);
     setAlert(null);
-    const payload = { title, organization, date, credentialUrl, imageUrl: certImageUrl };
+    const payload = { 
+      title, 
+      organization, 
+      date, 
+      credentialUrl: sanitizeUrl(credentialUrl), 
+      imageUrl: sanitizeUrl(certImageUrl, '') 
+    };
 
     try {
       if (editingCert) {
@@ -87,9 +102,10 @@ export default function CertificatesTab({ initialCertificates, initialAchievemen
     }
   };
 
-  const handleCertDelete = async (id: string) => {
-    if (!window.confirm('Delete this certificate credential?')) return;
-
+  const confirmDeleteCert = async () => {
+    if (!deleteCertId) return;
+    const id = deleteCertId;
+    setDeleteCertId(null);
     setLoading(true);
     setAlert(null);
     try {
@@ -123,9 +139,10 @@ export default function CertificatesTab({ initialCertificates, initialAchievemen
     }
   };
 
-  const handleDeleteAchievement = async (id: string) => {
-    if (!window.confirm('Delete this achievement metric?')) return;
-
+  const confirmDeleteAch = async () => {
+    if (!deleteAchId) return;
+    const id = deleteAchId;
+    setDeleteAchId(null);
     setLoading(true);
     setAlert(null);
     try {
@@ -142,6 +159,25 @@ export default function CertificatesTab({ initialCertificates, initialAchievemen
   return (
     <div className="grid-split-cert">
       
+      {/* Confirm Delete Modals */}
+      <ConfirmModal
+        isOpen={Boolean(deleteCertId)}
+        title="Delete Certificate Credential"
+        message="Are you sure you want to delete this digital certificate credential? This action cannot be undone."
+        confirmLabel="Delete Credential"
+        onConfirm={confirmDeleteCert}
+        onCancel={() => setDeleteCertId(null)}
+      />
+
+      <ConfirmModal
+        isOpen={Boolean(deleteAchId)}
+        title="Delete Achievement Metric"
+        message="Are you sure you want to remove this count achievement metric?"
+        confirmLabel="Delete Metric"
+        onConfirm={confirmDeleteAch}
+        onCancel={() => setDeleteAchId(null)}
+      />
+
       {/* Left Pane: Certificates Management */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
         
@@ -181,7 +217,7 @@ export default function CertificatesTab({ initialCertificates, initialAchievemen
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
                   {cert.imageUrl ? (
                     <img 
-                      src={cert.imageUrl} 
+                      src={sanitizeUrl(cert.imageUrl)} 
                       alt={cert.title} 
                       style={{ width: '48px', height: '48px', objectFit: 'cover', borderRadius: '8px', border: '1px solid var(--border-color)' }} 
                     />
@@ -202,7 +238,7 @@ export default function CertificatesTab({ initialCertificates, initialAchievemen
                   <button type="button" className="btn btn-secondary btn-icon" onClick={() => openCertEditModal(cert)}>
                     <FaEdit />
                   </button>
-                  <button type="button" className="btn btn-danger btn-icon" onClick={() => handleCertDelete(cert._id)}>
+                  <button type="button" className="btn btn-danger btn-icon" onClick={() => setDeleteCertId(cert._id)}>
                     <FaTrash />
                   </button>
                 </div>
@@ -281,7 +317,7 @@ export default function CertificatesTab({ initialCertificates, initialAchievemen
                   </strong>
                   <span style={{ fontSize: '0.8rem', color: 'var(--text-white)', fontWeight: 500 }}>{ach.label}</span>
                 </div>
-                <button type="button" className="btn btn-danger btn-icon" onClick={() => handleDeleteAchievement(ach._id)}>
+                <button type="button" className="btn btn-danger btn-icon" onClick={() => setDeleteAchId(ach._id)}>
                   <FaTrash />
                 </button>
               </div>

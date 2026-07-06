@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as FaIcons from 'react-icons/fa';
 import { FaLayerGroup, FaThLarge, FaCheckCircle, FaStar, FaSlidersH, FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import { safeClamp } from '../utils/security';
 
 interface Skill {
   name: string;
@@ -256,7 +257,7 @@ export default function Skills({ data }: SkillsProps) {
                                 </span>
                               )}
                               <span className="text-secondary font-mono font-bold text-sm bg-secondary/10 px-2 py-0.5 rounded border border-secondary/20">
-                                {skill.level}%
+                                {safeClamp(skill.level)}%
                               </span>
                             </div>
                           </div>
@@ -265,7 +266,7 @@ export default function Skills({ data }: SkillsProps) {
                           <div className="w-full h-2.5 rounded-full bg-white/[0.04] overflow-hidden p-0.5 border border-white/[0.04] relative">
                             <motion.div
                               initial={{ width: 0 }}
-                              whileInView={{ width: `${skill.level}%` }}
+                              whileInView={{ width: `${safeClamp(skill.level)}%` }}
                               viewport={{ once: true }}
                               transition={{ duration: 1.2, ease: 'easeOut', delay: 0.1 * skillIdx }}
                               className="h-full bg-gradient-to-r from-accent via-secondary to-accent rounded-full relative shadow-[0_0_12px_rgba(0,229,255,0.6)]"
@@ -367,7 +368,7 @@ export default function Skills({ data }: SkillsProps) {
                           key={idx}
                           className="px-2.5 py-1 rounded-lg text-xs font-medium bg-white/[0.04] text-gray-200 border border-white/[0.06] hover:bg-white/[0.08] hover:border-white/[0.15] transition-all duration-200"
                         >
-                          {s.name} <span className="text-secondary font-mono text-[11px]">({s.level}%)</span>
+                          {s.name} <span className="text-secondary font-mono text-[11px]">({safeClamp(s.level)}%)</span>
                         </span>
                       ))}
                     </div>

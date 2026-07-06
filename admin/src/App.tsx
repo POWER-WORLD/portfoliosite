@@ -5,6 +5,7 @@ import SkillsTab from './components/SkillsTab';
 import ProjectsTab from './components/ProjectsTab';
 import ExperienceTab from './components/ExperienceTab';
 import CertificatesTab from './components/CertificatesTab';
+import ErrorBoundary from './components/ErrorBoundary';
 import { adminApi, removeToken, getToken } from './api';
 import { 
   FaUser, 
@@ -44,6 +45,16 @@ export default function App() {
       }
     };
     checkAuth();
+
+    const handleSessionExpired = () => {
+      setIsAuthenticated(false);
+      setPortfolioData(null);
+    };
+
+    window.addEventListener('admin-session-expired', handleSessionExpired);
+    return () => {
+      window.removeEventListener('admin-session-expired', handleSessionExpired);
+    };
   }, []);
 
   const loadData = async () => {
@@ -138,126 +149,128 @@ export default function App() {
     : 'A';
 
   return (
-    <div className="admin-container">
-      {/* Mobile Top Header */}
-      <header className="mobile-header">
-        <div className="mobile-header-brand">
-          <span className="brand-logo" style={{ fontSize: '1.2rem' }}>PAWAN.INFO</span>
-          <span className="brand-tag" style={{ fontSize: '0.65rem' }}>CMS</span>
-        </div>
-        <button 
-          type="button" 
-          className="mobile-sidebar-toggle"
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          aria-label="Toggle Navigation Menu"
-        >
-          {sidebarOpen ? <FaTimes /> : <FaBars />}
-        </button>
-      </header>
-
-      {/* Mobile Sidebar Backdrop Overlay */}
-      <div 
-        className={`sidebar-backdrop ${sidebarOpen ? 'open' : ''}`} 
-        onClick={() => setSidebarOpen(false)} 
-        aria-hidden="true"
-      />
-
-      {/* Sidebar Navigation */}
-      <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
-        <div>
-          <div className="brand">
-            <span className="brand-logo">PAWAN.INFO</span>
-            <span className="brand-tag">CMS</span>
+    <ErrorBoundary>
+      <div className="admin-container">
+        {/* Mobile Top Header */}
+        <header className="mobile-header">
+          <div className="mobile-header-brand">
+            <span className="brand-logo" style={{ fontSize: '1.2rem' }}>PAWAN.INFO</span>
+            <span className="brand-tag" style={{ fontSize: '0.65rem' }}>CMS</span>
           </div>
-
-          <nav className="nav-menu">
-            <li className="nav-item">
-              <button 
-                type="button" 
-                onClick={() => { setActiveTab('personal'); setSidebarOpen(false); }} 
-                className={`nav-link ${activeTab === 'personal' ? 'active' : ''}`}
-              >
-                <FaUser className="nav-icon" /> Core Profile
-              </button>
-            </li>
-            <li className="nav-item">
-              <button 
-                type="button" 
-                onClick={() => { setActiveTab('skills'); setSidebarOpen(false); }} 
-                className={`nav-link ${activeTab === 'skills' ? 'active' : ''}`}
-              >
-                <FaCode className="nav-icon" /> Core Skills
-              </button>
-            </li>
-            <li className="nav-item">
-              <button 
-                type="button" 
-                onClick={() => { setActiveTab('projects'); setSidebarOpen(false); }} 
-                className={`nav-link ${activeTab === 'projects' ? 'active' : ''}`}
-              >
-                <FaBriefcase className="nav-icon" /> Project Cards
-              </button>
-            </li>
-            <li className="nav-item">
-              <button 
-                type="button" 
-                onClick={() => { setActiveTab('experience'); setSidebarOpen(false); }} 
-                className={`nav-link ${activeTab === 'experience' ? 'active' : ''}`}
-              >
-                <FaGraduationCap className="nav-icon" /> Professional Timeline
-              </button>
-            </li>
-            <li className="nav-item">
-              <button 
-                type="button" 
-                onClick={() => { setActiveTab('certs'); setSidebarOpen(false); }} 
-                className={`nav-link ${activeTab === 'certs' ? 'active' : ''}`}
-              >
-                <FaAward className="nav-icon" /> Certs & Metrics
-              </button>
-            </li>
-          </nav>
-        </div>
-
-        <div className="sidebar-footer">
-          <div className="user-profile">
-            <div className="user-avatar">{nameInitial}</div>
-            <div className="user-info">
-              <span className="user-name">{portfolioData?.personalInfo?.name || 'Administrator'}</span>
-              <span className="user-role">Super Admin</span>
-            </div>
-          </div>
-          <button type="button" onClick={handleLogout} className="nav-link" style={{ color: 'var(--error)' }}>
-            <FaSignOutAlt className="nav-icon" /> Logout Session
+          <button 
+            type="button" 
+            className="mobile-sidebar-toggle"
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            aria-label="Toggle Navigation Menu"
+          >
+            {sidebarOpen ? <FaTimes /> : <FaBars />}
           </button>
-        </div>
-      </aside>
-
-      {/* Main Content Workspace */}
-      <main className="main-content">
-        <header className="page-header">
-          <div>
-            <h1 className="page-title">
-              {activeTab === 'personal' && 'Core Portfolio Profile'}
-              {activeTab === 'skills' && 'Skills & Capabilities'}
-              {activeTab === 'projects' && 'Projects Showcase'}
-              {activeTab === 'experience' && 'Professional Timeline'}
-              {activeTab === 'certs' && 'Credentials & Metrics'}
-            </h1>
-            <p className="page-subtitle">
-              {activeTab === 'personal' && 'Manage your display information, narrative biography, and education history.'}
-              {activeTab === 'skills' && 'Organize tech stack categories and proficiency percentage indicators.'}
-              {activeTab === 'projects' && 'Configure custom cards, cover images, descriptions, and code links.'}
-              {activeTab === 'experience' && 'Edit your career path roles, employment periods, and job duties.'}
-              {activeTab === 'certs' && 'Modify your digital certifications and count metrics.'}
-            </p>
-          </div>
         </header>
 
-        <section style={{ animation: 'fadeIn 0.5s ease-out' }}>
-          {renderTabContent()}
-        </section>
-      </main>
-    </div>
+        {/* Mobile Sidebar Backdrop Overlay */}
+        <div 
+          className={`sidebar-backdrop ${sidebarOpen ? 'open' : ''}`} 
+          onClick={() => setSidebarOpen(false)} 
+          aria-hidden="true"
+        />
+
+        {/* Sidebar Navigation */}
+        <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
+          <div>
+            <div className="brand">
+              <span className="brand-logo">PAWAN.INFO</span>
+              <span className="brand-tag">CMS</span>
+            </div>
+
+            <nav className="nav-menu">
+              <li className="nav-item">
+                <button 
+                  type="button" 
+                  onClick={() => { setActiveTab('personal'); setSidebarOpen(false); }} 
+                  className={`nav-link ${activeTab === 'personal' ? 'active' : ''}`}
+                >
+                  <FaUser className="nav-icon" /> Core Profile
+                </button>
+              </li>
+              <li className="nav-item">
+                <button 
+                  type="button" 
+                  onClick={() => { setActiveTab('skills'); setSidebarOpen(false); }} 
+                  className={`nav-link ${activeTab === 'skills' ? 'active' : ''}`}
+                >
+                  <FaCode className="nav-icon" /> Core Skills
+                </button>
+              </li>
+              <li className="nav-item">
+                <button 
+                  type="button" 
+                  onClick={() => { setActiveTab('projects'); setSidebarOpen(false); }} 
+                  className={`nav-link ${activeTab === 'projects' ? 'active' : ''}`}
+                >
+                  <FaBriefcase className="nav-icon" /> Project Cards
+                </button>
+              </li>
+              <li className="nav-item">
+                <button 
+                  type="button" 
+                  onClick={() => { setActiveTab('experience'); setSidebarOpen(false); }} 
+                  className={`nav-link ${activeTab === 'experience' ? 'active' : ''}`}
+                >
+                  <FaGraduationCap className="nav-icon" /> Professional Timeline
+                </button>
+              </li>
+              <li className="nav-item">
+                <button 
+                  type="button" 
+                  onClick={() => { setActiveTab('certs'); setSidebarOpen(false); }} 
+                  className={`nav-link ${activeTab === 'certs' ? 'active' : ''}`}
+                >
+                  <FaAward className="nav-icon" /> Certs & Metrics
+                </button>
+              </li>
+            </nav>
+          </div>
+
+          <div className="sidebar-footer">
+            <div className="user-profile">
+              <div className="user-avatar">{nameInitial}</div>
+              <div className="user-info">
+                <span className="user-name">{portfolioData?.personalInfo?.name || 'Administrator'}</span>
+                <span className="user-role">Super Admin</span>
+              </div>
+            </div>
+            <button type="button" onClick={handleLogout} className="nav-link" style={{ color: 'var(--error)' }}>
+              <FaSignOutAlt className="nav-icon" /> Logout Session
+            </button>
+          </div>
+        </aside>
+
+        {/* Main Content Workspace */}
+        <main className="main-content">
+          <header className="page-header">
+            <div>
+              <h1 className="page-title">
+                {activeTab === 'personal' && 'Core Portfolio Profile'}
+                {activeTab === 'skills' && 'Skills & Capabilities'}
+                {activeTab === 'projects' && 'Projects Showcase'}
+                {activeTab === 'experience' && 'Professional Timeline'}
+                {activeTab === 'certs' && 'Credentials & Metrics'}
+              </h1>
+              <p className="page-subtitle">
+                {activeTab === 'personal' && 'Manage your display information, narrative biography, and education history.'}
+                {activeTab === 'skills' && 'Organize tech stack categories and proficiency percentage indicators.'}
+                {activeTab === 'projects' && 'Configure custom cards, cover images, descriptions, and code links.'}
+                {activeTab === 'experience' && 'Edit your career path roles, employment periods, and job duties.'}
+                {activeTab === 'certs' && 'Modify your digital certifications and count metrics.'}
+              </p>
+            </div>
+          </header>
+
+          <section style={{ animation: 'fadeIn 0.5s ease-out' }}>
+            {renderTabContent()}
+          </section>
+        </main>
+      </div>
+    </ErrorBoundary>
   );
 }

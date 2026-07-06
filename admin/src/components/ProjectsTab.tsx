@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { adminApi } from '../api';
 import { FaPlus, FaTrash, FaEdit, FaGithub, FaExternalLinkAlt, FaTimes } from 'react-icons/fa';
+import ConfirmModal from './ConfirmModal';
+import { sanitizeUrl } from '../utils/security';
 
 const CATEGORY_OPTIONS = [
   { label: 'Full Stack', value: 'fullstack' },
@@ -31,6 +33,7 @@ export default function ProjectsTab({ initialProjects, onRefresh }: ProjectsTabP
   const projects = initialProjects || [];
   const [modalOpen, setModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<any | null>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
   // Form Fields State
   const [title, setTitle] = useState('');
@@ -73,7 +76,7 @@ export default function ProjectsTab({ initialProjects, onRefresh }: ProjectsTabP
     if (!file) return;
 
     if (file.size > 5 * 1024 * 1024) {
-      window.alert('File size exceeds the 5MB limit.');
+      setAlert({ type: 'danger', text: 'File size exceeds the 5MB limit. Please select a smaller file.' });
       return;
     }
 
@@ -102,9 +105,9 @@ export default function ProjectsTab({ initialProjects, onRefresh }: ProjectsTabP
       description,
       category,
       tags,
-      githubUrl,
-      liveUrl,
-      imageUrl,
+      githubUrl: sanitizeUrl(githubUrl),
+      liveUrl: sanitizeUrl(liveUrl),
+      imageUrl: sanitizeUrl(imageUrl, ''),
     };
 
     try {
@@ -124,9 +127,10 @@ export default function ProjectsTab({ initialProjects, onRefresh }: ProjectsTabP
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm('Delete this project? This action cannot be undone.')) return;
-
+  const confirmDelete = async () => {
+    if (!deleteConfirmId) return;
+    const id = deleteConfirmId;
+    setDeleteConfirmId(null);
     setLoading(true);
     setAlert(null);
     try {
@@ -158,13 +162,23 @@ export default function ProjectsTab({ initialProjects, onRefresh }: ProjectsTabP
         </div>
       )}
 
+      {/* Confirm Delete Dialog */}
+      <ConfirmModal
+        isOpen={Boolean(deleteConfirmId)}
+        title="Delete Project Workpiece"
+        message="Are you sure you want to permanently remove this project workpiece? This action cannot be undone."
+        confirmLabel="Delete Project"
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteConfirmId(null)}
+      />
+
       {/* Projects Grid Display */}
       <div className="cards-grid">
         {projects.map((proj) => (
           <div key={proj._id} className="item-card">
             <div>
               {proj.imageUrl ? (
-                <img src={proj.imageUrl} alt={proj.title} className="item-card-img" style={{ marginBottom: '1rem' }} />
+                <img src={sanitizeUrl(proj.imageUrl)} alt={proj.title} className="item-card-img" style={{ marginBottom: '1rem' }} />
               ) : (
                 <div style={{ width: '100%', aspectRatio: '16/9', borderRadius: '12px', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', marginBottom: '1rem' }}>
                   No Preview Image
@@ -191,14 +205,14 @@ export default function ProjectsTab({ initialProjects, onRefresh }: ProjectsTabP
 
             <div className="item-card-footer" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ display: 'flex', gap: '0.75rem', fontSize: '0.95rem', color: 'var(--text-gray)' }}>
-                {proj.githubUrl && <a href={proj.githubUrl} target="_blank" rel="noreferrer"><FaGithub /></a>}
-                {proj.liveUrl && <a href={proj.liveUrl} target="_blank" rel="noreferrer"><FaExternalLinkAlt /></a>}
+                {proj.githubUrl && <a href={sanitizeUrl(proj.githubUrl)} target="_blank" rel="noopener noreferrer"><FaGithub /></a>}
+                {proj.liveUrl && <a href={sanitizeUrl(proj.liveUrl)} target="_blank" rel="noopener noreferrer"><FaExternalLinkAlt /></a>}
               </div>
               <div style={{ display: 'flex', gap: '0.5rem' }}>
                 <button type="button" className="btn btn-secondary btn-icon" onClick={() => openEditModal(proj)}>
                   <FaEdit />
                 </button>
-                <button type="button" className="btn btn-danger btn-icon" onClick={() => handleDelete(proj._id)}>
+                <button type="button" className="btn btn-danger btn-icon" onClick={() => setDeleteConfirmId(proj._id)}>
                   <FaTrash />
                 </button>
               </div>

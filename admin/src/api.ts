@@ -33,7 +33,7 @@ async function request(endpoint: string, options: RequestInit = {}) {
 
   if (res.status === 401 && endpoint !== '/auth/login') {
     removeToken();
-    window.location.reload();
+    window.dispatchEvent(new Event('admin-session-expired'));
     throw new Error('Session expired. Please log in again.');
   }
 

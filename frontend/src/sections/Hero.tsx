@@ -10,6 +10,7 @@ import {
   FaInfoCircle,
   FaDiscord
 } from 'react-icons/fa';
+import { sanitizeUrl } from '../utils/security';
 
 // Hardcoded Hero Profile Details (Only Resume URL is dynamic via props from Admin Panel)
 const HERO_STATIC_DATA = {
@@ -50,12 +51,13 @@ const WORD_GRADIENT_THEMES = [
  * Handles Base64 Data URIs, Google Drive links, and direct URLs reliably.
  */
 export function downloadResumeFile(url: string, defaultFilename = 'Pawan_Kumar_Resume.pdf'): boolean {
-  if (!url || url === '#' || url.trim() === '') return false;
+  const safeUrl = sanitizeUrl(url);
+  if (!safeUrl || safeUrl === '#' || safeUrl.trim() === '') return false;
 
   // 1. Handle Base64 Data URIs
-  if (url.startsWith('data:')) {
+  if (safeUrl.startsWith('data:')) {
     try {
-      const parts = url.split(';base64,');
+      const parts = safeUrl.split(';base64,');
       const contentType = parts[0].replace('data:', '') || 'application/pdf';
       const raw = window.atob(parts[1]);
       const uInt8Array = new Uint8Array(raw.length);
@@ -211,51 +213,54 @@ export default function Hero({ data, resumeUrl: propResumeUrl }: HeroProps) {
           variants={itemVariants}
           className="font-orbitron font-black text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl tracking-tight leading-none mb-3 sm:mb-4 flex flex-wrap md:flex-nowrap justify-center gap-x-3 sm:gap-x-5 md:gap-x-6 whitespace-normal md:whitespace-nowrap w-full"
         >
-          {nameWords.map((word, wordIndex) => {
-            const theme = WORD_GRADIENT_THEMES[wordIndex % WORD_GRADIENT_THEMES.length];
-            const wordLetters = Array.from(word);
-            
-            return (
-              <span 
-                key={wordIndex}
-                className="inline-flex items-center space-x-0.5 sm:space-x-1 py-1"
-              >
-                {wordLetters.map((char, charIndex) => {
-                  const globalIndex = wordIndex * 6 + charIndex;
-                  return (
-                    <motion.span
-                      key={charIndex}
-                      initial={{ opacity: 0, y: 35, scale: 0.8 }}
-                      animate={{
-                        opacity: 1,
-                        y: [0, -6, 0],
-                        scale: 1,
-                      }}
-                      transition={{
-                        opacity: { duration: 0.4, delay: 0.1 + globalIndex * 0.04 },
-                        scale: { duration: 0.4, delay: 0.1 + globalIndex * 0.04 },
-                        y: {
-                          duration: 2.6,
-                          repeat: Infinity,
-                          ease: 'easeInOut',
-                          delay: 0.4 + globalIndex * 0.08,
-                        },
-                      }}
-                      whileHover={{
-                        scale: 1.25,
-                        y: -12,
-                        rotate: [0, -6, 6, 0],
-                        transition: { type: 'spring', stiffness: 400, damping: 10 },
-                      }}
-                      className={`inline-block cursor-default select-none bg-gradient-to-r ${theme.gradient} bg-[length:250%_250%] animate-wave-gradient bg-clip-text text-transparent ${theme.dropShadow}`}
-                    >
-                      {char}
-                    </motion.span>
-                  );
-                })}
-              </span>
-            );
-          })}
+          {(() => {
+            let cumulativeCharIndex = 0;
+            return nameWords.map((word, wordIndex) => {
+              const theme = WORD_GRADIENT_THEMES[wordIndex % WORD_GRADIENT_THEMES.length];
+              const wordLetters = Array.from(word);
+              
+              return (
+                <span 
+                  key={wordIndex}
+                  className="inline-flex items-center space-x-0.5 sm:space-x-1 py-1"
+                >
+                  {wordLetters.map((char, charIndex) => {
+                    const globalIndex = cumulativeCharIndex++;
+                    return (
+                      <motion.span
+                        key={charIndex}
+                        initial={{ opacity: 0, y: 35, scale: 0.8 }}
+                        animate={{
+                          opacity: 1,
+                          y: [0, -6, 0],
+                          scale: 1,
+                        }}
+                        transition={{
+                          opacity: { duration: 0.4, delay: 0.1 + globalIndex * 0.04 },
+                          scale: { duration: 0.4, delay: 0.1 + globalIndex * 0.04 },
+                          y: {
+                            duration: 2.6,
+                            repeat: Infinity,
+                            ease: 'easeInOut',
+                            delay: 0.4 + globalIndex * 0.08,
+                          },
+                        }}
+                        whileHover={{
+                          scale: 1.25,
+                          y: -12,
+                          rotate: [0, -6, 6, 0],
+                          transition: { type: 'spring', stiffness: 400, damping: 10 },
+                        }}
+                        className={`inline-block cursor-default select-none bg-gradient-to-r ${theme.gradient} bg-[length:250%_250%] animate-wave-gradient bg-clip-text text-transparent ${theme.dropShadow}`}
+                      >
+                        {char}
+                      </motion.span>
+                    );
+                  })}
+                </span>
+              );
+            });
+          })()}
         </motion.h1>
 
         {/* 3. Title (Cyan Glowing Header directly below Name, matching reference image) */}
@@ -306,10 +311,11 @@ export default function Hero({ data, resumeUrl: propResumeUrl }: HeroProps) {
         <motion.div variants={itemVariants} className="flex items-center justify-center gap-4">
           {HERO_STATIC_DATA.socials.map((social, i) => {
             const Icon = social.icon;
+            const safeSocialUrl = sanitizeUrl(social.url);
             return (
               <motion.a
                 key={i}
-                href={social.url}
+                href={safeSocialUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={social.name}

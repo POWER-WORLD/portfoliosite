@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { adminApi } from '../api';
 import { FaPlus, FaTrash, FaEdit, FaTimes } from 'react-icons/fa';
+import ConfirmModal from './ConfirmModal';
 
 interface ExperienceTabProps {
   initialExperience: any[];
@@ -11,6 +12,7 @@ export default function ExperienceTab({ initialExperience, onRefresh }: Experien
   const experience = initialExperience || [];
   const [modalOpen, setModalOpen] = useState(false);
   const [editingExp, setEditingExp] = useState<any | null>(null);
+  const [deleteExpId, setDeleteExpId] = useState<string | null>(null);
 
   // Form Fields State
   const [role, setRole] = useState('');
@@ -65,9 +67,10 @@ export default function ExperienceTab({ initialExperience, onRefresh }: Experien
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this job experience?')) return;
-
+  const confirmDeleteExp = async () => {
+    if (!deleteExpId) return;
+    const id = deleteExpId;
+    setDeleteExpId(null);
     setLoading(true);
     setAlert(null);
     try {
@@ -99,6 +102,16 @@ export default function ExperienceTab({ initialExperience, onRefresh }: Experien
         </div>
       )}
 
+      {/* Confirm Delete Dialog */}
+      <ConfirmModal
+        isOpen={Boolean(deleteExpId)}
+        title="Delete Work Timeline Record"
+        message="Are you sure you want to delete this career experience record?"
+        confirmLabel="Delete Experience"
+        onConfirm={confirmDeleteExp}
+        onCancel={() => setDeleteExpId(null)}
+      />
+
       {/* Experience Table List */}
       <div className="glass-panel" style={{ padding: '1.5rem' }}>
         <div className="data-table-container">
@@ -127,7 +140,7 @@ export default function ExperienceTab({ initialExperience, onRefresh }: Experien
                       <button type="button" className="btn btn-secondary btn-icon" onClick={() => openEditModal(exp)}>
                         <FaEdit />
                       </button>
-                      <button type="button" className="btn btn-danger btn-icon" onClick={() => handleDelete(exp._id)}>
+                      <button type="button" className="btn btn-danger btn-icon" onClick={() => setDeleteExpId(exp._id)}>
                         <FaTrash />
                       </button>
                     </div>

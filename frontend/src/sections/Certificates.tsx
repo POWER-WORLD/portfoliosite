@@ -14,6 +14,8 @@ import {
   FaShieldAlt 
 } from 'react-icons/fa';
 import { type Certificate } from '../constants';
+import { useScrollLock } from '../hooks/useScrollLock';
+import { sanitizeUrl } from '../utils/security';
 
 interface CertificatesProps {
   data?: Certificate[];
@@ -31,6 +33,7 @@ const CERT_ICON_TYPES = [
 export default function Certificates({ data }: CertificatesProps) {
   const [selectedCert, setSelectedCert] = useState<Certificate | null>(null);
   const [isImageExpanded, setIsImageExpanded] = useState(false);
+  useScrollLock(Boolean(selectedCert) || isImageExpanded);
   const certs = data && data.length > 0 ? data : [];
 
   if (certs.length === 0) {
@@ -261,7 +264,7 @@ export default function Certificates({ data }: CertificatesProps) {
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-6 pt-4 border-t border-white/10 relative z-10">
                   {selectedCert.imageUrl && (
                     <a
-                      href={selectedCert.imageUrl}
+                      href={sanitizeUrl(selectedCert.imageUrl)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 rounded-full border border-cyan-500/40 hover:border-cyan-400 bg-cyan-500/10 text-cyan-300 hover:text-white font-semibold text-xs transition-all duration-300 shadow-md"
@@ -271,7 +274,7 @@ export default function Certificates({ data }: CertificatesProps) {
                   )}
                   {selectedCert.credentialUrl && selectedCert.credentialUrl !== '#' && (
                     <a
-                      href={selectedCert.credentialUrl}
+                      href={sanitizeUrl(selectedCert.credentialUrl)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2.5 rounded-full bg-gradient-to-r from-accent via-cyan-400 to-secondary text-slate-950 font-bold tracking-wider hover:shadow-[0_0_20px_rgba(0,229,255,0.4)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 text-xs"

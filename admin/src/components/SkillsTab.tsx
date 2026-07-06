@@ -2,6 +2,8 @@ import React, { useState, useRef } from 'react';
 import { adminApi } from '../api';
 import * as FaIcons from 'react-icons/fa';
 import { FaTrash, FaPlus, FaSave, FaEye, FaEdit, FaCheck, FaArrowLeft } from 'react-icons/fa';
+import ConfirmModal from './ConfirmModal';
+import { safeClamp } from '../utils/security';
 
 interface SkillsTabProps {
   initialSkills: any[];
@@ -53,6 +55,7 @@ function RenderIcon({ iconName, className }: { iconName: string; className?: str
 export default function SkillsTab({ initialSkills, onRefresh }: SkillsTabProps) {
   const categories = initialSkills || [];
   const [editingCategory, setEditingCategory] = useState<any | null>(null);
+  const [deleteCategoryId, setDeleteCategoryId] = useState<string | null>(null);
   const editorRef = useRef<HTMLDivElement>(null);
 
   // New Category Form State
@@ -100,9 +103,10 @@ export default function SkillsTab({ initialSkills, onRefresh }: SkillsTabProps) 
     }
   };
 
-  const handleDeleteCategory = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this skill category and all its skills?')) return;
-
+  const confirmDeleteCategory = async () => {
+    if (!deleteCategoryId) return;
+    const id = deleteCategoryId;
+    setDeleteCategoryId(null);
     setLoading(true);
     setAlert(null);
     try {
@@ -137,7 +141,7 @@ export default function SkillsTab({ initialSkills, onRefresh }: SkillsTabProps) 
       ...skillsList,
       {
         name: newSkillName.trim(),
-        level: newSkillLevel,
+        level: safeClamp(newSkillLevel),
         experience: newSkillExp.trim(),
         tag: newSkillTag
       }
@@ -159,7 +163,7 @@ export default function SkillsTab({ initialSkills, onRefresh }: SkillsTabProps) 
   // Modify Skill Item Attributes
   const handleSkillChange = (skillIdx: number, field: string, value: any) => {
     if (!editingCategory) return;
-    editingCategory.skills[skillIdx][field] = value;
+    editingCategory.skills[skillIdx][field] = field === 'level' ? safeClamp(value) : value;
     setEditingCategory({ ...editingCategory });
   };
 
@@ -197,6 +201,16 @@ export default function SkillsTab({ initialSkills, onRefresh }: SkillsTabProps) 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
       
+      {/* Confirm Delete Modal */}
+      <ConfirmModal
+        isOpen={Boolean(deleteCategoryId)}
+        title="Delete Skill Category"
+        message="Are you sure you want to delete this skill category and all its associated skills?"
+        confirmLabel="Delete Category"
+        onConfirm={confirmDeleteCategory}
+        onCancel={() => setDeleteCategoryId(null)}
+      />
+
       {alert && (
         <div className={`alert alert-${alert.type}`}>
           <span>{alert.text}</span>
@@ -344,7 +358,7 @@ export default function SkillsTab({ initialSkills, onRefresh }: SkillsTabProps) 
                           <button 
                             type="button" 
                             className="btn btn-danger btn-icon" 
-                            onClick={() => handleDeleteCategory(cat._id)}
+                            onClick={() => setDeleteCategoryId(cat._id)}
                             title="Delete category"
                           >
                             <FaTrash />
