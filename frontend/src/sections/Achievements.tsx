@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
+import SectionHeader from '../components/SectionHeader';
 
 interface CounterProps {
   value: number;
@@ -25,7 +26,10 @@ function Counter({ value, duration = 1500 }: CounterProps) {
       { threshold: 0.1 }
     );
 
-    observer.observe(el);
+    const checkState = () => {
+      observer.observe(el);
+    };
+    checkState();
     return () => observer.disconnect();
   }, []);
 
@@ -82,8 +86,16 @@ export default function Achievements({ data }: AchievementsProps) {
   };
 
   return (
-    <section id="achievements" className="w-full py-10 md:py-14 scroll-mt-20 relative select-none overflow-hidden bg-transparent">
+    <section id="achievements" className="w-full py-8 md:py-12 scroll-mt-20 relative select-none overflow-hidden bg-transparent">
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <SectionHeader
+          badgeText="Metrics"
+          title="Achievements & Impact"
+          highlightText="Impact"
+          tagline="Key performance indicators, project metrics, and technical milestones achieved throughout my career."
+          badgeColor="accent"
+        />
+
         {/* Container grid */}
         <motion.div
           variants={containerVariants}
@@ -96,8 +108,7 @@ export default function Achievements({ data }: AchievementsProps) {
             <motion.div
               key={idx}
               variants={itemVariants}
-              whileHover={{ y: -5, scale: 1.02, transition: { duration: 0.3 } }}
-              className="glass-panel p-6 sm:p-8 rounded-3xl text-center flex flex-col items-center justify-center relative overflow-hidden group hover:border-accent/40 transition-all duration-500 hover:shadow-[0_0_25px_rgba(108,99,255,0.15)]"
+              className="glass-card p-6 sm:p-8 text-center flex flex-col items-center justify-center relative overflow-hidden group"
             >
               {/* Soft backdrop blur spot */}
               <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent pointer-events-none" />

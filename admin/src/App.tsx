@@ -5,6 +5,7 @@ import SkillsTab from './components/SkillsTab';
 import ProjectsTab from './components/ProjectsTab';
 import ExperienceTab from './components/ExperienceTab';
 import CertificatesTab from './components/CertificatesTab';
+import TechStackTab from './components/TechStackTab';
 import ErrorBoundary from './components/ErrorBoundary';
 import { adminApi, removeToken, getToken } from './api';
 import { 
@@ -15,10 +16,11 @@ import {
   FaAward, 
   FaSignOutAlt, 
   FaBars, 
-  FaTimes 
+  FaTimes,
+  FaLaptopCode
 } from 'react-icons/fa';
 
-type TabType = 'personal' | 'skills' | 'projects' | 'experience' | 'certs';
+type TabType = 'personal' | 'skills' | 'projects' | 'experience' | 'certs' | 'techstack';
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
@@ -139,6 +141,13 @@ export default function App() {
             onRefresh={loadData} 
           />
         );
+      case 'techstack':
+        return (
+          <TechStackTab 
+            initialTechStack={portfolioData?.techStack} 
+            onRefresh={loadData} 
+          />
+        );
       default:
         return <div>Tab not found</div>;
     }
@@ -204,6 +213,15 @@ export default function App() {
               <li className="nav-item">
                 <button 
                   type="button" 
+                  onClick={() => { setActiveTab('techstack'); setSidebarOpen(false); }} 
+                  className={`nav-link ${activeTab === 'techstack' ? 'active' : ''}`}
+                >
+                  <FaLaptopCode className="nav-icon" /> Tech Stack
+                </button>
+              </li>
+              <li className="nav-item">
+                <button 
+                  type="button" 
                   onClick={() => { setActiveTab('projects'); setSidebarOpen(false); }} 
                   className={`nav-link ${activeTab === 'projects' ? 'active' : ''}`}
                 >
@@ -255,6 +273,7 @@ export default function App() {
                 {activeTab === 'projects' && 'Projects Showcase'}
                 {activeTab === 'experience' && 'Professional Timeline'}
                 {activeTab === 'certs' && 'Credentials & Metrics'}
+                {activeTab === 'techstack' && 'Technologies & Tools'}
               </h1>
               <p className="page-subtitle">
                 {activeTab === 'personal' && 'Manage your display information, narrative biography, and education history.'}
@@ -262,6 +281,7 @@ export default function App() {
                 {activeTab === 'projects' && 'Configure custom cards, cover images, descriptions, and code links.'}
                 {activeTab === 'experience' && 'Edit your career path roles, employment periods, and job duties.'}
                 {activeTab === 'certs' && 'Modify your digital certifications and count metrics.'}
+                {activeTab === 'techstack' && 'Manage selectable technology items, brand icons, and hex colors.'}
               </p>
             </div>
           </header>

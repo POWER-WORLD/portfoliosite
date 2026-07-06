@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import SectionHeader from '../components/SectionHeader';
 
 interface AboutProps {
   data?: {
@@ -35,7 +36,7 @@ export default function About({ data }: AboutProps) {
   };
 
   return (
-    <section id="about" className="w-full min-h-[calc(100vh-80px)] flex flex-col justify-center py-12 md:py-16 scroll-mt-20 relative select-none overflow-hidden bg-transparent">
+    <section id="about" className="w-full min-h-[calc(100vh-80px)] flex flex-col justify-center py-8 md:py-12 scroll-mt-20 relative select-none overflow-hidden bg-transparent">
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           variants={containerVariants}
@@ -46,15 +47,12 @@ export default function About({ data }: AboutProps) {
         >
         {/* Left Column: Biography & Highlights */}
         <div className="lg:col-span-7 space-y-8 md:space-y-10">
-          <motion.div variants={itemVariants} className="space-y-4">
-            <span className="text-sm font-semibold tracking-widest text-accent uppercase">
-              My Journey
-            </span>
-            <h2 className="font-display font-bold text-3xl md:text-5xl">
-              About Me
-            </h2>
-            <div className="w-12 h-1 bg-gradient-to-r from-accent to-secondary rounded-full" />
-          </motion.div>
+          <SectionHeader
+            badgeText="My Journey"
+            title="About Me"
+            align="left"
+            badgeColor="accent"
+          />
 
           {story && (
             <motion.p
@@ -74,7 +72,7 @@ export default function About({ data }: AboutProps) {
               {highlights.map((highlight, idx) => (
                 <div
                   key={idx}
-                  className="glass-panel p-6 rounded-2xl flex flex-col items-center justify-center text-center group hover:border-accent/40 transition-all duration-500 hover:-translate-y-1"
+                  className="glass-card p-6 flex flex-col items-center justify-center text-center group"
                 >
                   <span className="font-display font-extrabold text-2xl md:text-3xl text-transparent bg-clip-text bg-gradient-to-r from-accent to-secondary">
                     {highlight.title}
@@ -91,15 +89,12 @@ export default function About({ data }: AboutProps) {
         {/* Right Column: Education Timeline */}
         {education.length > 0 && (
           <div className="lg:col-span-5 space-y-8 md:space-y-10">
-            <motion.div variants={itemVariants} className="space-y-4">
-              <span className="text-sm font-semibold tracking-widest text-secondary uppercase">
-                Academics
-              </span>
-              <h3 className="font-display font-bold text-2xl md:text-4xl">
-                Education
-              </h3>
-              <div className="w-12 h-1 bg-gradient-to-r from-secondary to-accent rounded-full" />
-            </motion.div>
+            <SectionHeader
+              badgeText="Academics"
+              title="Education"
+              align="left"
+              badgeColor="secondary"
+            />
 
             {/* Vertical Timeline */}
             <div className="relative border-l border-white/[0.06] pl-6 md:pl-8 ml-2 space-y-10">

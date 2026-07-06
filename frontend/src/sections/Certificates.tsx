@@ -16,6 +16,7 @@ import {
 import { type Certificate } from '../constants';
 import { useScrollLock } from '../hooks/useScrollLock';
 import { sanitizeUrl } from '../utils/security';
+import SectionHeader from '../components/SectionHeader';
 
 interface CertificatesProps {
   data?: Certificate[];
@@ -58,21 +59,18 @@ export default function Certificates({ data }: CertificatesProps) {
   };
 
   return (
-    <section id="certificates" className="w-full min-h-[calc(100vh-80px)] flex flex-col justify-center py-12 md:py-20 scroll-mt-20 relative select-none overflow-hidden bg-transparent">
+    <section id="certificates" className="w-full min-h-[calc(100vh-80px)] flex flex-col justify-center py-8 md:py-12 scroll-mt-20 relative select-none overflow-hidden bg-transparent">
       {/* Background ambient lighting */}
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-accent/5 blur-[120px] rounded-full pointer-events-none" />
 
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        {/* Section Header */}
-        <div className="flex flex-col items-center text-center space-y-3 mb-12 md:mb-16">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.03] border border-white/10 text-accent text-xs font-semibold uppercase tracking-widest backdrop-blur-md shadow-inner">
-            <FaShieldAlt className="text-accent text-xs animate-pulse" /> Verified Credentials
-          </div>
-          <h2 className="font-display font-extrabold text-3xl sm:text-4xl md:text-5xl tracking-tight text-white">
-            Certifications & <span className="bg-gradient-to-r from-accent via-cyan-400 to-secondary bg-clip-text text-transparent">Accomplishments</span>
-          </h2>
-          <div className="w-16 h-1 bg-gradient-to-r from-accent via-secondary to-purple-500 rounded-full" />
-        </div>
+        <SectionHeader
+          badgeText="Verified Credentials"
+          badgeIcon={FaShieldAlt}
+          title="Certifications & Accomplishments"
+          highlightText="Accomplishments"
+          badgeColor="accent"
+        />
 
         {/* Grid */}
         <motion.div
@@ -90,45 +88,38 @@ export default function Certificates({ data }: CertificatesProps) {
               <motion.div
                 key={idx}
                 variants={cardVariants}
-                whileHover={{ y: -8, transition: { duration: 0.3 } }}
                 onClick={() => setSelectedCert(cert)}
-                className="group relative rounded-3xl cursor-pointer p-[1px] bg-gradient-to-b from-white/10 via-white/5 to-transparent hover:from-accent/50 hover:via-secondary/40 hover:to-accent/20 transition-all duration-500"
+                className="glass-card p-6 sm:p-8 h-full flex flex-col justify-between items-start text-left relative overflow-hidden cursor-pointer group"
               >
-                <div className="bg-transparent p-6 sm:p-8 rounded-[23px] h-full flex flex-col justify-between items-start text-left relative overflow-hidden border border-white/10">
-  
-  <div className="space-y-6 w-full relative z-10">
-    {/* Header Row: Static Transparent Badges */}
-    <div className="flex items-center justify-between w-full">
-      <div className={`p-3.5 rounded-2xl bg-transparent border ${iconConfig.color} w-fit text-2xl`}>
-        <IconComponent />
-      </div>
-      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-transparent border border-emerald-500/40 text-[10px] font-semibold text-emerald-400 font-mono">
-        <FaCheckCircle className="text-[9px]" /> Verified
-      </span>
-    </div>
+                <div className="space-y-6 w-full relative z-10">
+                  {/* Header Row: Static Transparent Badges */}
+                  <div className="flex items-center justify-between w-full">
+                    <div className={`p-3.5 rounded-2xl bg-transparent border ${iconConfig.color} w-fit text-2xl`}>
+                      <IconComponent />
+                    </div>
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-transparent border border-emerald-500/40 text-[10px] font-semibold text-emerald-400 font-mono">
+                      <FaCheckCircle className="text-[9px]" /> Verified
+                    </span>
+                  </div>
 
-    {/* Text Info */}
-    <div className="space-y-2">
-      <span className="text-[11px] font-bold tracking-widest text-secondary uppercase font-mono bg-transparent px-2.5 py-0.5 rounded-md border border-secondary/40 inline-block">
-        {cert.organization}
-      </span>
-      <h3 className="font-display font-bold text-lg text-white leading-snug">
-        {cert.title}
-      </h3>
-    </div>
-  </div>
+                  {/* Text Info */}
+                  <div className="space-y-2">
+                    <span className="text-[11px] font-bold tracking-widest text-secondary uppercase font-mono bg-transparent px-2.5 py-0.5 rounded-md border border-secondary/40 inline-block">
+                      {cert.organization}
+                    </span>
+                    <h3 className="font-display font-bold text-lg text-white leading-snug group-hover:text-glow transition-all duration-300">
+                      {cert.title}
+                    </h3>
+                  </div>
+                </div>
 
-  {/* Card Footer */}
-  <div className="w-full flex items-center justify-between mt-8 pt-4 border-t border-white/10 text-xs font-mono text-gray-400 relative z-10">
-    <span className="text-gray-400 font-mono text-[11px]">{cert.date}</span>
-    <span className="text-cyan-400 flex items-center gap-1.5 font-sans font-semibold cursor-pointer">
-      View Credentials <FaExternalLinkAlt className="text-[10px]" />
-    </span>
-  </div>
-  
-</div>
-
-
+                {/* Card Footer */}
+                <div className="w-full flex items-center justify-between mt-8 pt-4 border-t border-white/10 text-xs font-mono text-gray-400 relative z-10">
+                  <span className="text-gray-400 font-mono text-[11px]">{cert.date}</span>
+                  <span className="text-cyan-400 flex items-center gap-1.5 font-sans font-semibold cursor-pointer">
+                    View Credentials <FaExternalLinkAlt className="text-[10px]" />
+                  </span>
+                </div>
               </motion.div>
             );
           })}

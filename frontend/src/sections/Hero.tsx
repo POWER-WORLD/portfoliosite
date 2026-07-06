@@ -48,47 +48,20 @@ const WORD_GRADIENT_THEMES = [
 
 /**
  * Universal Resume Download Engine
- * Handles Base64 Data URIs, Google Drive links, and direct URLs reliably.
+ * Handles Google Drive links and direct URLs reliably.
  */
 export function downloadResumeFile(url: string, defaultFilename = 'Pawan_Kumar_Resume.pdf'): boolean {
   const safeUrl = sanitizeUrl(url);
   if (!safeUrl || safeUrl === '#' || safeUrl.trim() === '') return false;
 
-  // 1. Handle Base64 Data URIs
-  if (safeUrl.startsWith('data:')) {
-    try {
-      const parts = safeUrl.split(';base64,');
-      const contentType = parts[0].replace('data:', '') || 'application/pdf';
-      const raw = window.atob(parts[1]);
-      const uInt8Array = new Uint8Array(raw.length);
-      for (let i = 0; i < raw.length; i++) {
-        uInt8Array[i] = raw.charCodeAt(i);
-      }
-      const blob = new Blob([uInt8Array], { type: contentType });
-      const blobUrl = URL.createObjectURL(blob);
-
-      const a = document.createElement('a');
-      a.href = blobUrl;
-      a.download = defaultFilename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setTimeout(() => URL.revokeObjectURL(blobUrl), 2000);
-      return true;
-    } catch (err) {
-      console.error('Failed to decode Base64 resume file:', err);
-      return false;
-    }
-  }
-
-  // 2. Handle Google Drive URLs
+  // 1. Handle Google Drive URLs
   let downloadUrl = url;
   const driveMatch = url.match(/drive\.google\.com\/file\/d\/([^\/]+)/);
   if (driveMatch && driveMatch[1]) {
     downloadUrl = `https://drive.google.com/uc?export=download&id=${driveMatch[1]}`;
   }
 
-  // 3. Standard HTTP/HTTPS links
+  // 2. Standard HTTP/HTTPS links
   const a = document.createElement('a');
   a.href = downloadUrl;
   a.target = '_blank';

@@ -26,6 +26,7 @@ export default function CertificatesTab({ initialCertificates, initialAchievemen
   const [date, setDate] = useState('');
   const [credentialUrl, setCredentialUrl] = useState('');
   const [certImageUrl, setCertImageUrl] = useState('');
+  const [certImageFile, setCertImageFile] = useState<File | null>(null);
 
   // Achievements Form state (we can add/edit achievements inline)
   const [newAchValue, setNewAchValue] = useState(0);
@@ -42,6 +43,7 @@ export default function CertificatesTab({ initialCertificates, initialAchievemen
     setDate('');
     setCredentialUrl('');
     setCertImageUrl('');
+    setCertImageFile(null);
     setCertModalOpen(true);
   };
 
@@ -52,6 +54,7 @@ export default function CertificatesTab({ initialCertificates, initialAchievemen
     setDate(cert.date || '');
     setCredentialUrl(cert.credentialUrl || '');
     setCertImageUrl(cert.imageUrl || '');
+    setCertImageFile(null);
     setCertModalOpen(true);
   };
 
@@ -64,11 +67,8 @@ export default function CertificatesTab({ initialCertificates, initialAchievemen
       return;
     }
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setCertImageUrl(reader.result as string); // base64 string
-    };
-    reader.readAsDataURL(file);
+    setCertImageFile(file);
+    setCertImageUrl(URL.createObjectURL(file));
   };
 
   const handleCertSubmit = async (e: React.FormEvent) => {
@@ -77,15 +77,23 @@ export default function CertificatesTab({ initialCertificates, initialAchievemen
 
     setLoading(true);
     setAlert(null);
-    const payload = { 
-      title, 
-      organization, 
-      date, 
-      credentialUrl: sanitizeUrl(credentialUrl), 
-      imageUrl: sanitizeUrl(certImageUrl, '') 
-    };
+
+    let finalCertImageUrl = certImageUrl;
 
     try {
+      if (certImageFile) {
+        const uploadRes = await adminApi.uploadFile(certImageFile);
+        finalCertImageUrl = uploadRes.url;
+      }
+
+      const payload = { 
+        title, 
+        organization, 
+        date, 
+        credentialUrl: sanitizeUrl(credentialUrl), 
+        imageUrl: sanitizeUrl(finalCertImageUrl, '') 
+      };
+
       if (editingCert) {
         await adminApi.updateCertificate(editingCert._id, payload);
         setAlert({ type: 'success', text: 'Certificate details updated!' });
@@ -386,7 +394,7 @@ export default function CertificatesTab({ initialCertificates, initialAchievemen
                   {certImageUrl && (
                     <div className="file-upload-preview">
                       <img src={certImageUrl} alt="Upload preview" />
-                      <button type="button" className="file-upload-clear" onClick={() => setCertImageUrl('')}>&times;</button>
+                      <button type="button" className="file-upload-clear" onClick={() => { setCertImageUrl(''); setCertImageFile(null); }}>&times;</button>
                     </div>
                   )}
                 </div>

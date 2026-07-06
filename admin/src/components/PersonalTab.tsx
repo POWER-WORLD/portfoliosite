@@ -25,6 +25,7 @@ export default function PersonalTab({ initialInfo, initialAbout, onRefresh }: Pe
   const [newTitle, setNewTitle] = useState('');
   const [newUrl, setNewUrl] = useState('');
   const [newFileLabel, setNewFileLabel] = useState('');
+  const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [setAsActive, setSetAsActive] = useState(true);
   const [addingResume, setAddingResume] = useState(false);
 
@@ -65,7 +66,7 @@ export default function PersonalTab({ initialInfo, initialAbout, onRefresh }: Pe
     }
   }, [initialAbout]);
 
-  // File picker handler -> Base64
+  // File picker handler -> Store binary file
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -75,21 +76,13 @@ export default function PersonalTab({ initialInfo, initialAbout, onRefresh }: Pe
       return;
     }
 
+    setResumeFile(file);
     setNewFileLabel(file.name);
+    setNewUrl(''); // Clear external URL input since local file is selected
+
     if (!newTitle) {
       setNewTitle(file.name.replace(/\.[^/.]+$/, ''));
     }
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === 'string') {
-        setNewUrl(reader.result);
-      }
-    };
-    reader.onerror = () => {
-      setErrorMsg('Failed to read selected file.');
-    };
-    reader.readAsDataURL(file);
   };
 
   // Add new resume entry
@@ -99,7 +92,7 @@ export default function PersonalTab({ initialInfo, initialAbout, onRefresh }: Pe
       setErrorMsg('Please provide a title/label for this resume.');
       return;
     }
-    if (!newUrl.trim()) {
+    if (!newUrl.trim() && !resumeFile) {
       setErrorMsg('Please select a file or enter a valid URL.');
       return;
     }
@@ -109,9 +102,15 @@ export default function PersonalTab({ initialInfo, initialAbout, onRefresh }: Pe
     setErrorMsg('');
 
     try {
+      let finalUrl = newUrl.trim();
+      if (resumeFile) {
+        const uploadRes = await adminApi.uploadFile(resumeFile);
+        finalUrl = uploadRes.url;
+      }
+
       await adminApi.addResume({
         title: newTitle.trim(),
-        url: sanitizeUrl(newUrl.trim()),
+        url: sanitizeUrl(finalUrl),
         isActive: setAsActive
       });
 
@@ -119,6 +118,7 @@ export default function PersonalTab({ initialInfo, initialAbout, onRefresh }: Pe
       setNewTitle('');
       setNewUrl('');
       setNewFileLabel('');
+      setResumeFile(null);
       onRefresh();
     } catch (err: any) {
       setErrorMsg(err.message || 'Failed to add resume.');
@@ -370,7 +370,13 @@ export default function PersonalTab({ initialInfo, initialAbout, onRefresh }: Pe
                   type="text" 
                   placeholder="https://drive.google.com/file/d/..." 
                   value={newUrl} 
-                  onChange={(e) => setNewUrl(e.target.value)} 
+                  onChange={(e) => {
+                    setNewUrl(e.target.value);
+                    if (e.target.value.trim()) {
+                      setResumeFile(null);
+                      setNewFileLabel('');
+                    }
+                  }} 
                 />
               </div>
             </div>

@@ -216,4 +216,54 @@ export const adminApi = {
       method: 'DELETE',
     });
   },
+
+  // Tech Stack CRUD
+  addTechStack: async (tech: any) => {
+    return request('/techstack', {
+      method: 'POST',
+      body: JSON.stringify(tech),
+    });
+  },
+
+  updateTechStack: async (id: string, tech: any) => {
+    return request(`/techstack/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(tech),
+    });
+  },
+
+  deleteTechStack: async (id: string) => {
+    return request(`/techstack/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  uploadFile: async (file: File): Promise<{ url: string }> => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const token = getToken();
+    const headers: Record<string, string> = {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    };
+
+    const res = await fetch(`${API_BASE_URL}/upload`, {
+      method: 'POST',
+      headers,
+      body: formData,
+    });
+
+    if (res.status === 401) {
+      removeToken();
+      window.dispatchEvent(new Event('admin-session-expired'));
+      throw new Error('Session expired. Please log in again.');
+    }
+
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      throw new Error(errorData.error || `HTTP error! Status: ${res.status}`);
+    }
+
+    return res.json();
+  },
 };

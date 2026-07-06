@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaGithub, FaExternalLinkAlt, FaFolderOpen, FaCode } from 'react-icons/fa';
+import SectionHeader from '../components/SectionHeader';
 
 import { CategoryFilter, PROJECT_CATEGORIES, getCategoryLabel } from '../constants';
 import { sanitizeUrl } from '../utils/security';
@@ -40,17 +41,14 @@ export default function Projects({ data }: ProjectsProps) {
 
   if (projects.length === 0) {
     return (
-      <section id="projects" className="w-full min-h-[calc(100vh-80px)] flex flex-col justify-center py-12 md:py-16 scroll-mt-20 relative select-none overflow-hidden bg-transparent">
+      <section id="projects" className="w-full min-h-[calc(100vh-80px)] flex flex-col justify-center py-8 md:py-12 scroll-mt-20 relative select-none overflow-hidden bg-transparent">
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col items-center text-center space-y-3 mb-10">
-            <span className="text-sm font-semibold tracking-widest text-accent uppercase">
-              My Creations
-            </span>
-            <h2 className="font-display font-bold text-3xl md:text-5xl">
-              Featured Work
-            </h2>
-            <div className="w-12 h-1 bg-gradient-to-r from-accent to-secondary rounded-full" />
-          </div>
+          <SectionHeader
+            badgeText="My Creations"
+            title="Featured Work"
+            highlightText="Work"
+            badgeColor="accent"
+          />
 
           <div className="glass-panel p-12 rounded-3xl text-center max-w-lg mx-auto flex flex-col items-center justify-center space-y-4 border border-white/[0.06]">
             <div className="p-4 rounded-full bg-white/[0.02] border border-white/[0.05] text-gray-400 text-3xl">
@@ -66,18 +64,14 @@ export default function Projects({ data }: ProjectsProps) {
   }
 
   return (
-    <section id="projects" className="w-full min-h-[calc(100vh-80px)] flex flex-col justify-center py-12 md:py-16 scroll-mt-20 relative select-none overflow-hidden bg-transparent">
+    <section id="projects" className="w-full min-h-[calc(100vh-80px)] flex flex-col justify-center py-16 md:py-24 scroll-mt-20 relative select-none overflow-hidden bg-transparent">
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
-        <div className="flex flex-col items-center text-center space-y-3 mb-10">
-          <span className="text-sm font-semibold tracking-widest text-accent uppercase">
-            My Creations
-          </span>
-          <h2 className="font-display font-bold text-3xl md:text-5xl">
-            Featured Work
-          </h2>
-          <div className="w-12 h-1 bg-gradient-to-r from-accent to-secondary rounded-full" />
-        </div>
+        <SectionHeader
+          badgeText="My Creations"
+          title="Featured Work"
+          highlightText="Work"
+          badgeColor="accent"
+        />
 
       {/* Filter Navigation */}
       <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 mb-16">
@@ -117,10 +111,9 @@ export default function Projects({ data }: ProjectsProps) {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                whileHover={{ y: -6, transition: { duration: 0.3 } }}
                 transition={{ duration: 0.4 }}
                 key={projId}
-                className="glass-panel rounded-3xl overflow-hidden flex flex-col justify-between group hover:border-accent/40 hover:shadow-[0_0_30px_rgba(108,99,255,0.15)] transition-all duration-500"
+                className="glass-card overflow-hidden flex flex-col justify-between group"
               >
                 {/* Project Image & Overlay */}
                 <div className="relative overflow-hidden aspect-video border-b border-white/[0.06] bg-gradient-to-br from-bg-dark to-slate-900 flex items-center justify-center">

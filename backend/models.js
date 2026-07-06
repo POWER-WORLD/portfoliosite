@@ -60,7 +60,7 @@ const ProjectSchema = new mongoose.Schema({
   tags: [{ type: String }],
   githubUrl: { type: String, default: '' },
   liveUrl: { type: String, default: '' },
-  imageUrl: { type: String, default: '' } // Base64 string or standard URL
+  imageUrl: { type: String, default: '' } // Supabase public URL or standard URL
 }, { timestamps: true });
 
 // Experience Schema
@@ -77,7 +77,7 @@ const CertificateSchema = new mongoose.Schema({
   organization: { type: String, required: true },
   date: { type: String, required: true },
   credentialUrl: { type: String, default: '' },
-  imageUrl: { type: String, default: '' } // Base64 or standard URL
+  imageUrl: { type: String, default: '' } // Supabase public URL or standard URL
 }, { timestamps: true });
 
 // Achievement Schema
@@ -100,6 +100,13 @@ const ContactMessageSchema = new mongoose.Schema({
   message: { type: String, required: true }
 }, { timestamps: true });
 
+// Tech Stack Schema
+const TechStackSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  icon: { type: String, required: true }, // e.g. "SiReact", "FaPython"
+  color: { type: String, required: true } // e.g. "#61DAFB"
+}, { timestamps: true });
+
 export const PersonalInfo = mongoose.model('PersonalInfo', PersonalInfoSchema);
 export const About = mongoose.model('About', AboutSchema);
 export const SkillCategory = mongoose.model('SkillCategory', SkillCategorySchema);
@@ -109,4 +116,6 @@ export const Certificate = mongoose.model('Certificate', CertificateSchema);
 export const Achievement = mongoose.model('Achievement', AchievementSchema);
 export const AdminPassword = mongoose.model('AdminPassword', AdminPasswordSchema);
 export const ContactMessage = mongoose.model('ContactMessage', ContactMessageSchema);
+export const TechStack = mongoose.model('TechStack', TechStackSchema);
+
 

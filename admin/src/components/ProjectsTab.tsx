@@ -43,6 +43,7 @@ export default function ProjectsTab({ initialProjects, onRefresh }: ProjectsTabP
   const [githubUrl, setGithubUrl] = useState('');
   const [liveUrl, setLiveUrl] = useState('');
   const [imageUrl, setImageUrl] = useState('');
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   const [loading, setLoading] = useState(false);
   const [alert, setAlert] = useState<{ type: 'success' | 'danger'; text: string } | null>(null);
@@ -56,6 +57,7 @@ export default function ProjectsTab({ initialProjects, onRefresh }: ProjectsTabP
     setGithubUrl('');
     setLiveUrl('');
     setImageUrl('');
+    setImageFile(null);
     setModalOpen(true);
   };
 
@@ -68,6 +70,7 @@ export default function ProjectsTab({ initialProjects, onRefresh }: ProjectsTabP
     setGithubUrl(project.githubUrl || '');
     setLiveUrl(project.liveUrl || '');
     setImageUrl(project.imageUrl || '');
+    setImageFile(null);
     setModalOpen(true);
   };
 
@@ -80,11 +83,8 @@ export default function ProjectsTab({ initialProjects, onRefresh }: ProjectsTabP
       return;
     }
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setImageUrl(reader.result as string); // base64 string
-    };
-    reader.readAsDataURL(file);
+    setImageFile(file);
+    setImageUrl(URL.createObjectURL(file));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -100,17 +100,24 @@ export default function ProjectsTab({ initialProjects, onRefresh }: ProjectsTabP
       .map((t) => t.trim())
       .filter((t) => t.length > 0);
 
-    const payload = {
-      title,
-      description,
-      category,
-      tags,
-      githubUrl: sanitizeUrl(githubUrl),
-      liveUrl: sanitizeUrl(liveUrl),
-      imageUrl: sanitizeUrl(imageUrl, ''),
-    };
+    let finalImageUrl = imageUrl;
 
     try {
+      if (imageFile) {
+        const uploadRes = await adminApi.uploadFile(imageFile);
+        finalImageUrl = uploadRes.url;
+      }
+
+      const payload = {
+        title,
+        description,
+        category,
+        tags,
+        githubUrl: sanitizeUrl(githubUrl),
+        liveUrl: sanitizeUrl(liveUrl),
+        imageUrl: sanitizeUrl(finalImageUrl, ''),
+      };
+
       if (editingProject) {
         await adminApi.updateProject(editingProject._id, payload);
         setAlert({ type: 'success', text: 'Project updated!' });
@@ -298,7 +305,7 @@ export default function ProjectsTab({ initialProjects, onRefresh }: ProjectsTabP
                   {imageUrl && (
                     <div className="file-upload-preview">
                       <img src={imageUrl} alt="Upload preview" />
-                      <button type="button" className="file-upload-clear" onClick={() => setImageUrl('')}>&times;</button>
+                      <button type="button" className="file-upload-clear" onClick={() => { setImageUrl(''); setImageFile(null); }}>&times;</button>
                     </div>
                   )}
                 </div>

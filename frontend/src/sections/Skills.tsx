@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import * as FaIcons from 'react-icons/fa';
 import { FaLayerGroup, FaThLarge, FaCheckCircle, FaStar, FaSlidersH, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import { safeClamp } from '../utils/security';
+import SectionHeader from '../components/SectionHeader';
 
 interface Skill {
   name: string;
@@ -84,42 +85,20 @@ export default function Skills({ data }: SkillsProps) {
   };
 
   return (
-    <section id="skills" className="w-full min-h-[calc(100vh-80px)] flex flex-col justify-center py-12 md:py-16 scroll-mt-20 relative select-none overflow-hidden bg-transparent">
+    <section id="skills" className="w-full min-h-[calc(100vh-80px)] flex flex-col justify-center py-8 md:py-12 scroll-mt-20 relative select-none overflow-hidden bg-transparent">
       
       {/* Background Decorative Ambient Glows */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-gradient-to-r from-accent/10 via-secondary/10 to-accent/5 blur-[120px] rounded-full pointer-events-none -z-10" />
 
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
-        <div className="text-center space-y-3 mb-8 md:mb-10">
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent/10 border border-accent/20 text-accent text-xs font-semibold uppercase tracking-widest"
-          >
-            <FaStar className="text-secondary text-xs" />
-            <span>Extensive Expertise & Capabilities</span>
-          </motion.div>
-
-          <motion.h2
-            initial={{ opacity: 0, y: 15 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="font-display font-black text-3xl sm:text-5xl lg:text-6xl tracking-tight text-white"
-          >
-            Skills & <span className="bg-gradient-to-r from-accent via-secondary to-white bg-clip-text text-transparent">Capabilities Matrix</span>
-          </motion.h2>
-
-          <motion.p
-            initial={{ opacity: 0, y: 15 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-gray-400 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed"
-          >
-            A comprehensive breakdown of engineering proficiencies, architectural capabilities, and domain strengths crafted through years of high-impact technical work.
-          </motion.p>
-        </div>
+        <SectionHeader
+          badgeText="Extensive Expertise & Capabilities"
+          badgeIcon={FaStar}
+          title="Skills & Capabilities Matrix"
+          highlightText="Capabilities Matrix"
+          tagline="A comprehensive breakdown of engineering proficiencies, architectural capabilities, and domain strengths crafted through years of high-impact technical work."
+          badgeColor="accent"
+        />
 
         {/* Interactive Controls Bar: Filter Pills + View Switcher */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 bg-white/[0.02] border border-white/[0.06] backdrop-blur-xl p-3 sm:p-4 rounded-3xl">
@@ -199,8 +178,7 @@ export default function Skills({ data }: SkillsProps) {
                 <motion.div
                   key={category._id || catIdx}
                   variants={itemVariants}
-                  whileHover={{ y: -4, transition: { duration: 0.3 } }}
-                  className="glass-panel p-6 sm:p-8 rounded-3xl relative overflow-hidden group border border-white/[0.08] hover:border-accent/40 transition-all duration-500 hover:shadow-[0_10px_35px_rgba(108,99,255,0.15)] flex flex-col justify-between"
+                  className="glass-card p-6 sm:p-8 relative overflow-hidden group flex flex-col justify-between"
                 >
                   {/* Subtle Top Gradient Accent Border */}
                   <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-accent via-secondary to-accent opacity-60 group-hover:opacity-100 transition-opacity duration-500" />
@@ -337,8 +315,7 @@ export default function Skills({ data }: SkillsProps) {
                 <motion.div
                   key={category._id || catIdx}
                   variants={itemVariants}
-                  whileHover={{ scale: 1.02 }}
-                  className="glass-panel p-6 rounded-3xl border border-white/[0.08] relative overflow-hidden flex flex-col justify-between group hover:border-secondary/50 transition-all duration-300"
+                  className="glass-card p-6 relative overflow-hidden flex flex-col justify-between group"
                 >
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
@@ -351,7 +328,7 @@ export default function Skills({ data }: SkillsProps) {
                     </div>
 
                     <div>
-                      <h3 className="font-display font-bold text-xl text-white group-hover:text-secondary transition-colors duration-300">
+                      <h3 className="font-display font-bold text-xl text-white group-hover:text-glow transition-colors duration-300">
                         {category.title}
                       </h3>
                       {category.description && (

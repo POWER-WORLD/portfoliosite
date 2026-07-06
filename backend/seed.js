@@ -8,7 +8,8 @@ import {
   Experience, 
   Certificate, 
   Achievement,
-  AdminPassword
+  AdminPassword,
+  TechStack
 } from './models.js';
 import bcrypt from 'bcryptjs';
 
@@ -213,6 +214,19 @@ const ACHIEVEMENTS_DATA = [
   { value: 99, label: 'Lighthouse Performance Score', suffix: '%' },
 ];
 
+const TECH_STACK_DATA = [
+  { name: 'React', icon: 'SiReact', color: '#61DAFB' },
+  { name: 'TypeScript', icon: 'SiTypescript', color: '#3178C6' },
+  { name: 'Node.js', icon: 'SiNodedotjs', color: '#339933' },
+  { name: 'MongoDB', icon: 'SiMongodb', color: '#47A248' },
+  { name: 'Next.js', icon: 'SiNextdotjs', color: '#FFFFFF' },
+  { name: 'Tailwind CSS', icon: 'SiTailwindcss', color: '#06B6D4' },
+  { name: 'Framer Motion', icon: 'SiFramermotion', color: '#F43F5E' },
+  { name: 'GraphQL', icon: 'SiGraphql', color: '#E10098' },
+  { name: 'Docker', icon: 'SiDocker', color: '#2496ED' },
+  { name: 'Git', icon: 'SiGit', color: '#F05032' },
+];
+
 async function seed() {
   const mongoUri = process.env.MONGO_DB || process.env.MONGODB_URI;
   if (!mongoUri) {
@@ -233,6 +247,7 @@ async function seed() {
     await Experience.deleteMany({});
     await Certificate.deleteMany({});
     await Achievement.deleteMany({});
+    await TechStack.deleteMany({});
     // Clear old AdminPassword records if any exist from legacy schema
     await AdminPassword.deleteMany({});
 
@@ -272,6 +287,12 @@ async function seed() {
     console.log('Seeding Achievements metrics...');
     for (const ach of ACHIEVEMENTS_DATA) {
       await new Achievement(ach).save();
+    }
+
+    // Seed Tech Stack
+    console.log('Seeding Tech Stack technologies...');
+    for (const tech of TECH_STACK_DATA) {
+      await new TechStack(tech).save();
     }
 
     console.log('Database seeded successfully!');

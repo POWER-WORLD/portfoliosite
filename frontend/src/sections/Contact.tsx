@@ -4,6 +4,7 @@ import { FaEnvelope, FaMapMarkerAlt, FaPaperPlane, FaCheckCircle, FaLinkedin, Fa
 import { PERSONAL_INFO } from '../constants';
 import { submitContactMessage } from '../services/api';
 import { sanitizeUrl } from '../utils/security';
+import SectionHeader from '../components/SectionHeader';
 
 interface ContactProps {
   personalInfo?: {
@@ -99,18 +100,14 @@ export default function Contact({ personalInfo }: ContactProps) {
   };
 
   return (
-    <section id="contact" className="w-full min-h-[calc(100vh-80px)] flex flex-col justify-center py-12 md:py-16 scroll-mt-20 relative select-none overflow-hidden bg-transparent">
+    <section id="contact" className="w-full min-h-[calc(100vh-80px)] flex flex-col justify-center py-8 md:py-12 scroll-mt-20 relative select-none overflow-hidden bg-transparent">
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="flex flex-col items-center text-center space-y-3 mb-10 md:mb-12">
-          <span className="text-sm font-semibold tracking-widest text-accent uppercase">
-            Get In Touch
-          </span>
-          <h2 className="font-display font-bold text-3xl md:text-5xl">
-            Contact Me
-          </h2>
-          <div className="w-12 h-1 bg-gradient-to-r from-accent to-secondary rounded-full" />
-        </div>
+        <SectionHeader
+          badgeText="Get In Touch"
+          title="Contact Me"
+          highlightText="Me"
+          badgeColor="accent"
+        />
 
       <motion.div
         variants={containerVariants}

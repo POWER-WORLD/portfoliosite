@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import SectionHeader from '../components/SectionHeader';
 
 interface Job {
   role: string;
@@ -36,18 +37,14 @@ export default function Experience({ data }: ExperienceProps) {
   };
 
   return (
-    <section id="experience" className="w-full min-h-[calc(100vh-80px)] flex flex-col justify-center py-12 md:py-16 scroll-mt-20 relative select-none overflow-hidden bg-transparent">
+    <section id="experience" className="w-full min-h-[calc(100vh-80px)] flex flex-col justify-center py-8 md:py-12 scroll-mt-20 relative select-none overflow-hidden bg-transparent">
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
-        <div className="flex flex-col items-center text-center space-y-3 mb-10 md:mb-12">
-          <span className="text-sm font-semibold tracking-widest text-secondary uppercase">
-            Timeline
-          </span>
-          <h2 className="font-display font-bold text-3xl md:text-5xl">
-            Professional Experience
-          </h2>
-          <div className="w-12 h-1 bg-gradient-to-r from-secondary to-accent rounded-full" />
-        </div>
+        <SectionHeader
+          badgeText="Timeline"
+          title="Professional Experience"
+          highlightText="Experience"
+          badgeColor="secondary"
+        />
 
       {/* Experience Timeline */}
       <motion.div
@@ -69,7 +66,7 @@ export default function Experience({ data }: ExperienceProps) {
             </div>
 
             {/* Content Card */}
-            <div className="glass-panel p-6 sm:p-8 rounded-3xl group-hover:border-accent/40 group-hover:shadow-[0_0_25px_rgba(108,99,255,0.1)] transition-all duration-500 space-y-4">
+            <div className="glass-card p-6 sm:p-8 space-y-4">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
                 <div>
                   <h3 className="font-display font-bold text-xl md:text-2xl text-white group-hover:text-glow transition-all duration-300">

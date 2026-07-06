@@ -2,6 +2,8 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
+import multer from 'multer';
+import { createClient } from '@supabase/supabase-js';
 import { 
   PersonalInfo, 
   About, 
@@ -10,10 +12,33 @@ import {
   Experience, 
   Certificate, 
   Achievement,
-  ContactMessage
+  ContactMessage,
+  TechStack
 } from './models.js';
 
+// Load environmental variables
+dotenv.config();
+
 const router = express.Router();
+
+// Initialize Supabase Client
+const supabaseUrl = process.env.SUPABASE_DB_URL;
+const supabaseKey = process.env.SUPABASE_DB_KEY;
+let supabase;
+
+if (supabaseUrl && supabaseKey) {
+  supabase = createClient(supabaseUrl, supabaseKey);
+} else {
+  console.warn('[Supabase Warning] SUPABASE_DB_URL or SUPABASE_DB_KEY is not defined in backend env.');
+}
+
+// Configure multer memory storage for binary uploads
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 25 * 1024 * 1024, // 25MB max limit (matches the frontend config)
+  }
+});
 
 // Middleware to verify JWT token
 export function authMiddleware(req, res, next) {
@@ -30,6 +55,60 @@ export function authMiddleware(req, res, next) {
     return res.status(401).json({ error: 'Unauthorized: Invalid token' });
   }
 }
+
+// ----------------------------------------------------
+// FILE UPLOADS (SUPABASE STORAGE)
+// ----------------------------------------------------
+router.post('/upload', authMiddleware, upload.single('file'), async (req, res) => {
+  try {
+    const file = req.file;
+    if (!file) {
+      return res.status(400).json({ error: 'No file uploaded.' });
+    }
+
+    if (!supabase) {
+      return res.status(500).json({ error: 'Supabase client is not configured on the server.' });
+    }
+
+    // Sanitize file name to avoid issues with special characters in paths
+    const cleanFileName = file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
+    const uniqueFileName = `${Date.now()}-${cleanFileName}`;
+
+    // Determine storage folder based on MIME type or extension
+    let folder = 'others';
+    if (file.mimetype.startsWith('image/')) {
+      folder = 'images';
+    } else if (file.mimetype === 'application/pdf' || file.originalname.toLowerCase().endsWith('.pdf')) {
+      folder = 'resumes';
+    }
+
+    const filePath = `${folder}/${uniqueFileName}`;
+    const bucketName = process.env.SUPABASE_BUCKET || 'portfoliosite_files';
+
+    // Upload to Supabase Storage
+    const { data, error } = await supabase.storage
+      .from(bucketName)
+      .upload(filePath, file.buffer, {
+        contentType: file.mimetype,
+        upsert: true
+      });
+
+    if (error) {
+      console.error('[Supabase Upload Error]', error);
+      return res.status(500).json({ error: `Supabase upload failed: ${error.message}` });
+    }
+
+    // Get public URL
+    const { data: { publicUrl } } = supabase.storage
+      .from(bucketName)
+      .getPublicUrl(filePath);
+
+    return res.json({ url: publicUrl });
+  } catch (err) {
+    console.error('[Upload API Error]', err);
+    return res.status(500).json({ error: err.message || 'Server error during upload.' });
+  }
+});
 
 // ----------------------------------------------------
 // AUTHENTICATION
@@ -78,6 +157,7 @@ router.get('/portfolio', async (req, res) => {
     const experience = await Experience.find().sort({ createdAt: -1 }) || [];
     const certificates = await Certificate.find() || [];
     const achievements = await Achievement.find() || [];
+    const techStack = await TechStack.find() || [];
 
     res.json({
       personalInfo,
@@ -86,7 +166,8 @@ router.get('/portfolio', async (req, res) => {
       projects,
       experience,
       certificates,
-      achievements
+      achievements,
+      techStack
     });
   } catch (error) {
     console.error('Fetch portfolio error:', error);
@@ -401,6 +482,39 @@ router.delete('/achievements/:id', authMiddleware, async (req, res) => {
   try {
     const deleted = await Achievement.findByIdAndDelete(req.params.id);
     if (!deleted) return res.status(404).json({ error: 'Achievement not found' });
+    res.json({ message: 'Deleted successfully' });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// ----------------------------------------------------
+// TECH STACK (CRUD)
+// ----------------------------------------------------
+router.post('/techstack', authMiddleware, async (req, res) => {
+  try {
+    const newTech = new TechStack(req.body);
+    await newTech.save();
+    res.status(201).json(newTech);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+router.put('/techstack/:id', authMiddleware, async (req, res) => {
+  try {
+    const updated = await TechStack.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!updated) return res.status(404).json({ error: 'Technology not found' });
+    res.json(updated);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+router.delete('/techstack/:id', authMiddleware, async (req, res) => {
+  try {
+    const deleted = await TechStack.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ error: 'Technology not found' });
     res.json({ message: 'Deleted successfully' });
   } catch (error) {
     res.status(400).json({ error: error.message });

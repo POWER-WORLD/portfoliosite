@@ -46,7 +46,7 @@ function App() {
             <Projects data={portfolioData?.projects} />
             <Experience data={portfolioData?.experience} />
             <Certificates data={portfolioData?.certificates} />
-            <TechStack />
+            <TechStack data={portfolioData?.techStack} />
             <Achievements data={portfolioData?.achievements} />
             <Contact personalInfo={portfolioData?.personalInfo} />
             <Footer personalInfo={portfolioData?.personalInfo} />
