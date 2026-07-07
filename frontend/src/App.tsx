@@ -42,7 +42,7 @@ function App() {
           <>
             <Hero data={portfolioData?.personalInfo} />
             <About data={portfolioData?.about} />
-            <Skills data={portfolioData?.skills} />
+            <Skills data={portfolioData?.skills} welcome={portfolioData?.skillsWelcome} />
             <Projects data={portfolioData?.projects} />
             <Experience data={portfolioData?.experience} />
             <Certificates data={portfolioData?.certificates} />

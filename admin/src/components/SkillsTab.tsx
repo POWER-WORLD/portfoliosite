@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { adminApi } from '../api';
 import * as FaIcons from 'react-icons/fa';
 import { FaTrash, FaPlus, FaSave, FaEye, FaEdit, FaCheck, FaArrowLeft } from 'react-icons/fa';
@@ -7,6 +7,7 @@ import { safeClamp } from '../utils/security';
 
 interface SkillsTabProps {
   initialSkills: any[];
+  initialWelcome?: { title: string; message: string };
   onRefresh: () => void;
 }
 
@@ -52,11 +53,23 @@ function RenderIcon({ iconName, className }: { iconName: string; className?: str
   return <IconComponent className={className} />;
 }
 
-export default function SkillsTab({ initialSkills, onRefresh }: SkillsTabProps) {
+export default function SkillsTab({ initialSkills, initialWelcome, onRefresh }: SkillsTabProps) {
   const categories = initialSkills || [];
   const [editingCategory, setEditingCategory] = useState<any | null>(null);
   const [deleteCategoryId, setDeleteCategoryId] = useState<string | null>(null);
   const editorRef = useRef<HTMLDivElement>(null);
+
+  // Welcome Note States
+  const [welcomeTitle, setWelcomeTitle] = useState(initialWelcome?.title || 'Welcome to My Tech Stack');
+  const [welcomeMessage, setWelcomeMessage] = useState(initialWelcome?.message || 'This book showcases my core competencies, architectural capabilities, and tech stack proficiencies.');
+  const [savingWelcome, setSavingWelcome] = useState(false);
+
+  useEffect(() => {
+    if (initialWelcome) {
+      setWelcomeTitle(initialWelcome.title || 'Welcome to My Tech Stack');
+      setWelcomeMessage(initialWelcome.message || 'This book showcases my core competencies, architectural capabilities, and tech stack proficiencies.');
+    }
+  }, [initialWelcome]);
 
   // New Category Form State
   const [newTitle, setNewTitle] = useState('');
@@ -216,6 +229,58 @@ export default function SkillsTab({ initialSkills, onRefresh }: SkillsTabProps) 
           <span>{alert.text}</span>
         </div>
       )}
+
+      {/* Skills Book Welcome Note Settings */}
+      <div className="glass-panel" style={{ borderLeft: '4px solid var(--primary)', padding: '1.5rem', borderRadius: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.25rem' }}>
+          <div style={{ padding: '0.5rem', borderRadius: '10px', background: 'rgba(108,99,255,0.15)', color: 'var(--primary)' }}>
+            <FaEdit />
+          </div>
+          <h3 style={{ fontSize: '1.25rem', fontWeight: 700 }}>Skills Book Welcome Note</h3>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label>Welcome Page Title</label>
+            <input
+              type="text"
+              value={welcomeTitle}
+              onChange={(e) => setWelcomeTitle(e.target.value)}
+              placeholder="e.g. Welcome to My Tech Stack"
+            />
+          </div>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label>Welcome Message / Preface</label>
+            <textarea
+              rows={3}
+              value={welcomeMessage}
+              onChange={(e) => setWelcomeMessage(e.target.value)}
+              placeholder="Describe the layout of this skills book or write a short intro..."
+              style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)', color: '#fff', fontSize: '0.9rem' }}
+            />
+          </div>
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={async () => {
+              setSavingWelcome(true);
+              setAlert(null);
+              try {
+                await adminApi.updateSkillsWelcome({ title: welcomeTitle, message: welcomeMessage });
+                setAlert({ type: 'success', text: 'Welcome note updated successfully!' });
+                onRefresh();
+              } catch (err: any) {
+                setAlert({ type: 'danger', text: err.message || 'Failed to update welcome note' });
+              } finally {
+                setSavingWelcome(false);
+              }
+            }}
+            disabled={savingWelcome || loading}
+            style={{ width: 'fit-content', marginTop: '0.5rem' }}
+          >
+            <FaSave /> {savingWelcome ? 'Saving...' : 'Save Welcome Note'}
+          </button>
+        </div>
+      </div>
 
       {/* Main Grid: Categories List vs Detailed Config Editor */}
       <div className={editingCategory ? "grid-split-skills" : ""}>

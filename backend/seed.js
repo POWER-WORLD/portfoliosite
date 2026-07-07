@@ -9,7 +9,8 @@ import {
   Certificate, 
   Achievement,
   AdminPassword,
-  TechStack
+  TechStack,
+  SkillsWelcome
 } from './models.js';
 import bcrypt from 'bcryptjs';
 
@@ -250,6 +251,7 @@ async function seed() {
     await TechStack.deleteMany({});
     // Clear old AdminPassword records if any exist from legacy schema
     await AdminPassword.deleteMany({});
+    await SkillsWelcome.deleteMany({});
 
     // Seed Personal Info
     console.log('Seeding Personal Info...');
@@ -258,6 +260,13 @@ async function seed() {
     // Seed About
     console.log('Seeding About information...');
     await new About(ABOUT_DATA).save();
+
+    // Seed Skills Welcome
+    console.log('Seeding Skills Welcome...');
+    await new SkillsWelcome({
+      title: 'Welcome to My Tech Stack',
+      message: 'This book showcases my core competencies, architectural capabilities, and tech stack proficiencies.'
+    }).save();
 
     // Seed Skills
     console.log('Seeding Skills categories...');

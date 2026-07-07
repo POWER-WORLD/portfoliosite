@@ -116,6 +116,7 @@ export default function App() {
         return (
           <SkillsTab 
             initialSkills={portfolioData?.skills} 
+            initialWelcome={portfolioData?.skillsWelcome}
             onRefresh={loadData} 
           />
         );

@@ -133,6 +133,13 @@ export const adminApi = {
     });
   },
 
+  updateSkillsWelcome: async (welcome: { title: string; message: string }) => {
+    return request('/skills-welcome', {
+      method: 'PUT',
+      body: JSON.stringify(welcome),
+    });
+  },
+
   // Projects
   addProject: async (project: any) => {
     return request('/projects', {

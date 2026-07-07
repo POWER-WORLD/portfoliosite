@@ -107,6 +107,12 @@ const TechStackSchema = new mongoose.Schema({
   color: { type: String, required: true } // e.g. "#61DAFB"
 }, { timestamps: true });
 
+// Skills Welcome Schema
+const SkillsWelcomeSchema = new mongoose.Schema({
+  title: { type: String, default: 'Welcome to My Tech Stack' },
+  message: { type: String, default: 'This book showcases my core competencies, architectural capabilities, and tech stack proficiencies.' }
+}, { timestamps: true });
+
 export const PersonalInfo = mongoose.model('PersonalInfo', PersonalInfoSchema);
 export const About = mongoose.model('About', AboutSchema);
 export const SkillCategory = mongoose.model('SkillCategory', SkillCategorySchema);
@@ -117,5 +123,7 @@ export const Achievement = mongoose.model('Achievement', AchievementSchema);
 export const AdminPassword = mongoose.model('AdminPassword', AdminPasswordSchema);
 export const ContactMessage = mongoose.model('ContactMessage', ContactMessageSchema);
 export const TechStack = mongoose.model('TechStack', TechStackSchema);
+export const SkillsWelcome = mongoose.model('SkillsWelcome', SkillsWelcomeSchema);
+
 
 

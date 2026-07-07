@@ -13,7 +13,8 @@ import {
   Certificate, 
   Achievement,
   ContactMessage,
-  TechStack
+  TechStack,
+  SkillsWelcome
 } from './models.js';
 
 // Load environmental variables
@@ -158,6 +159,10 @@ router.get('/portfolio', async (req, res) => {
     const certificates = await Certificate.find() || [];
     const achievements = await Achievement.find() || [];
     const techStack = await TechStack.find() || [];
+    const skillsWelcome = await SkillsWelcome.findOne() || {
+      title: 'Welcome to My Tech Stack',
+      message: 'This book showcases my core competencies, architectural capabilities, and tech stack proficiencies.'
+    };
 
     res.json({
       personalInfo,
@@ -167,7 +172,8 @@ router.get('/portfolio', async (req, res) => {
       experience,
       certificates,
       achievements,
-      techStack
+      techStack,
+      skillsWelcome
     });
   } catch (error) {
     console.error('Fetch portfolio error:', error);
@@ -351,6 +357,34 @@ router.delete('/skills/:id', authMiddleware, async (req, res) => {
     const deleted = await SkillCategory.findByIdAndDelete(req.params.id);
     if (!deleted) return res.status(404).json({ error: 'Skill category not found' });
     res.json({ message: 'Deleted successfully' });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// Skills Welcome endpoints
+router.get('/skills-welcome', async (req, res) => {
+  try {
+    const welcome = await SkillsWelcome.findOne() || {
+      title: 'Welcome to My Tech Stack',
+      message: 'This book showcases my core competencies, architectural capabilities, and tech stack proficiencies.'
+    };
+    res.json(welcome);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch skills welcome note' });
+  }
+});
+
+router.put('/skills-welcome', authMiddleware, async (req, res) => {
+  try {
+    let welcome = await SkillsWelcome.findOne();
+    if (!welcome) {
+      welcome = new SkillsWelcome(req.body);
+    } else {
+      Object.assign(welcome, req.body);
+    }
+    await welcome.save();
+    res.json(welcome);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
