@@ -94,7 +94,7 @@ export default function Certificates({ data }: CertificatesProps) {
                 <div className="space-y-6 w-full relative z-10">
                   {/* Header Row: Static Transparent Badges */}
                   <div className="flex items-center justify-between w-full">
-                    <div className={`p-3.5 rounded-2xl bg-transparent border ${iconConfig.color} w-fit text-2xl`}>
+                    <div className={`p-3.5 rounded-2xl bg-gradient-to-br ${iconConfig.bg} border ${iconConfig.color} w-fit text-2xl`}>
                       <IconComponent />
                     </div>
                     <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-transparent border border-emerald-500/40 text-[10px] font-semibold text-emerald-400 font-mono">
@@ -150,7 +150,7 @@ export default function Certificates({ data }: CertificatesProps) {
               transition={{ type: 'spring' as const, stiffness: 320, damping: 26 }}
               className="relative w-full max-w-3xl glass-panel rounded-3xl p-1 bg-gradient-to-b from-accent/40 via-secondary/20 to-purple-500/30 overflow-hidden z-10 shadow-[0_0_80px_rgba(108,99,255,0.3)] max-h-[90vh] flex flex-col"
             >
-              <div className="bg-slate-950/90 rounded-[23px] p-6 md:p-8 flex flex-col justify-between h-full relative overflow-hidden">
+              <div className="bg-bg-dark/80 backdrop-blur-2xl rounded-[23px] p-6 md:p-8 flex flex-col justify-between h-full relative overflow-hidden">
                 {/* Radial Glow Inside Modal */}
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-48 bg-secondary/15 blur-3xl pointer-events-none rounded-full" />
 
@@ -307,7 +307,7 @@ export default function Certificates({ data }: CertificatesProps) {
                 <FaTimes />
               </button>
 
-              <div className="p-2 bg-slate-900/90 border border-white/20 rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.9)] max-w-full">
+              <div className="p-2 bg-bg-dark/80 backdrop-blur-md border border-white/10 rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.9)] max-w-full">
                 <img
                   src={selectedCert.imageUrl}
                   alt={selectedCert.title}
@@ -315,7 +315,7 @@ export default function Certificates({ data }: CertificatesProps) {
                 />
               </div>
 
-              <div className="mt-4 flex items-center gap-3 px-4 py-2 rounded-full bg-slate-900/80 border border-white/10 text-xs text-gray-300 font-medium backdrop-blur-md">
+              <div className="mt-4 flex items-center gap-3 px-4 py-2 rounded-full bg-bg-dark/80 border border-white/10 text-xs text-gray-300 font-medium backdrop-blur-md">
                 <span className="text-cyan-400 font-bold">{selectedCert.title}</span>
                 <span>&bull;</span>
                 <span>{selectedCert.organization}</span>

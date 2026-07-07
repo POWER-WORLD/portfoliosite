@@ -80,37 +80,70 @@
 
 /* Custom Utilities for Premium Glassmorphism & Effects */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.02);
+  position: relative;
+  background: rgba(255, 255, 255, 0.015);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.glass-panel::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
+  pointer-events: none;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .glass-panel-hover {
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .glass-panel-hover:hover {
-  background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(108, 99, 255, 0.35);
-  box-shadow: 0 0 30px rgba(108, 99, 255, 0.2);
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(108, 99, 255, 0.4);
+  box-shadow: 0 0 30px rgba(108, 99, 255, 0.25);
   transform: translateY(-5px);
+}
+.glass-panel-hover:hover::after {
+  background: linear-gradient(90deg, transparent, rgba(108, 99, 255, 0.4), transparent);
 }
 
 /* Unified premium card styling */
 .glass-card {
-  background: rgba(255, 255, 255, 0.02);
+  position: relative;
+  background: rgba(255, 255, 255, 0.015);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 1.5rem; /* rounded-3xl */
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+.glass-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
+  pointer-events: none;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 .glass-card:hover {
-  background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(108, 99, 255, 0.35);
-  box-shadow: 0 10px 30px rgba(108, 99, 255, 0.15);
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(108, 99, 255, 0.4);
+  box-shadow: 0 10px 30px rgba(108, 99, 255, 0.2), 0 0 15px rgba(108, 99, 255, 0.1);
   transform: translateY(-6px);
+}
+
+.glass-card:hover::after {
+  background: linear-gradient(90deg, transparent, rgba(108, 99, 255, 0.4), transparent);
 }
 
 .text-glow {
@@ -239,7 +272,14 @@ html.lenis, html.lenis body {
   width: 50%;
   height: 100%;
   transform-style: preserve-3d;
-  border: 1px solid #00e5ffbf;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.book-page:hover {
+  border-color: rgba(108, 99, 255, 0.35);
+  box-shadow: 0 10px 30px rgba(108, 99, 255, 0.15);
 }
 
 .book-page-left {
@@ -247,7 +287,7 @@ html.lenis, html.lenis body {
   border-top-left-radius: 16px;
   border-bottom-left-radius: 16px;
   border-right: none;
-  background: linear-gradient(to right, #0101037d 0%, #0202066e 100%);
+  background: linear-gradient(to right, rgba(5, 8, 22, 0.65) 0%, rgba(5, 8, 22, 0.5) 100%);
   box-shadow: inset 10px 0 20px rgba(0, 0, 0, 0.5);
 }
 
@@ -256,7 +296,7 @@ html.lenis, html.lenis body {
   border-top-right-radius: 16px;
   border-bottom-right-radius: 16px;
   border-left: none;
-  background: linear-gradient(to right, #0101037d 0%, #0202066e 100%);
+  background: linear-gradient(to right, rgba(5, 8, 22, 0.65) 0%, rgba(5, 8, 22, 0.5) 100%);
   box-shadow: inset -10px 0 20px rgba(0, 0, 0, 0.5);
 }
 

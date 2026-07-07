@@ -270,7 +270,7 @@ export default function Hero({ data, resumeUrl: propResumeUrl }: HeroProps) {
           <button
             type="button"
             onClick={handleDownloadClick}
-            className="w-full sm:w-auto flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-full border border-white/20 hover:border-cyan-400/60 bg-slate-900/40 hover:bg-slate-900/60 text-white font-semibold text-sm tracking-wide backdrop-blur-md shadow-[0_0_15px_rgba(0,0,0,0.3)] hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer group"
+            className="w-full sm:w-auto flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-full border border-white/10 hover:border-accent/40 bg-bg-dark/40 hover:bg-bg-dark/60 text-white font-semibold text-sm tracking-wide backdrop-blur-md shadow-[0_0_15px_rgba(0,0,0,0.3)] hover:shadow-[0_0_20px_rgba(108,99,255,0.25)] hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer group"
           >
             <span className="font-display">Download Resume</span>
             <FaDownload className="text-xs group-hover:-translate-y-0.5 transition-transform duration-300 text-cyan-400" />
@@ -295,7 +295,7 @@ export default function Hero({ data, resumeUrl: propResumeUrl }: HeroProps) {
                 title={social.name}
                 whileHover={{ y: -4, scale: 1.15 }}
                 whileTap={{ scale: 0.9 }}
-                className="p-3 rounded-full border border-white/10 bg-slate-900/40 text-gray-300 hover:text-white hover:border-cyan-400/60 hover:bg-cyan-500/10 hover:shadow-[0_0_15px_rgba(0,229,255,0.3)] transition-all duration-300 text-base backdrop-blur-md"
+                className="p-3 rounded-full border border-white/10 bg-bg-dark/40 text-gray-300 hover:text-white hover:border-accent/40 hover:bg-bg-dark/60 hover:shadow-[0_0_15px_rgba(108,99,255,0.25)] transition-all duration-300 text-base backdrop-blur-md"
               >
                 <Icon />
               </motion.a>

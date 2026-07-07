@@ -64,7 +64,7 @@ export default function Projects({ data }: ProjectsProps) {
   }
 
   return (
-    <section id="projects" className="w-full min-h-[calc(100vh-80px)] flex flex-col justify-center py-16 md:py-24 scroll-mt-20 relative select-none overflow-hidden bg-transparent">
+    <section id="projects" className="w-full min-h-[calc(100vh-80px)] flex flex-col justify-center py-10 md:py-16 scroll-mt-20 relative select-none overflow-hidden bg-transparent">
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionHeader
           badgeText="My Creations"

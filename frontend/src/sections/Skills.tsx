@@ -465,7 +465,7 @@ export default function Skills({ data, welcome }: SkillsProps) {
         {isMobile ? (
           /* ==================== MOBILE SCREEN VIEW (SINGLE PAGE CARD SLIDER) ==================== */
           <div className="flex justify-center items-center py-6 w-full">
-            <div className="relative w-full max-w-[420px] h-[540px] bg-gradient-to-br from-[#0f1126] to-[#070815] border border-white/[0.08] rounded-[24px] p-6 flex flex-col justify-between overflow-hidden shadow-2xl">
+            <div className="glass-card relative w-full max-w-[420px] h-[540px] p-6 flex flex-col justify-between overflow-hidden shadow-2xl">
               
               {/* Decorative side stack lines */}
               <div className="absolute right-1 top-4 bottom-4 w-1 bg-white/[0.03] rounded-full" />
@@ -534,7 +534,7 @@ export default function Skills({ data, welcome }: SkillsProps) {
                 ))}
                 
                 {/* Left Static Page */}
-                <div className="book-page book-page-left relative overflow-hidden p-8 sm:p-9 flex flex-col justify-between z-10">
+                <div className="book-page book-page-left  relative overflow-hidden p-8 sm:p-9 flex flex-col justify-between z-10">
                   <div className="absolute -top-24 -left-24 w-60 h-6 bg-accent/5 rounded-full blur-[80px] pointer-events-none" />
                   {renderPageContent(leftStaticSpread, 'left')}
                 </div>

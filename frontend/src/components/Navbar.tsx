@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaEnvelope } from 'react-icons/fa';
 import { NAV_ITEMS } from '../constants';
@@ -197,7 +197,17 @@ const UFO = ({ isOpen, onClick }: { isOpen: boolean; onClick: () => void }) => {
 
 export default function Navbar({ activeSection }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   useScrollLock(isOpen);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleScrollTo = (id: string) => {
     setIsOpen(false);
@@ -224,7 +234,11 @@ export default function Navbar({ activeSection }: NavbarProps) {
 
   return (
     <header
-      className="fixed top-0 left-0 w-full z-50 transition-all"
+      className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
+        isScrolled
+          ? 'bg-bg-dark/60 backdrop-blur-md border-b border-white/[0.06] shadow-lg'
+          : 'bg-transparent border-b border-transparent'
+      }`}
     >
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between relative">
         {/* Custom Premium Logo (navbarlogo2.png) with Animated Wave Gradient Border */}
@@ -236,7 +250,7 @@ export default function Navbar({ activeSection }: NavbarProps) {
           }}
           className="group relative p-[1.5px] rounded-xl bg-gradient-to-r from-cyan-400 via-indigo-500 to-fuchsia-400 animate-wave-gradient bg-[length:200%_200%] shadow-[0_0_15px_rgba(0,229,255,0.3)] hover:shadow-[0_0_25px_rgba(0,229,255,0.7)] hover:scale-105 transition-all duration-300 select-none flex items-center overflow-hidden"
         >
-          <div className="bg-slate-950/80 px-2.5 py-1 rounded-[10px] backdrop-blur-md flex items-center justify-center">
+          <div className="bg-bg-dark/80 px-2.5 py-1 rounded-[10px] backdrop-blur-md flex items-center justify-center">
             <img
               src="/navbarlogo2.png"
               alt="Logo"
@@ -256,7 +270,7 @@ export default function Navbar({ activeSection }: NavbarProps) {
             <button
               onClick={() => handleScrollTo('contact')}
               aria-label="Get In Touch"
-              className="relative p-3 rounded-full bg-slate-950/80 text-cyan-300 hover:text-white transition-all duration-300 cursor-pointer flex items-center justify-center overflow-hidden backdrop-blur-md"
+              className="relative p-3 rounded-full bg-bg-dark/80 text-cyan-300 hover:text-white transition-all duration-300 cursor-pointer flex items-center justify-center overflow-hidden backdrop-blur-md"
             >
               {/* Corner Bracket Overlays with HUD wave gradient colors */}
               <span className="absolute top-0.5 left-0.5 w-1.5 h-1.5 border-t border-l border-cyan-400 opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all" />
@@ -360,15 +374,14 @@ export default function Navbar({ activeSection }: NavbarProps) {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -15 }}
                         transition={{ duration: 0.3, delay: index * 0.05 }}
-                        className={`p-[1.5px] rounded-lg transition-all duration-300 w-full md:w-auto ${
-                          isActive
+                        className={`p-[1.5px] rounded-lg transition-all duration-300 w-full md:w-auto ${isActive
                             ? `bg-gradient-to-r ${theme.gradient} animate-wave-gradient bg-[length:200%_200%] shadow-[0_0_20px_rgba(0,229,255,0.5)] scale-[1.02]`
                             : 'bg-slate-800/40 hover:bg-gradient-to-r hover:' + theme.gradient + ' hover:animate-wave-gradient hover:bg-[length:200%_200%] hover:shadow-[0_0_15px_rgba(0,229,255,0.3)]'
-                        }`}
+                          }`}
                       >
                         <button
                           onClick={() => handleScrollTo(item.id)}
-                          className="group flex items-center justify-between md:justify-center w-full md:w-auto px-4 py-2.5 md:px-4 md:py-3.5 rounded-[6px] text-left md:text-center transition-all duration-300 relative cursor-pointer overflow-hidden bg-slate-950/90 backdrop-blur-md"
+                          className="group flex items-center justify-between md:justify-center w-full md:w-auto px-4 py-2.5 md:px-4 md:py-3.5 rounded-[6px] text-left md:text-center transition-all duration-300 relative cursor-pointer overflow-hidden bg-bg-dark/80 backdrop-blur-md"
                         >
                           {/* Hover subtle glow highlight */}
                           <span className="absolute inset-0 w-full h-full bg-gradient-to-r md:bg-gradient-to-b from-cyan-500/10 via-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -377,7 +390,7 @@ export default function Navbar({ activeSection }: NavbarProps) {
                             <span className={`text-[10px] font-orbitron font-extrabold ${theme.badgeColor} drop-shadow-[0_0_6px_currentColor]`}>
                               [{formattedIndex}]
                             </span>
-                            
+
                             {/* Animated Word / Letters with Wave Gradient Fill */}
                             <span className="inline-flex items-center space-x-[1px]">
                               {itemLetters.map((char, charIdx) => (
