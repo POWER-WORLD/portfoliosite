@@ -234,11 +234,7 @@ export default function Navbar({ activeSection }: NavbarProps) {
 
   return (
     <header
-      className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
-        isScrolled
-          ? 'bg-bg-dark/60 backdrop-blur-md border-b border-white/[0.06] shadow-lg'
-          : 'bg-transparent border-b border-transparent'
-      }`}
+      className="fixed top-0 left-0 w-full z-50 transition-all duration-300"
     >
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between relative">
         {/* Custom Premium Logo (navbarlogo2.png) with Animated Wave Gradient Border */}
