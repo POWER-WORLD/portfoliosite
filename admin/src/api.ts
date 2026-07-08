@@ -245,6 +245,30 @@ export const adminApi = {
     });
   },
 
+  // Contact Messages
+  getMessages: async () => {
+    return request('/messages', { method: 'GET' });
+  },
+
+  replyToMessage: async (id: string, replyText: string) => {
+    return request(`/messages/${id}/reply`, {
+      method: 'POST',
+      body: JSON.stringify({ replyText }),
+    });
+  },
+
+  deleteMessage: async (id: string) => {
+    return request(`/messages/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  deleteAllMessages: async () => {
+    return request('/messages', {
+      method: 'DELETE',
+    });
+  },
+
   uploadFile: async (file: File): Promise<{ url: string }> => {
     const formData = new FormData();
     formData.append('file', file);

@@ -17,10 +17,12 @@ import {
   FaSignOutAlt, 
   FaBars, 
   FaTimes,
-  FaLaptopCode
+  FaLaptopCode,
+  FaEnvelope
 } from 'react-icons/fa';
+import MessagesTab from './components/MessagesTab';
 
-type TabType = 'personal' | 'skills' | 'projects' | 'experience' | 'certs' | 'techstack';
+type TabType = 'personal' | 'skills' | 'projects' | 'experience' | 'certs' | 'techstack' | 'messages';
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
@@ -149,6 +151,10 @@ export default function App() {
             onRefresh={loadData} 
           />
         );
+      case 'messages':
+        return (
+          <MessagesTab />
+        );
       default:
         return <div>Tab not found</div>;
     }
@@ -247,6 +253,15 @@ export default function App() {
                   <FaAward className="nav-icon" /> Certs & Metrics
                 </button>
               </li>
+              <li className="nav-item">
+                <button 
+                  type="button" 
+                  onClick={() => { setActiveTab('messages'); setSidebarOpen(false); }} 
+                  className={`nav-link ${activeTab === 'messages' ? 'active' : ''}`}
+                >
+                  <FaEnvelope className="nav-icon" /> Messages Inbox
+                </button>
+              </li>
             </nav>
           </div>
 
@@ -275,6 +290,7 @@ export default function App() {
                 {activeTab === 'experience' && 'Professional Timeline'}
                 {activeTab === 'certs' && 'Credentials & Metrics'}
                 {activeTab === 'techstack' && 'Technologies & Tools'}
+                {activeTab === 'messages' && 'Visitor Messages & Inquiries'}
               </h1>
               <p className="page-subtitle">
                 {activeTab === 'personal' && 'Manage your display information, narrative biography, and education history.'}
@@ -283,6 +299,7 @@ export default function App() {
                 {activeTab === 'experience' && 'Edit your career path roles, employment periods, and job duties.'}
                 {activeTab === 'certs' && 'Modify your digital certifications and count metrics.'}
                 {activeTab === 'techstack' && 'Manage selectable technology items, brand icons, and hex colors.'}
+                {activeTab === 'messages' && 'View, manage, and reply to messages sent by visitors from your portfolio contact form.'}
               </p>
             </div>
           </header>

@@ -573,5 +573,62 @@ router.post('/contact', async (req, res) => {
   }
 });
 
+// ----------------------------------------------------
+// CONTACT MESSAGES MANAGEMENT (ADMIN ONLY)
+// ----------------------------------------------------
+router.get('/messages', authMiddleware, async (req, res) => {
+  try {
+    const messages = await ContactMessage.find().sort({ createdAt: -1 });
+    res.json(messages);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch messages' });
+  }
+});
+
+router.delete('/messages/:id', authMiddleware, async (req, res) => {
+  try {
+    const deleted = await ContactMessage.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ error: 'Message not found' });
+    res.json({ message: 'Message deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to delete message' });
+  }
+});
+
+router.delete('/messages', authMiddleware, async (req, res) => {
+  try {
+    await ContactMessage.deleteMany({});
+    res.json({ message: 'All messages deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to delete all messages' });
+  }
+});
+
+router.post('/messages/:id/reply', authMiddleware, async (req, res) => {
+  try {
+    const { replyText } = req.body;
+    if (!replyText || !replyText.trim()) {
+      return res.status(400).json({ error: 'Reply text is required' });
+    }
+    const message = await ContactMessage.findById(req.params.id);
+    if (!message) {
+      return res.status(404).json({ error: 'Message not found' });
+    }
+    
+    // Save reply to database
+    message.replies.push({ text: replyText });
+    await message.save();
+    
+    res.json({
+      success: true,
+      message: 'Reply logged successfully',
+      reply: message.replies[message.replies.length - 1]
+    });
+  } catch (error) {
+    console.error('Error replying to message:', error);
+    res.status(500).json({ error: error.message || 'Failed to record reply' });
+  }
+});
+
 export default router;
 

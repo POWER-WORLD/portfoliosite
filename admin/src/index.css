@@ -975,3 +975,135 @@ input[type="range"] {
   }
 }
 
+/* ==========================================================================
+   Messages Inbox Styles
+   ========================================================================== */
+
+.messages-layout-grid {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 2rem;
+  align-items: stretch;
+  min-height: calc(100vh - 280px);
+}
+
+@media (max-width: 992px) {
+  .messages-layout-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.messages-sidebar-panel {
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem !important;
+  max-height: 750px;
+}
+
+.messages-list-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-height: 550px;
+}
+
+.message-list-item {
+  background: rgba(255, 255, 255, 0.015);
+  border: 1px solid var(--border-color);
+  padding: 1.1rem;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all var(--transition-speed) ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.message-list-item:hover {
+  background: rgba(255, 255, 255, 0.035);
+  border-color: rgba(108, 99, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.message-list-item.selected {
+  background: rgba(108, 99, 255, 0.07);
+  border-color: var(--primary);
+  box-shadow: 0 0 15px rgba(108, 99, 255, 0.1);
+}
+
+.message-list-item.new-msg {
+  border-left: 3px solid var(--secondary);
+}
+
+.message-list-item.replied {
+  border-left: 3px solid var(--success);
+}
+
+.filter-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text-gray);
+  padding: 0.5rem;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-speed);
+}
+
+.filter-btn:hover {
+  color: #fff;
+}
+
+.filter-btn.active {
+  background: rgba(108, 99, 255, 0.15);
+  color: #fff;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.status-replied {
+  background: rgba(0, 230, 118, 0.08);
+  color: var(--success);
+  border: 1px solid rgba(0, 230, 118, 0.2);
+}
+
+.status-pending {
+  background: rgba(0, 229, 255, 0.08);
+  color: var(--secondary);
+  border: 1px solid rgba(0, 229, 255, 0.2);
+}
+
+.message-detail-panel {
+  padding: 2rem !important;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  min-height: 500px;
+}
+
+.email-link {
+  transition: color var(--transition-speed);
+}
+
+.email-link:hover {
+  color: var(--primary) !important;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
