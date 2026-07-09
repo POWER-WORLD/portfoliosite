@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   FaAward, 
@@ -30,6 +30,225 @@ const CERT_ICON_TYPES = [
   { icon: FaTrophy, color: 'text-yellow-400', bg: 'from-yellow-500/20 to-amber-500/10 border-yellow-400/40' },
   { icon: FaRibbon, color: 'text-rose-400', bg: 'from-rose-500/20 to-pink-500/10 border-rose-400/40' },
 ];
+
+interface CertificateCardProps {
+  cert: Certificate;
+  originalIdx: number;
+  onClick: () => void;
+}
+
+function CertificateCard({ cert, originalIdx, onClick }: CertificateCardProps) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [rotateX, setRotateX] = useState(0);
+  const [rotateY, setRotateY] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+
+  const iconConfig = CERT_ICON_TYPES[originalIdx >= 0 ? originalIdx % CERT_ICON_TYPES.length : 0];
+  const IconComponent = iconConfig.icon;
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    setIsHovered(true);
+    const card = cardRef.current;
+    if (!card) return;
+
+    const rect = card.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+
+    // Relative cursor positions: -0.5 to 0.5
+    const mouseX = (e.clientX - rect.left) / width - 0.5;
+    const mouseY = (e.clientY - rect.top) / height - 0.5;
+
+    // Applying max 10 degrees tilt rotation
+    const maxTilt = 10;
+    setRotateY(mouseX * maxTilt);
+    setRotateX(-mouseY * maxTilt);
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    setRotateX(0);
+    setRotateY(0);
+  };
+
+  return (
+    <div
+      ref={cardRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      onClick={onClick}
+      style={
+        isHovered
+          ? {
+              transform: `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(0)`,
+              transition: 'transform 0.15s cubic-bezier(0.25, 1, 0.5, 1)',
+              willChange: 'transform',
+            }
+          : {
+              animationDelay: `${originalIdx * 0.5}s`,
+            }
+      }
+      className={`glass-card p-6 sm:p-8 w-[320px] sm:w-[380px] h-[240px] shrink-0 flex flex-col justify-between items-start text-left relative overflow-hidden cursor-pointer group ${
+        !isHovered ? 'animate-auto-tilt' : ''
+      }`}
+    >
+      <div className="space-y-4 w-full relative z-10">
+        {/* Header Row: Static Transparent Badges */}
+        <div className="flex items-center justify-between w-full">
+          <div className={`p-3 rounded-xl bg-gradient-to-br ${iconConfig.bg} border ${iconConfig.color} w-fit text-xl`}>
+            <IconComponent />
+          </div>
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-transparent border border-emerald-500/40 text-[10px] font-semibold text-emerald-400 font-mono">
+            <FaCheckCircle className="text-[9px]" /> Verified
+          </span>
+        </div>
+
+        {/* Text Info */}
+        <div className="space-y-2">
+          <span className="text-[11px] font-bold tracking-widest text-secondary uppercase font-mono bg-transparent px-2.5 py-0.5 rounded-md border border-secondary/40 inline-block">
+            {cert.organization}
+          </span>
+          <h3 className="font-display font-bold text-base text-white leading-snug group-hover:text-glow transition-all duration-300 line-clamp-2">
+            {cert.title}
+          </h3>
+        </div>
+      </div>
+
+      {/* Card Footer */}
+      <div className="w-full flex items-center justify-between mt-auto pt-3 border-t border-white/10 text-xs font-mono text-gray-400 relative z-10">
+        <span className="text-gray-400 font-mono text-[11px]">{cert.date}</span>
+        <span className="text-cyan-400 flex items-center gap-1.5 font-sans font-semibold cursor-pointer">
+          View Credentials <FaExternalLinkAlt className="text-[10px]" />
+        </span>
+      </div>
+    </div>
+  );
+}
+
+interface ScrollRowProps {
+  items: Certificate[];
+  direction: 'left' | 'right';
+  speed?: number;
+  onCardClick: (cert: Certificate) => void;
+  certsList: Certificate[];
+}
+
+function ScrollRow({ items, direction, speed = 0.8, onCardClick, certsList }: ScrollRowProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const scrollPosRef = useRef(0);
+  const [isMouseDown, setIsMouseDown] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeftState, setScrollLeftState] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+
+  // Auto-scroll logic using requestAnimationFrame with accumulator ref
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    // Sync initial ref value
+    scrollPosRef.current = container.scrollLeft;
+
+    let animationId: number;
+
+    const scroll = () => {
+      if (!isMouseDown && !isHovered) {
+        const oneSetWidth = container.scrollWidth / 2;
+
+        if (direction === 'left') {
+          scrollPosRef.current += speed;
+          if (scrollPosRef.current >= oneSetWidth) {
+            scrollPosRef.current -= oneSetWidth;
+          }
+        } else {
+          scrollPosRef.current -= speed;
+          if (scrollPosRef.current <= 0) {
+            scrollPosRef.current += oneSetWidth;
+          }
+        }
+        // Round to nearest integer for browser compatibility
+        container.scrollLeft = Math.round(scrollPosRef.current);
+      } else {
+        // Sync accumulator with actual container scroll position during drag
+        scrollPosRef.current = container.scrollLeft;
+      }
+      animationId = requestAnimationFrame(scroll);
+    };
+
+    animationId = requestAnimationFrame(scroll);
+    return () => cancelAnimationFrame(animationId);
+  }, [direction, speed, isMouseDown, isHovered]);
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    const container = containerRef.current;
+    if (!container) return;
+    setIsMouseDown(true);
+    setStartX(e.pageX - container.offsetLeft);
+    setScrollLeftState(container.scrollLeft);
+  };
+
+  const handleMouseUp = () => {
+    setIsMouseDown(false);
+  };
+
+  const handleMouseLeave = () => {
+    setIsMouseDown(false);
+    setIsHovered(false);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    const container = containerRef.current;
+    if (!container || !isMouseDown) return;
+    e.preventDefault();
+    const x = e.pageX - container.offsetLeft;
+    const walk = (x - startX) * 1.5; // multiplier for drag speed
+    
+    let targetScroll = scrollLeftState - walk;
+    const oneSetWidth = container.scrollWidth / 2;
+
+    // Handle drag boundary wrapping to make it infinite
+    if (targetScroll >= oneSetWidth) {
+      targetScroll -= oneSetWidth;
+      setStartX(e.pageX - container.offsetLeft);
+      setScrollLeftState(targetScroll);
+    } else if (targetScroll <= 0) {
+      targetScroll += oneSetWidth;
+      setStartX(e.pageX - container.offsetLeft);
+      setScrollLeftState(targetScroll);
+    }
+
+    container.scrollLeft = targetScroll;
+    scrollPosRef.current = targetScroll;
+  };
+
+  const duplicatedItems = [...items, ...items];
+
+  return (
+    <div
+      ref={containerRef}
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseLeave}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setIsHovered(true)}
+      className="overflow-x-auto no-scrollbar flex w-full cursor-grab active:cursor-grabbing select-none relative py-2"
+    >
+      <div className="flex gap-6 pr-6">
+        {duplicatedItems.map((cert, idx) => {
+          const originalIdx = certsList.findIndex(c => c.title === cert.title);
+          return (
+            <CertificateCard
+              key={`${direction}-${idx}`}
+              cert={cert}
+              originalIdx={originalIdx}
+              onClick={() => onCardClick(cert)}
+            />
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 export default function Certificates({ data }: CertificatesProps) {
   const [selectedCert, setSelectedCert] = useState<Certificate | null>(null);
@@ -90,111 +309,23 @@ export default function Certificates({ data }: CertificatesProps) {
           {/* <div className="absolute inset-y-0 right-0 w-16 md:w-32 bg-gradient-to-l from-bg-dark to-transparent z-20 pointer-events-none" /> */}
 
           {/* Row 1: Right to Left scroll */}
-          <motion.div 
-            variants={rowVariants}
-            className="hover-pause overflow-hidden w-full relative py-2"
-          >
-            <div className="flex gap-6 animate-scroll-left w-max">
-              {/* Duplicate the array items to ensure seamless infinite looping */}
-              {[...row1, ...row1].map((cert, idx) => {
-                // Find index of the certificate in original certs list to get consistent icon configuration
-                const originalIdx = certs.findIndex(c => c.title === cert.title);
-                const iconConfig = CERT_ICON_TYPES[originalIdx >= 0 ? originalIdx % CERT_ICON_TYPES.length : 0];
-                const IconComponent = iconConfig.icon;
-
-                return (
-                  <div
-                    key={`row1-${idx}`}
-                    onClick={() => setSelectedCert(cert)}
-                    className="glass-card p-6 sm:p-8 w-[320px] sm:w-[380px] h-[240px] shrink-0 flex flex-col justify-between items-start text-left relative overflow-hidden cursor-pointer group"
-                  >
-                    <div className="space-y-4 w-full relative z-10">
-                      {/* Header Row: Static Transparent Badges */}
-                      <div className="flex items-center justify-between w-full">
-                        <div className={`p-3 rounded-xl bg-gradient-to-br ${iconConfig.bg} border ${iconConfig.color} w-fit text-xl`}>
-                          <IconComponent />
-                        </div>
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-transparent border border-emerald-500/40 text-[10px] font-semibold text-emerald-400 font-mono">
-                          <FaCheckCircle className="text-[9px]" /> Verified
-                        </span>
-                      </div>
-
-                      {/* Text Info */}
-                      <div className="space-y-2">
-                        <span className="text-[11px] font-bold tracking-widest text-secondary uppercase font-mono bg-transparent px-2.5 py-0.5 rounded-md border border-secondary/40 inline-block">
-                          {cert.organization}
-                        </span>
-                        <h3 className="font-display font-bold text-base text-white leading-snug group-hover:text-glow transition-all duration-300 line-clamp-2">
-                          {cert.title}
-                        </h3>
-                      </div>
-                    </div>
-
-                    {/* Card Footer */}
-                    <div className="w-full flex items-center justify-between mt-auto pt-3 border-t border-white/10 text-xs font-mono text-gray-400 relative z-10">
-                      <span className="text-gray-400 font-mono text-[11px]">{cert.date}</span>
-                      <span className="text-cyan-400 flex items-center gap-1.5 font-sans font-semibold cursor-pointer">
-                        View Credentials <FaExternalLinkAlt className="text-[10px]" />
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+          <motion.div variants={rowVariants}>
+            <ScrollRow
+              items={row1}
+              direction="left"
+              onCardClick={setSelectedCert}
+              certsList={certs}
+            />
           </motion.div>
 
           {/* Row 2: Left to Right scroll */}
-          <motion.div 
-            variants={rowVariants}
-            className="hover-pause overflow-hidden w-full relative py-2"
-          >
-            <div className="flex gap-6 animate-scroll-right w-max">
-              {/* Duplicate the array items to ensure seamless infinite looping */}
-              {[...row2, ...row2].map((cert, idx) => {
-                // Find index of the certificate in original certs list to get consistent icon configuration
-                const originalIdx = certs.findIndex(c => c.title === cert.title);
-                const iconConfig = CERT_ICON_TYPES[originalIdx >= 0 ? originalIdx % CERT_ICON_TYPES.length : 0];
-                const IconComponent = iconConfig.icon;
-
-                return (
-                  <div
-                    key={`row2-${idx}`}
-                    onClick={() => setSelectedCert(cert)}
-                    className="glass-card p-6 sm:p-8 w-[320px] sm:w-[380px] h-[240px] shrink-0 flex flex-col justify-between items-start text-left relative overflow-hidden cursor-pointer group"
-                  >
-                    <div className="space-y-4 w-full relative z-10">
-                      {/* Header Row: Static Transparent Badges */}
-                      <div className="flex items-center justify-between w-full">
-                        <div className={`p-3 rounded-xl bg-gradient-to-br ${iconConfig.bg} border ${iconConfig.color} w-fit text-xl`}>
-                          <IconComponent />
-                        </div>
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-transparent border border-emerald-500/40 text-[10px] font-semibold text-emerald-400 font-mono">
-                          <FaCheckCircle className="text-[9px]" /> Verified
-                        </span>
-                      </div>
-
-                      {/* Text Info */}
-                      <div className="space-y-2">
-                        <span className="text-[11px] font-bold tracking-widest text-secondary uppercase font-mono bg-transparent px-2.5 py-0.5 rounded-md border border-secondary/40 inline-block">
-                          {cert.organization}
-                        </span>
-                        <h3 className="font-display font-bold text-base text-white leading-snug group-hover:text-glow transition-all duration-300 line-clamp-2">
-                          {cert.title}
-                        </h3>
-                      </div>
-                    </div>
-
-                    {/* Card Footer */}
-                    <div className="w-full flex items-center justify-between mt-auto pt-3 border-t border-white/10 text-xs font-mono text-gray-400 relative z-10">
-                      <span className="text-gray-400 font-mono text-[11px]">{cert.date}</span>
-                      <span className="text-cyan-400 flex items-center gap-1.5 font-sans font-semibold cursor-pointer">
-                        View Credentials <FaExternalLinkAlt className="text-[10px]" />
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+          <motion.div variants={rowVariants}>
+            <ScrollRow
+              items={row2}
+              direction="right"
+              onCardClick={setSelectedCert}
+              certsList={certs}
+            />
           </motion.div>
         </motion.div>
       </div>

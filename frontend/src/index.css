@@ -455,3 +455,20 @@ html.lenis, html.lenis body {
 .hover-pause:hover .animate-scroll-right {
   animation-play-state: paused;
 }
+
+/* Gentle Auto 3D Tilt/Rotation Animation */
+@keyframes autoTilt {
+  0% {
+    transform: perspective(1000px) rotateX(3deg) rotateY(-3deg);
+  }
+  50% {
+    transform: perspective(1000px) rotateX(-3deg) rotateY(3deg);
+  }
+  100% {
+    transform: perspective(1000px) rotateX(3deg) rotateY(-3deg);
+  }
+}
+
+.animate-auto-tilt {
+  animation: autoTilt 6s ease-in-out infinite;
+}
