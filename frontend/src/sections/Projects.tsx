@@ -536,7 +536,7 @@ export default function Projects({ data }: ProjectsProps) {
         />
 
         {/* Carousel Container - Centers card stack horizontally & vertically */}
-        <div className="relative w-full max-w-[310px] sm:max-w-[330px] md:max-w-[340px] lg:max-w-[360px] h-[480px] lg:h-[530px] mx-auto mt-12 overflow-visible">
+        <div className="relative w-full max-w-[310px] sm:max-w-[340px] md:max-w-[370px] lg:max-w-[430px] h-[480px] lg:h-[530px] mx-auto mt-12 overflow-visible">
           <AnimatePresence initial={false}>
             {projects.map((project, idx) => {
               const offset = getWrappedOffset(idx, currentIndex, N);

@@ -53,6 +53,34 @@ export default function Skills({ data, welcome }: SkillsProps) {
   const [mobilePageIndex, setMobilePageIndex] = useState(0);
   const [mobileDirection, setMobileDirection] = useState(0);
 
+  // Mobile swipe gestures state
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+    
+    if (isLeftSwipe) {
+      handleNextPage();
+    } else if (isRightSwipe) {
+      handlePrevPage();
+    }
+  };
+
   const totalSpreads = useMemo(() => 1 + categories.length, [categories]);
   const totalPages = useMemo(() => totalSpreads * 2, [totalSpreads]);
 
@@ -151,6 +179,90 @@ export default function Skills({ data, welcome }: SkillsProps) {
     flippingBackSpread = currentSpread;
   }
 
+  // Helper to render responsive page footers
+  const renderPageFooter = (pageNumber: number, side: 'left' | 'right', isFlipping = false) => {
+    if (isMobile) {
+      const isPrevDisabled = mobilePageIndex === 0;
+      const isNextDisabled = mobilePageIndex === totalPages - 1;
+      return (
+        <div className="flex items-center justify-between mt-6 pt-4 border-t border-white/[0.05]">
+          {!isFlipping ? (
+            <button 
+              onClick={handlePrevPage}
+              disabled={isPrevDisabled}
+              className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-white disabled:opacity-20 disabled:pointer-events-none transition-colors duration-300 z-30 cursor-pointer"
+            >
+              <div className="p-2 rounded-lg bg-white/[0.03] border border-white/[0.06] hover:bg-white/5 hover:border-white/12 transition-all"><FaChevronLeft /></div>
+              <span className="hidden xs:inline">Turn Back</span>
+            </button>
+          ) : (
+            <div className="w-[40px]" />
+          )}
+
+          <span className="text-xs font-mono font-semibold text-gray-500">
+            Page {pageNumber}
+          </span>
+
+          {!isFlipping ? (
+            <button 
+              onClick={handleNextPage}
+              disabled={isNextDisabled}
+              className="flex items-center gap-1.5 text-xs font-semibold text-gray-400 hover:text-secondary disabled:opacity-20 disabled:pointer-events-none transition-colors duration-300 z-30 cursor-pointer"
+            >
+              <span className="hidden xs:inline">Turn Next</span>
+              <div className="p-2 rounded-lg bg-white/[0.03] border border-white/[0.06] hover:bg-white/5 hover:border-white/12 transition-all text-secondary"><FaChevronRight /></div>
+            </button>
+          ) : (
+            <div className="w-[40px]" />
+          )}
+        </div>
+      );
+    }
+
+    // Desktop view - keep original layout
+    if (side === 'left') {
+      return (
+        <div className="flex items-center justify-between mt-6 pt-4 border-t border-white/[0.05]">
+          {!isFlipping ? (
+            <button 
+              onClick={handlePrevPage}
+              disabled={currentSpread === 0}
+              className="flex items-center gap-2 text-xs font-semibold text-gray-500 hover:text-white disabled:opacity-20 disabled:pointer-events-none transition-colors duration-300 z-30 cursor-pointer"
+            >
+              <div className="p-2 rounded-lg bg-white/[0.03] border border-white/[0.06] hover:bg-white/5 hover:border-white/12 transition-all"><FaChevronLeft /></div>
+              <span>Turn Back</span>
+            </button>
+          ) : (
+            <div className="w-[80px]" />
+          )}
+          <span className="text-xs font-mono font-semibold text-gray-500">
+            Page {pageNumber}
+          </span>
+        </div>
+      );
+    } else {
+      return (
+        <div className="flex items-center justify-between mt-6 pt-4 border-t border-white/[0.05]">
+          <span className="text-xs font-mono font-semibold text-gray-500">
+            Page {pageNumber}
+          </span>
+          {!isFlipping ? (
+            <button 
+              onClick={handleNextPage}
+              disabled={currentSpread === totalSpreads - 1}
+              className="flex items-center gap-2 text-xs font-semibold text-gray-400 hover:text-secondary disabled:opacity-20 disabled:pointer-events-none transition-colors duration-300 ml-auto z-30 cursor-pointer"
+            >
+              <span>Turn Next</span>
+              <div className="p-2 rounded-lg bg-white/[0.03] border border-white/[0.06] hover:bg-white/5 hover:border-white/12 transition-all text-secondary"><FaChevronRight /></div>
+            </button>
+          ) : (
+            <div className="w-[80px]" />
+          )}
+        </div>
+      );
+    }
+  };
+
   // Render individual page content
   const renderPageContent = (spreadIdx: number, side: 'left' | 'right', isFlipping = false) => {
     if (spreadIdx === 0) {
@@ -182,30 +294,24 @@ export default function Skills({ data, welcome }: SkillsProps) {
                   <FaBookmark className="text-secondary text-[10px]" /> Reader Instructions
                 </h4>
                 <p className="text-xs text-gray-400 leading-relaxed font-mono space-y-1">
-                  &bull; Use bottom corner arrows to flip pages.<br />
-                  &bull; Use your keyboard <kbd className="bg-white/10 px-1.5 py-0.5 rounded text-white font-semibold">Left</kbd> & <kbd className="bg-white/10 px-1.5 py-0.5 rounded text-white font-semibold">Right</kbd> arrow keys.<br />
-                  &bull; Use the Index on the right to jump directly to any section.
+                  {isMobile ? (
+                    <>
+                      &bull; Swipe left or right to flip pages.<br />
+                      &bull; Use the bottom navigation arrows.<br />
+                      &bull; Use the Directory below to jump to sections.
+                    </>
+                  ) : (
+                    <>
+                      &bull; Use bottom corner arrows to flip pages.<br />
+                      &bull; Use your keyboard <kbd className="bg-white/10 px-1.5 py-0.5 rounded text-white font-semibold">Left</kbd> & <kbd className="bg-white/10 px-1.5 py-0.5 rounded text-white font-semibold">Right</kbd> arrow keys.<br />
+                      &bull; Use the Index on the right to jump directly to any section.
+                    </>
+                  )}
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center justify-between mt-6 pt-4 border-t border-white/[0.05]">
-              {!isFlipping ? (
-                <button 
-                  onClick={handlePrevPage}
-                  disabled={isMobile ? mobilePageIndex === 0 : currentSpread === 0}
-                  className="flex items-center gap-2 text-xs font-semibold text-gray-500 hover:text-white disabled:opacity-20 disabled:pointer-events-none transition-colors duration-300 z-30"
-                >
-                  <div className="p-2 rounded-lg bg-white/[0.03] border border-white/[0.06] hover:bg-white/5 hover:border-white/12 transition-all"><FaChevronLeft /></div>
-                  <span>Turn Back</span>
-                </button>
-              ) : (
-                <div className="w-[80px]" />
-              )}
-              <span className="text-xs font-mono font-semibold text-gray-500">
-                Page {isMobile ? mobilePageIndex + 1 : 1}
-              </span>
-            </div>
+            {renderPageFooter(isMobile ? mobilePageIndex + 1 : 1, 'left', isFlipping)}
           </div>
         );
       } else {
@@ -262,23 +368,7 @@ export default function Skills({ data, welcome }: SkillsProps) {
               </div>
             </div>
 
-            <div className="flex items-center justify-between mt-6 pt-4 border-t border-white/[0.05]">
-              <span className="text-xs font-mono font-semibold text-gray-500">
-                Page {isMobile ? mobilePageIndex + 1 : 2}
-              </span>
-              {!isFlipping ? (
-                <button 
-                  onClick={handleNextPage}
-                  disabled={isMobile ? mobilePageIndex === totalPages - 1 : currentSpread === totalSpreads - 1}
-                  className="flex items-center gap-2 text-xs font-semibold text-gray-400 hover:text-secondary disabled:opacity-20 disabled:pointer-events-none transition-colors duration-300 ml-auto z-30"
-                >
-                  <span>Turn Next</span>
-                  <div className="p-2 rounded-lg bg-white/[0.03] border border-white/[0.06] hover:bg-white/5 hover:border-white/12 transition-all text-secondary"><FaChevronRight /></div>
-                </button>
-              ) : (
-                <div className="w-[80px]" />
-              )}
-            </div>
+            {renderPageFooter(isMobile ? mobilePageIndex + 1 : 2, 'right', isFlipping)}
           </div>
         );
       }
@@ -333,23 +423,7 @@ export default function Skills({ data, welcome }: SkillsProps) {
               )}
             </div>
 
-            <div className="flex items-center justify-between mt-6 pt-4 border-t border-white/[0.05]">
-              {!isFlipping ? (
-                <button 
-                  onClick={handlePrevPage}
-                  disabled={isMobile ? mobilePageIndex === 0 : currentSpread === 0}
-                  className="flex items-center gap-2 text-xs font-semibold text-gray-400 hover:text-white disabled:opacity-20 disabled:pointer-events-none transition-colors duration-300 z-30"
-                >
-                  <div className="p-2 rounded-lg bg-white/[0.03] border border-white/[0.06] hover:bg-white/5 hover:border-white/12 transition-all"><FaChevronLeft /></div>
-                  <span>Turn Back</span>
-                </button>
-              ) : (
-                <div className="w-[80px]" />
-              )}
-              <span className="text-xs font-mono font-semibold text-gray-500">
-                Page {isMobile ? mobilePageIndex + 1 : spreadIdx * 2 + 1}
-              </span>
-            </div>
+            {renderPageFooter(isMobile ? mobilePageIndex + 1 : spreadIdx * 2 + 1, 'left', isFlipping)}
           </div>
         );
       } else {
@@ -407,23 +481,7 @@ export default function Skills({ data, welcome }: SkillsProps) {
               </div>
             </div>
 
-            <div className="flex items-center justify-between mt-6 pt-4 border-t border-white/[0.05]">
-              <span className="text-xs font-mono font-semibold text-gray-500">
-                Page {isMobile ? mobilePageIndex + 1 : spreadIdx * 2 + 2}
-              </span>
-              {!isFlipping ? (
-                <button 
-                  onClick={handleNextPage}
-                  disabled={isMobile ? mobilePageIndex === totalPages - 1 : currentSpread === totalSpreads - 1}
-                  className="flex items-center gap-2 text-xs font-semibold text-gray-400 hover:text-secondary disabled:opacity-20 disabled:pointer-events-none transition-colors duration-300 ml-auto z-30"
-                >
-                  <span>Turn Next</span>
-                  <div className="p-2 rounded-lg bg-white/[0.03] border border-white/[0.06] hover:bg-white/5 hover:border-white/12 transition-all text-secondary"><FaChevronRight /></div>
-                </button>
-              ) : (
-                <div className="w-[80px]" />
-              )}
-            </div>
+            {renderPageFooter(isMobile ? mobilePageIndex + 1 : spreadIdx * 2 + 2, 'right', isFlipping)}
           </div>
         );
       }
@@ -464,7 +522,12 @@ export default function Skills({ data, welcome }: SkillsProps) {
 
         {isMobile ? (
           /* ==================== MOBILE SCREEN VIEW (SINGLE PAGE CARD SLIDER) ==================== */
-          <div className="flex justify-center items-center py-6 w-full">
+          <div 
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onTouchEnd}
+            className="flex justify-center items-center py-6 w-full touch-pan-y"
+          >
             <div className="glass-card relative w-full max-w-[420px] h-[540px] p-6 flex flex-col justify-between overflow-hidden shadow-2xl">
               
               {/* Decorative side stack lines */}

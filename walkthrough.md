@@ -74,7 +74,7 @@ The public-facing portfolio is built with interactive graphics, premium typograp
 * **[Navbar](file:///d:/VS%20code%20file/React_projects/portfolio_web/frontend/src/components/Navbar.tsx)**: Sticky header displaying navigation sections. Uses a custom scroll spy hook to dynamically highlight active states as the user views the page.
 * **[Hero Section](file:///d:/VS%20code%20file/React_projects/portfolio_web/frontend/src/sections/Hero.tsx)**: Displays the primary heading and dynamic resume links. Uses Framer Motion letter-by-letter spring animation with customized multi-word linear gradients. Supports auto-converting Google Drive links into direct download vectors.
 * **[About Section](file:///d:/VS%20code%20file/React_projects/portfolio_web/frontend/src/sections/About.tsx)**: Renders the narrative biography, highlighted achievements, and academic timeline.
-* **[Skills Section (Codex Book)](file:///d:/VS%20code%20file/React_projects/portfolio_web/frontend/src/sections/Skills.tsx)**: Displays skills as a realistic **Interactive Knowledge Codex** (3D book-style layout) where users can flip pages using corner arrows, table of contents links, or keyboard arrows. Automatically collapses into a single-card swipe slider layout on mobile viewports.
+* **[Skills Section (Codex Book)](file:///d:/VS%20code%20file/React_projects/portfolio_web/frontend/src/sections/Skills.tsx)**: Displays skills as a realistic **Interactive Knowledge Codex** (3D book-style layout) where users can flip pages using corner arrows, table of contents links, or keyboard arrows. Automatically collapses into a single-card layout on mobile viewports with responsive bottom pagination buttons (Turn Back/Next) and native touch swipe gestures (`touch-pan-y` support).
 * **[Projects Section](file:///d:/VS%20code%20file/React_projects/portfolio_web/frontend/src/sections/Projects.tsx)**: Filterable grid categorized dynamically by tags. Incorporates a modal window to preview selected items.
 * **[Experience Section](file:///d:/VS%20code%20file/React_projects/portfolio_web/frontend/src/sections/Experience.tsx)**: Interactive timeline representing company associations, roles, and job descriptions.
 * **[Certificates Section](file:///d:/VS%20code%20file/React_projects/portfolio_web/frontend/src/sections/Certificates.tsx)**: Dynamic grid containing professional certifications with link vectors and modal previews.
@@ -213,3 +213,13 @@ The application features a root declaration file `render.yaml` enabling one-clic
    * **Static Web App**: Hosts the public portfolio SPA (`/frontend`).
    * **Static Web App**: Hosts the administration dashboard CMS (`/admin`).
 4. Enter values for database URIs and administrative access passwords when prompted. The infrastructure will compile and deploy automatically.
+
+---
+
+## 7. Recent Enhancements: Skills Codex Mobile Page Turning
+
+To optimize user experience on small/mobile devices, the [Skills Codex](file:///d:/VS%20code%20file/React_projects/portfolio_web/frontend/src/sections/Skills.tsx) has been upgraded with complete, responsive navigation controls:
+* **Symmetrical Navigation Controls**: Both the `Turn Back` and `Turn Next` buttons are now displayed on mobile screens at the bottom of the card, enabling bidirectional page turning on the single-card layout.
+* **Native Swipe Gestures**: Fully integrated touch event listeners (`onTouchStart`, `onTouchMove`, and `onTouchEnd`) to detect horizontal swipe gestures on mobile screens. Swiping left turns to the next page, and swiping right turns to the previous page.
+* **Scroll Optimization**: Applied `touch-pan-y` CSS behavior to ensure that vertical swiping continues to scroll the main page smoothly without accidentally triggering horizontal page flips.
+* **Dynamic Instructions**: The "Reader Instructions" box now adapts to the user's viewport, suggesting swipe actions and mobile buttons on mobile, while displaying keyboard shortcuts and corner buttons on desktop.
