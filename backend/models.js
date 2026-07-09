@@ -66,9 +66,18 @@ const ProjectSchema = new mongoose.Schema({
 // Experience Schema
 const ExperienceSchema = new mongoose.Schema({
   role: { type: String, required: true },
-  company: { type: String, required: true },
+  company: { type: String, default: '' },
   period: { type: String, required: true },
-  description: { type: String, required: true }
+  description: { type: String, required: true },
+  category: { 
+    type: String, 
+    required: true, 
+    enum: ['work', 'internship', 'academic_project', 'freelance', 'volunteer', 'leadership', 'side_gig'],
+    default: 'work'
+  },
+  keyLearningOutcomes: { type: String, default: '' },
+  technologies: [{ type: String }],
+  link: { type: String, default: '' }
 }, { timestamps: true });
 
 // Certificate Schema

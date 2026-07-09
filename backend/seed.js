@@ -196,19 +196,60 @@ const EXPERIENCE_DATA = [
     company: 'InnovateTech Solutions',
     period: '2022 - Present',
     description: 'Design and guide the migration of modular micro-frontend ecosystems for multi-tenant SaaS dashboards. Orchestrated React 18/19 optimization pipelines resulting in a 40% speed enhancement in First Input Delay (FID) and a 30% bundle size reduction.',
+    category: 'work',
+    technologies: ['React 19', 'Next.js 15', 'TypeScript', 'Tailwind CSS', 'Framer Motion']
   },
   {
-    role: 'Senior React Developer',
-    company: 'QuantumLabs',
-    period: '2020 - 2022',
-    description: 'Led the development of a real-time collaborative code editor. Integrated custom virtualized lists and complex canvas graphics that handled rendering of 10k+ rows with smooth 60 FPS performance.',
+    role: 'Software Engineer Intern',
+    company: 'CloudTech Scale',
+    period: 'Summer 2021',
+    description: 'Developed and optimized serverless API routes for user onboarding. Worked under senior mentorship, wrote robust integration tests, and participated in daily scrum meetings.',
+    category: 'internship',
+    keyLearningOutcomes: 'Mastered serverless backend design, API optimization, unit testing using Jest, and continuous integration workflows in an agile team.',
+    technologies: ['Node.js', 'Express', 'Jest', 'AWS Lambda']
   },
   {
-    role: 'Full Stack Engineer',
-    company: 'DevFlow Media',
+    role: 'Distributed Consensus Engine',
+    company: 'Stanford University (Academic Capstone)',
+    period: 'Fall 2020',
+    description: 'Built a lightweight Raft consensus engine to study partition tolerance and leader election dynamics. Achieved sub-50ms election timeouts and verified consistency using Jepsen testing.',
+    category: 'academic_project',
+    technologies: ['Go', 'gRPC', 'Protobuf', 'Docker'],
+    link: 'https://github.com/example/raft-consensus'
+  },
+  {
+    role: 'Full Stack Consultant',
+    company: 'GreenEarth NGO (Freelance)',
+    period: '2021 - 2022',
+    description: 'Consulted and engineered web solutions for environmental organizations. Re-architected a legacy portal into a high-performance Next.js site, increasing organic traffic and donation flow.',
+    category: 'freelance',
+    technologies: ['React', 'Next.js', 'Supabase', 'Stripe'],
+    link: 'https://github.com/example/greenearth-ngo'
+  },
+  {
+    role: 'Lead Festival Coordinator',
+    company: 'Stanford Annual Tech Fest',
+    period: '2019 - 2020',
+    description: 'Coordinated events, speakers, and budget for Stanford\'s annual tech festival. Managed logistics, automated registration pipelines, and successfully hosted 2,000+ attendees.',
+    category: 'leadership',
+    keyLearningOutcomes: 'Honed budget management, cross-functional leadership, sponsor negotiation, and large-scale event organization skills.'
+  },
+  {
+    role: 'Tech Mentor & Coding Instructor',
+    company: 'CodeForGood Campus Chapter',
     period: '2018 - 2020',
-    description: 'Developed scalable REST/GraphQL APIs in Node.js and MongoDB. Created responsive client dashboards using React and CSS Modules, managing data synchronization and caching using React Query.',
+    description: 'Volunteered to teach web development basics (HTML, CSS, JavaScript, React) to underrepresented high school students in local community centers.',
+    category: 'volunteer',
+    keyLearningOutcomes: 'Developed strong public speaking abilities, curriculum creation expertise, and emotional intelligence while giving back to local communities.'
   },
+  {
+    role: 'Founder & Tech Content Creator',
+    company: 'ByteSizedCode YouTube Channel',
+    period: '2020 - Present',
+    description: 'Create technical videos, articles, and interactive demos focusing on advanced React design patterns, performance optimizations, and web animations.',
+    category: 'side_gig',
+    link: 'https://youtube.com/c/bytesizedcode'
+  }
 ];
 
 const CERTIFICATES_DATA = [
