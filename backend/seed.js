@@ -161,6 +161,33 @@ const PROJECTS_DATA = [
     liveUrl: 'https://example.com',
     imageUrl: 'https://images.unsplash.com/photo-1607799279861-4dd421887fb3?auto=format&fit=crop&w=800&q=80',
   },
+  {
+    title: 'Aegis Secure - Enterprise Identity Proxy',
+    description: 'A high-performance security gatekeeper utilizing zero-trust token authentication, real-time intrusion monitoring logs, and encrypted key management layers.',
+    category: 'backend',
+    tags: ['Node.js', 'Go', 'Redis', 'OAuth2', 'Docker'],
+    githubUrl: 'https://github.com',
+    liveUrl: 'https://example.com',
+    imageUrl: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=800&q=80',
+  },
+  {
+    title: 'Quantum Grid - Real-time Network Telemetry',
+    description: 'An interactive telemetry canvas visualizer mapping 50k active network connections with sub-millisecond updates, rendering via WebGL.',
+    category: 'frontend',
+    tags: ['React', 'Three.js', 'WebSockets', 'WebAssembly', 'Rust'],
+    githubUrl: 'https://github.com',
+    liveUrl: 'https://example.com',
+    imageUrl: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=800&q=80',
+  },
+  {
+    title: 'Solaris - Autonomous Drone Navigation',
+    description: 'A simulated drone route planner using deep Q-learning, displaying real-time lidar maps, pathing vectors, and obstacle warning systems.',
+    category: 'game',
+    tags: ['Python', 'PyTorch', 'Unity', 'C#', 'WebGL'],
+    githubUrl: 'https://github.com',
+    liveUrl: 'https://example.com',
+    imageUrl: 'https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=800&q=80',
+  },
 ];
 
 const EXPERIENCE_DATA = [
