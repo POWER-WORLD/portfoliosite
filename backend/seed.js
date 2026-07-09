@@ -274,6 +274,27 @@ const CERTIFICATES_DATA = [
     credentialUrl: 'https://mongodb.com',
     imageUrl: 'https://images.unsplash.com/photo-1544383835-bda2bc66a55d?auto=format&fit=crop&w=300&q=80',
   },
+  {
+    title: 'Professional Scrum Master I (PSM I)',
+    organization: 'Scrum.org',
+    date: 'May 2025',
+    credentialUrl: 'https://scrum.org',
+    imageUrl: 'https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&w=300&q=80',
+  },
+  {
+    title: 'Google UX Design Professional Certificate',
+    organization: 'Google (Coursera)',
+    date: 'Mar 2025',
+    credentialUrl: 'https://coursera.org',
+    imageUrl: 'https://images.unsplash.com/photo-1586717791821-3f44a563fa4c?auto=format&fit=crop&w=300&q=80',
+  },
+  {
+    title: 'Meta Front-End Developer Professional Certificate',
+    organization: 'Meta (Coursera)',
+    date: 'Jan 2025',
+    credentialUrl: 'https://coursera.org',
+    imageUrl: 'https://images.unsplash.com/photo-1627398242454-45a1465c2079?auto=format&fit=crop&w=300&q=80',
+  },
 ];
 
 const ACHIEVEMENTS_DATA = [

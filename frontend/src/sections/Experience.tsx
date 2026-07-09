@@ -142,6 +142,7 @@ export default function Experience({ data }: ExperienceProps) {
         <SectionHeader
           badgeText="Timeline"
           title="Professional & Academic Journey"
+          tagline='explore academic journey in which including from intership to work experience'
           highlightText="Journey"
           badgeColor="secondary"
         />

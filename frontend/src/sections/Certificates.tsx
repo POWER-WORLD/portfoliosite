@@ -35,11 +35,16 @@ export default function Certificates({ data }: CertificatesProps) {
   const [selectedCert, setSelectedCert] = useState<Certificate | null>(null);
   const [isImageExpanded, setIsImageExpanded] = useState(false);
   useScrollLock(Boolean(selectedCert) || isImageExpanded);
+
   const certs = data && data.length > 0 ? data : [];
 
   if (certs.length === 0) {
     return null;
   }
+
+  // Split certificates into two rows for alternate directions
+  const row1 = certs.filter((_, idx) => idx % 2 === 0);
+  const row2 = certs.filter((_, idx) => idx % 2 !== 0);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -49,12 +54,12 @@ export default function Certificates({ data }: CertificatesProps) {
     },
   };
 
-  const cardVariants = {
-    hidden: { y: 35, opacity: 0 },
+  const rowVariants = {
+    hidden: { y: 30, opacity: 0 },
     visible: {
       y: 0,
       opacity: 1,
-      transition: { type: 'spring' as const, stiffness: 90, damping: 15 },
+      transition: { type: 'spring' as const, stiffness: 80, damping: 16 },
     },
   };
 
@@ -72,57 +77,125 @@ export default function Certificates({ data }: CertificatesProps) {
           badgeColor="accent"
         />
 
-        {/* Grid */}
+        {/* Sliding Rows Container */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: '-10% 0px' }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          className="space-y-8 py-4 relative"
         >
-          {certs.map((cert, idx) => {
-            const iconConfig = CERT_ICON_TYPES[idx % CERT_ICON_TYPES.length];
-            const IconComponent = iconConfig.icon;
+          {/* Subtle edge fading gradients */}
+          {/* <div className="absolute inset-y-0 left-0 w-16 md:w-32 bg-gradient-to-r from-bg-dark to-transparent z-20 pointer-events-none" /> */}
+          {/* <div className="absolute inset-y-0 right-0 w-16 md:w-32 bg-gradient-to-l from-bg-dark to-transparent z-20 pointer-events-none" /> */}
 
-            return (
-              <motion.div
-                key={idx}
-                variants={cardVariants}
-                onClick={() => setSelectedCert(cert)}
-                className="glass-card p-6 sm:p-8 h-full flex flex-col justify-between items-start text-left relative overflow-hidden cursor-pointer group"
-              >
-                <div className="space-y-6 w-full relative z-10">
-                  {/* Header Row: Static Transparent Badges */}
-                  <div className="flex items-center justify-between w-full">
-                    <div className={`p-3.5 rounded-2xl bg-gradient-to-br ${iconConfig.bg} border ${iconConfig.color} w-fit text-2xl`}>
-                      <IconComponent />
+          {/* Row 1: Right to Left scroll */}
+          <motion.div 
+            variants={rowVariants}
+            className="hover-pause overflow-hidden w-full relative py-2"
+          >
+            <div className="flex gap-6 animate-scroll-left w-max">
+              {/* Duplicate the array items to ensure seamless infinite looping */}
+              {[...row1, ...row1].map((cert, idx) => {
+                // Find index of the certificate in original certs list to get consistent icon configuration
+                const originalIdx = certs.findIndex(c => c.title === cert.title);
+                const iconConfig = CERT_ICON_TYPES[originalIdx >= 0 ? originalIdx % CERT_ICON_TYPES.length : 0];
+                const IconComponent = iconConfig.icon;
+
+                return (
+                  <div
+                    key={`row1-${idx}`}
+                    onClick={() => setSelectedCert(cert)}
+                    className="glass-card p-6 sm:p-8 w-[320px] sm:w-[380px] h-[240px] shrink-0 flex flex-col justify-between items-start text-left relative overflow-hidden cursor-pointer group"
+                  >
+                    <div className="space-y-4 w-full relative z-10">
+                      {/* Header Row: Static Transparent Badges */}
+                      <div className="flex items-center justify-between w-full">
+                        <div className={`p-3 rounded-xl bg-gradient-to-br ${iconConfig.bg} border ${iconConfig.color} w-fit text-xl`}>
+                          <IconComponent />
+                        </div>
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-transparent border border-emerald-500/40 text-[10px] font-semibold text-emerald-400 font-mono">
+                          <FaCheckCircle className="text-[9px]" /> Verified
+                        </span>
+                      </div>
+
+                      {/* Text Info */}
+                      <div className="space-y-2">
+                        <span className="text-[11px] font-bold tracking-widest text-secondary uppercase font-mono bg-transparent px-2.5 py-0.5 rounded-md border border-secondary/40 inline-block">
+                          {cert.organization}
+                        </span>
+                        <h3 className="font-display font-bold text-base text-white leading-snug group-hover:text-glow transition-all duration-300 line-clamp-2">
+                          {cert.title}
+                        </h3>
+                      </div>
                     </div>
-                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-transparent border border-emerald-500/40 text-[10px] font-semibold text-emerald-400 font-mono">
-                      <FaCheckCircle className="text-[9px]" /> Verified
-                    </span>
-                  </div>
 
-                  {/* Text Info */}
-                  <div className="space-y-2">
-                    <span className="text-[11px] font-bold tracking-widest text-secondary uppercase font-mono bg-transparent px-2.5 py-0.5 rounded-md border border-secondary/40 inline-block">
-                      {cert.organization}
-                    </span>
-                    <h3 className="font-display font-bold text-lg text-white leading-snug group-hover:text-glow transition-all duration-300">
-                      {cert.title}
-                    </h3>
+                    {/* Card Footer */}
+                    <div className="w-full flex items-center justify-between mt-auto pt-3 border-t border-white/10 text-xs font-mono text-gray-400 relative z-10">
+                      <span className="text-gray-400 font-mono text-[11px]">{cert.date}</span>
+                      <span className="text-cyan-400 flex items-center gap-1.5 font-sans font-semibold cursor-pointer">
+                        View Credentials <FaExternalLinkAlt className="text-[10px]" />
+                      </span>
+                    </div>
                   </div>
-                </div>
+                );
+              })}
+            </div>
+          </motion.div>
 
-                {/* Card Footer */}
-                <div className="w-full flex items-center justify-between mt-8 pt-4 border-t border-white/10 text-xs font-mono text-gray-400 relative z-10">
-                  <span className="text-gray-400 font-mono text-[11px]">{cert.date}</span>
-                  <span className="text-cyan-400 flex items-center gap-1.5 font-sans font-semibold cursor-pointer">
-                    View Credentials <FaExternalLinkAlt className="text-[10px]" />
-                  </span>
-                </div>
-              </motion.div>
-            );
-          })}
+          {/* Row 2: Left to Right scroll */}
+          <motion.div 
+            variants={rowVariants}
+            className="hover-pause overflow-hidden w-full relative py-2"
+          >
+            <div className="flex gap-6 animate-scroll-right w-max">
+              {/* Duplicate the array items to ensure seamless infinite looping */}
+              {[...row2, ...row2].map((cert, idx) => {
+                // Find index of the certificate in original certs list to get consistent icon configuration
+                const originalIdx = certs.findIndex(c => c.title === cert.title);
+                const iconConfig = CERT_ICON_TYPES[originalIdx >= 0 ? originalIdx % CERT_ICON_TYPES.length : 0];
+                const IconComponent = iconConfig.icon;
+
+                return (
+                  <div
+                    key={`row2-${idx}`}
+                    onClick={() => setSelectedCert(cert)}
+                    className="glass-card p-6 sm:p-8 w-[320px] sm:w-[380px] h-[240px] shrink-0 flex flex-col justify-between items-start text-left relative overflow-hidden cursor-pointer group"
+                  >
+                    <div className="space-y-4 w-full relative z-10">
+                      {/* Header Row: Static Transparent Badges */}
+                      <div className="flex items-center justify-between w-full">
+                        <div className={`p-3 rounded-xl bg-gradient-to-br ${iconConfig.bg} border ${iconConfig.color} w-fit text-xl`}>
+                          <IconComponent />
+                        </div>
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-transparent border border-emerald-500/40 text-[10px] font-semibold text-emerald-400 font-mono">
+                          <FaCheckCircle className="text-[9px]" /> Verified
+                        </span>
+                      </div>
+
+                      {/* Text Info */}
+                      <div className="space-y-2">
+                        <span className="text-[11px] font-bold tracking-widest text-secondary uppercase font-mono bg-transparent px-2.5 py-0.5 rounded-md border border-secondary/40 inline-block">
+                          {cert.organization}
+                        </span>
+                        <h3 className="font-display font-bold text-base text-white leading-snug group-hover:text-glow transition-all duration-300 line-clamp-2">
+                          {cert.title}
+                        </h3>
+                      </div>
+                    </div>
+
+                    {/* Card Footer */}
+                    <div className="w-full flex items-center justify-between mt-auto pt-3 border-t border-white/10 text-xs font-mono text-gray-400 relative z-10">
+                      <span className="text-gray-400 font-mono text-[11px]">{cert.date}</span>
+                      <span className="text-cyan-400 flex items-center gap-1.5 font-sans font-semibold cursor-pointer">
+                        View Credentials <FaExternalLinkAlt className="text-[10px]" />
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </motion.div>
         </motion.div>
       </div>
 
