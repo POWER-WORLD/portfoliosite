@@ -197,7 +197,7 @@ const UFO = ({ isOpen, onClick }: { isOpen: boolean; onClick: () => void }) => {
 
 export default function Navbar({ activeSection }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
-  useScrollLock(isOpen);
+  // useScrollLock(isOpen);
 
   const handleScrollTo = (id: string) => {
     setIsOpen(false);
@@ -271,154 +271,156 @@ export default function Navbar({ activeSection }: NavbarProps) {
         </div>
       </div>
 
-      {/* Interactive Holographic Dropdown & Tractor Beam */}
+      {/* Interactive Holographic Dropdown Menu */}
       <AnimatePresence>
         {isOpen && (
           <>
-            {/* Tapered Tractor Beam Projection */}
-            <motion.div
-              initial={{ opacity: 0, scaleY: 0 }}
-              animate={{ opacity: 1, scaleY: 1 }}
-              exit={{ opacity: 0, scaleY: 0 }}
-              transition={{ duration: 0.4, ease: 'easeOut' }}
-              style={{ originY: 0 }}
-              className="absolute top-[75px] left-1/2 -translate-x-1/2 w-[340px] md:w-[890px] h-[520px] md:h-[240px] pointer-events-none z-30 transition-all duration-500"
-            >
-              <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
-                <defs>
-                  <radialGradient id="beamGrad" cx="50%" cy="0%" r="90%">
-                    <stop offset="0%" stopColor="#00E5FF" stopOpacity="0.45" />
-                    <stop offset="35%" stopColor="#00E5FF" stopOpacity="0.12" />
-                    <stop offset="100%" stopColor="#00E5FF" stopOpacity="0" />
-                  </radialGradient>
-                </defs>
-                <polygon points="46,0 54,0 95,100 5,100" fill="url(#beamGrad)" />
-
-                {/* Dynamic scanner light sweep */}
-                <line x1="0" y1="0" x2="100" y2="0" stroke="#00E5FF" strokeWidth="0.8" opacity="0.6">
-                  <animateTransform
-                    attributeName="transform"
-                    type="translate"
-                    from="0,0"
-                    to="0,100"
-                    dur="2.5s"
-                    repeatCount="indefinite"
-                  />
-                </line>
-              </svg>
-            </motion.div>
-
-            {/* Backdrop click closer overlay */}
+            {/* Click-outside overlay — transparent, no blur so page is still visible */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsOpen(false)}
-              className="fixed inset-0 bg-black/40 backdrop-blur-xs z-20"
+              className="fixed inset-0 z-20"
             />
 
-            {/* Holographic HUD Container with Outer Animated Wave Gradient Border */}
+            {/* ── Dropdown card ── */}
             <motion.div
-              initial={{ opacity: 0, y: -20, scale: 0.95 }}
+              initial={{ opacity: 0, y: -12, scale: 0.96 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -20, scale: 0.95 }}
-              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-              className="absolute top-[88px] left-1/2 -translate-x-1/2 w-[94vw] max-w-[900px] md:w-[900px] p-[1.5px] rounded-xl bg-gradient-to-r from-cyan-500 via-indigo-500 via-fuchsia-500 to-emerald-400 animate-wave-gradient bg-[length:300%_300%] shadow-[0_0_35px_rgba(0,229,255,0.35)] z-40 overflow-hidden max-h-[calc(100vh-100px)] overflow-y-auto"
+              exit={{ opacity: 0, y: -12, scale: 0.96 }}
+              transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+              className={[
+                // position
+                'absolute top-[82px] left-1/2 -translate-x-1/2 z-40',
+                // mobile: 92vw capped at 360px
+                'w-[92vw] max-w-[360px]',
+                // desktop: shrink-wrap to content, never exceed viewport
+                'md:w-max md:max-w-[calc(100vw-48px)]',
+                // border gradient wrapper
+                'p-[1px] rounded-2xl',
+                'bg-gradient-to-b from-cyan-500/50 via-accent/25 to-transparent',
+                'shadow-[0_20px_40px_rgba(0,0,0,0.7),0_0_25px_rgba(0,229,255,0.12)]',
+              ].join(' ')}
             >
-              <div className="w-full hologram-panel rounded-[10px] flex flex-col items-center py-6 px-4 relative overflow-hidden max-h-[calc(100vh-104px)] overflow-y-auto">
-                {/* Cyber Corners */}
-                <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-cyan-400" />
-                <div className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-fuchsia-400" />
-                <div className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-indigo-400" />
-                <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-emerald-400" />
+              {/* inner glass panel — shrinks to fit on desktop */}
+              <div className={[
+                'bg-[rgba(5,8,22,0.82)] backdrop-blur-2xl rounded-[15px] relative',
+                // mobile: column layout with padding
+                'flex flex-col py-5 px-4',
+                // desktop: single row, less padding
+                'md:flex-row md:items-center md:py-2 md:px-2 md:gap-1',
+              ].join(' ')}>
 
-                {/* Status Header */}
-                <div className="w-full flex justify-between items-center px-3 mb-4 text-[10px] font-share-tech tracking-widest uppercase border-b border-secondary/15 pb-2">
-                  <span className="font-orbitron font-semibold bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-400 bg-clip-text text-transparent animate-wave-gradient bg-[length:200%_200%] drop-shadow-[0_0_8px_rgba(0,229,255,0.6)]">
-                    [SYS: BEAM_ACTIVE]
+                {/* Corner accents */}
+                <div className="absolute top-0 left-0 w-2.5 h-2.5 border-t border-l border-cyan-400/70 rounded-tl-[15px]" />
+                <div className="absolute top-0 right-0 w-2.5 h-2.5 border-t border-r border-accent/70 rounded-tr-[15px]" />
+                <div className="absolute bottom-0 left-0 w-2.5 h-2.5 border-b border-l border-accent/70 rounded-bl-[15px]" />
+                <div className="absolute bottom-0 right-0 w-2.5 h-2.5 border-b border-r border-cyan-400/70 rounded-br-[15px]" />
+
+                {/* ── Mobile-only header ── */}
+                <div className="flex justify-between items-center mb-4 pb-2.5 border-b border-white/10 md:hidden">
+                  <span className="font-orbitron text-[9px] font-semibold text-cyan-400 tracking-widest uppercase drop-shadow-[0_0_6px_rgba(0,229,255,0.5)]">
+                    [SYS: NAV_MENU]
                   </span>
-                  <span className="px-2.5 py-0.5 rounded-full border border-emerald-400/40 bg-emerald-950/40 text-alien-green shadow-[0_0_10px_rgba(57,255,20,0.5)] animate-pulse font-mono flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-alien-green shadow-[0_0_6px_#39FF14]" />
+                  <span className="flex items-center gap-1 px-2 py-0.5 rounded-full border border-emerald-500/30 bg-emerald-950/20 font-mono text-[8px] text-alien-green shadow-[0_0_8px_rgba(57,255,20,0.25)] animate-pulse">
+                    <span className="w-1 h-1 rounded-full bg-alien-green shadow-[0_0_4px_#39FF14]" />
                     ONLINE
                   </span>
                 </div>
 
-                {/* Staggered Navigation Items with Wave Gradient Colors & Letter Micro-Animations */}
-                <nav className="w-full">
-                  <ul className="flex flex-col md:flex-row w-full gap-2.5 md:gap-2 relative z-10 justify-around list-none">
+                {/* ── Nav items list ── */}
+                <nav>
+                  <ul className={[
+                    'list-none relative z-10',
+                    // mobile: vertical stack, full width items
+                    'flex flex-col gap-2.5',
+                    // desktop: single row, no wrap, auto-width items
+                    'md:flex-row md:flex-nowrap md:gap-1.5',
+                  ].join(' ')}>
                     {NAV_ITEMS.map((item, index) => {
                       const isActive = activeSection === item.id;
-                      const formattedIndex = String(index + 1).padStart(2, '0');
                       const theme = NAV_ITEM_THEMES[index % NAV_ITEM_THEMES.length];
                       const itemLetters = Array.from(item.label);
+                      const formattedIndex = String(index + 1).padStart(2, '0');
 
                       return (
-                        <li key={item.id} className="w-full md:w-auto">
+                        <li key={item.id} className="md:shrink-0">
                           <motion.div
-                            initial={{ opacity: 0, y: -20 }}
+                            initial={{ opacity: 0, y: -8 }}
                             animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -15 }}
-                            transition={{ duration: 0.3, delay: index * 0.05 }}
-                            className={`p-[1.5px] rounded-lg transition-all duration-300 w-full md:w-auto ${isActive
-                                ? `bg-gradient-to-r ${theme.gradient} animate-wave-gradient bg-[length:200%_200%] shadow-[0_0_20px_rgba(0,229,255,0.5)] scale-[1.02]`
-                                : 'bg-slate-800/40 hover:bg-gradient-to-r hover:' + theme.gradient + ' hover:animate-wave-gradient hover:bg-[length:200%_200%] hover:shadow-[0_0_15px_rgba(0,229,255,0.3)]'
-                              }`}
+                            exit={{ opacity: 0, y: -8 }}
+                            transition={{ duration: 0.22, delay: index * 0.035 }}
+                            className={[
+                              'p-[1px] rounded-xl transition-all duration-300',
+                              isActive
+                                ? `bg-gradient-to-r ${theme.gradient} animate-wave-gradient bg-[length:200%_200%] shadow-[0_0_12px_rgba(0,229,255,0.2)]`
+                                : 'bg-white/[0.05] hover:bg-gradient-to-r hover:' + theme.gradient + ' hover:animate-wave-gradient hover:bg-[length:200%_200%] hover:shadow-[0_0_8px_rgba(0,229,255,0.12)]',
+                            ].join(' ')}
                           >
                             <button
                               onClick={() => handleScrollTo(item.id)}
-                              className="group flex items-center justify-between md:justify-center w-full md:w-auto px-4 py-2.5 md:px-4 md:py-3.5 rounded-[6px] text-left md:text-center transition-all duration-300 relative cursor-pointer overflow-hidden bg-bg-dark/80 backdrop-blur-md"
+                              className={[
+                                'group relative flex items-center gap-2.5 cursor-pointer',
+                                'rounded-[11px] bg-[rgba(5,8,22,0.88)] backdrop-blur-md',
+                                'transition-all duration-300 overflow-hidden whitespace-nowrap',
+                                // mobile: full-width, bigger padding, left-align with number badge
+                                'w-full justify-between px-4 py-3',
+                                // desktop: auto-width, tighter padding, centered
+                                'md:w-auto md:justify-center md:px-3 md:py-1.5',
+                              ].join(' ')}
                             >
-                              {/* Hover subtle glow highlight */}
-                              <span className="absolute inset-0 w-full h-full bg-gradient-to-r md:bg-gradient-to-b from-cyan-500/10 via-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                              {/* hover glow */}
+                              <span className="absolute inset-0 bg-gradient-to-r from-cyan-500/8 via-purple-500/4 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-                              <div className="flex md:flex-col items-start md:items-center gap-3 md:gap-1.5 font-share-tech tracking-wider text-sm relative z-10 pb-0 md:pb-1">
-                                <span className={`text-[10px] font-orbitron font-extrabold ${theme.badgeColor} drop-shadow-[0_0_6px_currentColor]`}>
+                              {/* content row */}
+                              <span className="flex items-center gap-2 relative z-10">
+                                {/* number badge — visible only on mobile */}
+                                <span className={`font-orbitron font-extrabold text-[10px] md:hidden ${theme.badgeColor} drop-shadow-[0_0_5px_currentColor]`}>
                                   [{formattedIndex}]
                                 </span>
 
-                                {/* Animated Word / Letters with Wave Gradient Fill */}
-                                <span className="inline-flex items-center space-x-[1px]">
-                                  {itemLetters.map((char, charIdx) => (
+                                {/* animated label letters */}
+                                <span className="inline-flex items-center space-x-px">
+                                  {itemLetters.map((char, ci) => (
                                     <motion.span
-                                      key={charIdx}
-                                      animate={{
-                                        y: [0, -3, 0],
-                                      }}
+                                      key={ci}
+                                      animate={{ y: [0, -2, 0] }}
                                       transition={{
                                         duration: 2.4,
                                         repeat: Infinity,
                                         ease: 'easeInOut',
-                                        delay: index * 0.1 + charIdx * 0.08,
+                                        delay: index * 0.1 + ci * 0.08,
                                       }}
                                       whileHover={{
-                                        scale: 1.25,
-                                        y: -5,
-                                        rotate: [0, -4, 4, 0],
-                                        transition: { type: 'spring', stiffness: 400, damping: 10 },
+                                        scale: 1.3,
+                                        y: -4,
+                                        rotate: [0, -5, 5, 0],
+                                        transition: { type: 'spring', stiffness: 420, damping: 10 },
                                       }}
-                                      className={`inline-block font-orbitron font-black text-xs sm:text-sm tracking-widest bg-gradient-to-r ${theme.gradient} bg-[length:250%_250%] animate-wave-gradient bg-clip-text text-transparent ${theme.dropShadow}`}
+                                      className={`inline-block font-orbitron font-black text-xs tracking-widest bg-gradient-to-r ${theme.gradient} bg-[length:250%_250%] animate-wave-gradient bg-clip-text text-transparent ${theme.dropShadow}`}
                                     >
                                       {char}
                                     </motion.span>
                                   ))}
                                 </span>
-                              </div>
+                              </span>
 
-                              {/* Active / Hover Indicator */}
-                              <div className="flex items-center gap-2 relative z-10 md:absolute md:bottom-1 md:left-1/2 md:-translate-x-1/2">
+                              {/* active dot / hover hint */}
+                              <span className="relative z-10 md:ml-1">
                                 {isActive ? (
                                   <motion.span
                                     layoutId="activeAlienIndicator"
-                                    className="w-2 h-2 rounded-full shadow-[0_0_10px_currentColor]"
-                                    style={{ backgroundColor: theme.glowColor, color: theme.glowColor }}
+                                    className="block w-1.5 h-1.5 rounded-full shadow-[0_0_8px_currentColor]"
+                                    style={{ backgroundColor: theme.glowColor }}
                                     transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                                   />
                                 ) : (
-                                  <span className="text-[9px] font-share-tech text-gray-500 group-hover:text-cyan-300 opacity-0 group-hover:opacity-100 transition-opacity duration-300 md:hidden">
-                                    &lt;ENTER&gt;
+                                  <span className="text-[8px] font-share-tech text-gray-600 group-hover:text-cyan-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                    ▸
                                   </span>
                                 )}
-                              </div>
+                              </span>
                             </button>
                           </motion.div>
                         </li>
@@ -427,13 +429,14 @@ export default function Navbar({ activeSection }: NavbarProps) {
                   </ul>
                 </nav>
 
-                {/* Status Footer */}
-                <div className="w-full flex justify-between items-center px-3 mt-4 text-[9px] font-share-tech tracking-widest border-t border-secondary/15 pt-2">
-                  <span className="text-cyan-400/80 font-mono">[SECTOR: PORTFOLIO]</span>
-                  <span className="font-orbitron font-bold bg-gradient-to-r from-cyan-400 via-fuchsia-400 to-amber-300 bg-clip-text text-transparent animate-wave-gradient bg-[length:200%_200%] drop-shadow-[0_0_6px_rgba(0,229,255,0.5)]">
+                {/* ── Mobile-only footer ── */}
+                <div className="flex justify-between items-center mt-4 pt-2.5 border-t border-white/10 md:hidden">
+                  <span className="font-mono text-[8px] text-cyan-400/50">[SECTOR: NAV]</span>
+                  <span className="font-orbitron font-bold text-[8px] text-accent drop-shadow-[0_0_4px_rgba(108,99,255,0.4)]">
                     SYS_v1.0.9
                   </span>
                 </div>
+
               </div>
             </motion.div>
           </>
