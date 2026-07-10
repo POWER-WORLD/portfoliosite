@@ -11,7 +11,7 @@ import {
   AdminPassword,
   TechStack,
   SkillsWelcome
-} from './models.js';
+} from './models/index.js';
 import bcrypt from 'bcryptjs';
 
 dotenv.config();
@@ -341,6 +341,13 @@ async function seed() {
     // Clear old AdminPassword records if any exist from legacy schema
     await AdminPassword.deleteMany({});
     await SkillsWelcome.deleteMany({});
+
+    // Seed Admin Password Hash securely
+    console.log('Seeding Admin Password...');
+    const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+    const salt = await bcrypt.genSalt(10);
+    const hash = await bcrypt.hash(adminPassword, salt);
+    await new AdminPassword({ hash }).save();
 
     // Seed Personal Info
     console.log('Seeding Personal Info...');

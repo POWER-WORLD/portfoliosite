@@ -195,9 +195,9 @@ function ProjectCard({
             <span
               className="px-2.5 py-0.5 rounded-full text-[9px] font-bold tracking-wider uppercase font-mono border backdrop-blur-md bg-[#070a13]/80 select-none"
               style={{
-                borderColor: `var(--project-accent)40`,
-                color: `var(--project-accent)`,
-                boxShadow: `0 0 8px var(--project-accent)15`
+                borderColor: `${project.colors.glowHex}40`,
+                color: `${project.colors.glowHex}`,
+                boxShadow: `0 0 8px ${project.colors.glowHex}15`
               }}
             >
               {getCategoryLabel(project.category)}
@@ -216,8 +216,8 @@ function ProjectCard({
           <div 
             className="absolute left-0 top-6 w-[2px] h-[36px] rounded-full transition-all duration-300 group-hover:h-[60px]"
             style={{
-              background: `linear-gradient(to bottom, var(--project-accent), transparent)`,
-              boxShadow: `0 0 8px var(--project-accent)`
+              background: `linear-gradient(to bottom, ${project.colors.glowHex}, transparent)`,
+              boxShadow: `0 0 8px ${project.colors.glowHex}`
             }}
           />
           
@@ -225,7 +225,7 @@ function ProjectCard({
             <h3
               className="font-display font-bold text-lg text-white select-none transition-colors duration-300 group-hover:text-[var(--project-accent)]"
               style={{
-                textShadow: `0 0 10px var(--project-accent)15`
+                textShadow: `0 0 10px ${project.colors.glowHex}15`
               }}
             >
               {project.title}
@@ -270,17 +270,17 @@ function ProjectCard({
               rel="noopener noreferrer"
               className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold tracking-wider transition-all duration-300 border cursor-pointer"
               style={{
-                borderColor: `var(--project-accent)30`,
-                color: `var(--project-accent)`,
-                background: `var(--project-accent)05`
+                borderColor: `${project.colors.glowHex}30`,
+                color: `${project.colors.glowHex}`,
+                background: `${project.colors.glowHex}05`
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.boxShadow = `0 0 15px var(--project-accent)30`;
-                e.currentTarget.style.borderColor = `var(--project-accent)`;
+                e.currentTarget.style.boxShadow = `0 0 15px ${project.colors.glowHex}30`;
+                e.currentTarget.style.borderColor = `${project.colors.glowHex}`;
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.boxShadow = 'none';
-                e.currentTarget.style.borderColor = `var(--project-accent)30`;
+                e.currentTarget.style.borderColor = `${project.colors.glowHex}30`;
               }}
             >
               <FaExternalLinkAlt className="text-[10px]" />
@@ -295,12 +295,17 @@ function ProjectCard({
 
 export default function Projects({ data }: ProjectsProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [windowWidth, setWindowWidth] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return window.innerWidth;
-    }
-    return 1200;
+  const [layoutMode, setLayoutMode] = useState<'mobile' | 'tablet' | 'desktop'>(() => {
+    if (typeof window === 'undefined') return 'desktop';
+    if (window.innerWidth < 768) return 'mobile';
+    if (window.innerWidth < 1200) return 'tablet';
+    return 'desktop';
   });
+
+  // Swipe gesture touch handlers for mobile swipe navigation
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const minSwipeDistance = 50;
 
   // Memoize projects structure mapping to avoid sanitizing/parsing on every render
   const projects = useMemo<ProcessedProject[]>(() => {
@@ -327,14 +332,35 @@ export default function Projects({ data }: ProjectsProps) {
   // Responsive window resize tracking
   useEffect(() => {
     const handleResize = () => {
-      setWindowWidth(window.innerWidth);
+      const w = window.innerWidth;
+      let nextMode: 'mobile' | 'tablet' | 'desktop' = 'desktop';
+      if (w < 768) nextMode = 'mobile';
+      else if (w < 1200) nextMode = 'tablet';
+
+      setLayoutMode((prev) => {
+        if (prev !== nextMode) return nextMode;
+        return prev;
+      });
     };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+
+    let timeoutId: any;
+    const throttledResize = () => {
+      if (timeoutId) return;
+      timeoutId = setTimeout(() => {
+        handleResize();
+        timeoutId = null;
+      }, 100);
+    };
+
+    window.addEventListener('resize', throttledResize);
+    return () => {
+      window.removeEventListener('resize', throttledResize);
+      if (timeoutId) clearTimeout(timeoutId);
+    };
   }, []);
 
-  const isMobile = windowWidth < 768;
-  const isTablet = windowWidth >= 768 && windowWidth < 1200;
+  const isMobile = layoutMode === 'mobile';
+  const isTablet = layoutMode === 'tablet';
 
   const handlePrev = useCallback(() => {
     if (N === 0) return;
@@ -345,6 +371,28 @@ export default function Projects({ data }: ProjectsProps) {
     if (N === 0) return;
     setCurrentIndex((prev) => (prev + 1) % N);
   }, [N]);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe) {
+      handleNext();
+    } else if (isRightSwipe) {
+      handlePrev();
+    }
+  };
 
   const handleDotClick = useCallback((index: number) => {
     setCurrentIndex(index);
@@ -536,7 +584,12 @@ export default function Projects({ data }: ProjectsProps) {
         />
 
         {/* Carousel Container - Centers card stack horizontally & vertically */}
-        <div className="relative w-full max-w-[310px] sm:max-w-[340px] md:max-w-[370px] lg:max-w-[430px] h-[480px] lg:h-[530px] mx-auto mt-12 overflow-visible">
+        <div
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          className="relative w-full max-w-[310px] sm:max-w-[340px] md:max-w-[370px] lg:max-w-[430px] h-[480px] lg:h-[530px] mx-auto mt-12 overflow-visible touch-pan-y"
+        >
           <AnimatePresence initial={false}>
             {projects.map((project, idx) => {
               const offset = getWrappedOffset(idx, currentIndex, N);

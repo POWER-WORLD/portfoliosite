@@ -1,9 +1,70 @@
 import React, { useState, useRef } from 'react';
-import { adminApi } from '../api';
-import * as FaIcons from 'react-icons/fa';
-import * as SiIcons from 'react-icons/si';
-import { FaTrash, FaPlus, FaSave, FaEdit, FaEye, FaTimes } from 'react-icons/fa';
-import ConfirmModal from './ConfirmModal';
+import { adminApi } from '../../services/api';
+import { 
+  FaTrash, 
+  FaPlus, 
+  FaSave, 
+  FaEdit, 
+  FaEye, 
+  FaTimes,
+  FaCode,
+  FaAws
+} from 'react-icons/fa';
+import {
+  SiReact,
+  SiTypescript,
+  SiJavascript,
+  SiNodedotjs,
+  SiMongodb,
+  SiNextdotjs,
+  SiTailwindcss,
+  SiFramer,
+  SiGraphql,
+  SiDocker,
+  SiGit,
+  SiGithub,
+  SiPython,
+  SiPostgresql,
+  SiMysql,
+  SiRedis,
+  SiFirebase,
+  SiSupabase,
+  SiFigma,
+  SiCodeclimate
+} from 'react-icons/si';
+import ConfirmModal from '../ConfirmModal';
+
+// Static combined icon lookup map to enable tree-shaking
+const IconMap: Record<string, any> = {
+  FaTrash, 
+  FaPlus, 
+  FaSave, 
+  FaEdit, 
+  FaEye, 
+  FaTimes,
+  FaCode,
+  SiReact,
+  SiTypescript,
+  SiJavascript,
+  SiNodedotjs,
+  SiMongodb,
+  SiNextdotjs,
+  SiTailwindcss,
+  SiFramermotion: SiFramer, // Map to correct existing SimpleIcon
+  SiGraphql,
+  SiDocker,
+  SiGit,
+  SiGithub,
+  SiPython,
+  SiPostgresql,
+  SiMysql,
+  SiRedis,
+  SiAmazonaws: FaAws, // Map to correct existing SimpleIcon
+  SiFirebase,
+  SiSupabase,
+  SiFigma,
+  SiCodeclimate
+};
 
 interface TechStackTabProps {
   initialTechStack: any[];
@@ -34,16 +95,7 @@ export const TECH_PRESETS = [
 ];
 
 function RenderIcon({ iconName, className, style }: { iconName: string; className?: string; style?: React.CSSProperties }) {
-  let IconComponent = FaIcons.FaCode;
-  try {
-    if (iconName.startsWith('Si')) {
-      IconComponent = (SiIcons as any)[iconName] || SiIcons.SiCodeclimate;
-    } else if (iconName.startsWith('Fa')) {
-      IconComponent = (FaIcons as any)[iconName] || FaIcons.FaCode;
-    }
-  } catch (e) {
-    IconComponent = FaIcons.FaCode;
-  }
+  const IconComponent = IconMap[iconName] || FaCode;
   return <IconComponent className={className} style={style} />;
 }
 

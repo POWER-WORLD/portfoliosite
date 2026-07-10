@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import Login from './components/Login';
-import PersonalTab from './components/PersonalTab';
-import SkillsTab from './components/SkillsTab';
-import ProjectsTab from './components/ProjectsTab';
-import ExperienceTab from './components/ExperienceTab';
-import CertificatesTab from './components/CertificatesTab';
-import TechStackTab from './components/TechStackTab';
+import PersonalTab from './components/tabs/PersonalTab';
+import SkillsTab from './components/tabs/SkillsTab';
+import ProjectsTab from './components/tabs/ProjectsTab';
+import ExperienceTab from './components/tabs/ExperienceTab';
+import CertificatesTab from './components/tabs/CertificatesTab';
+import TechStackTab from './components/tabs/TechStackTab';
 import ErrorBoundary from './components/ErrorBoundary';
-import { adminApi, removeToken, getToken } from './api';
+import { adminApi, removeToken, getToken } from './services/api';
+import MessagesTab from './components/tabs/MessagesTab';
 import { 
   FaUser, 
   FaCode, 
@@ -20,7 +21,7 @@ import {
   FaLaptopCode,
   FaEnvelope
 } from 'react-icons/fa';
-import MessagesTab from './components/MessagesTab';
+
 
 type TabType = 'personal' | 'skills' | 'projects' | 'experience' | 'certs' | 'techstack' | 'messages';
 

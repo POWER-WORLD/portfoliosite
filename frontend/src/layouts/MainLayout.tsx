@@ -9,10 +9,12 @@ interface MainLayoutProps {
   children: ReactNode;
 }
 
+// Map section IDs outside the component to keep a stable reference and prevent unnecessary hook runs
+const SECTION_IDS = NAV_ITEMS.map((item) => item.id);
+
 export default function MainLayout({ children }: MainLayoutProps) {
   // Use scroll spy hook to track active section for navbar highlight
-  const sectionIds = NAV_ITEMS.map((item) => item.id);
-  const activeSection = useScrollSpy(sectionIds);
+  const activeSection = useScrollSpy(SECTION_IDS);
 
   // Initialize Lenis smooth scroll
   useEffect(() => {
@@ -36,6 +38,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
       const customEvent = e as CustomEvent<{ targetScrollY: number }>;
       if (customEvent.detail && typeof customEvent.detail.targetScrollY === 'number') {
         lenis.scrollTo(customEvent.detail.targetScrollY, { duration: 1.2 });
+        customEvent.preventDefault();
       }
     };
 

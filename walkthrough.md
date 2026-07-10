@@ -54,10 +54,11 @@ portfolio_web/
 │       ├── utils/                # Security helpers & modal confirmation controls
 │       └── api.ts                # Axios/Fetch wrapper injecting Bearer token authentication
 ├── backend/                      # Node.js Express REST API server
-│   ├── models.js                 # Mongoose collection schemas for MongoDB
-│   ├── routes.js                 # API endpoints, validations & Supabase file storage client
-│   ├── seed.js                   # Development & production initial database seeder
-│   └── server.js                 # Server configurations, CORS middleware, and DB connection
+│   └── src/                      # Source directory
+│       ├── models.js             # Mongoose collection schemas for MongoDB
+│       ├── routes.js             # API endpoints, validations & Supabase file storage client
+│       ├── seed.js               # Development & production initial database seeder
+│       └── server.js             # Server configurations, CORS middleware, and DB connection
 ├── render.yaml                   # Infrastructure blueprint for Render One-Click deployment
 └── walkthrough.md                # System-wide walkthrough and implementation documentation (This file)
 ```
@@ -104,8 +105,8 @@ The protected admin console offers a responsive workspace to maintain portfolio 
 ### C. Backend API & Storage (`/backend`)
 The backend routes API calls, connects MongoDB schemas, and pipes uploaded files to cloud storage:
 
-* **[server.js](file:///d:/VS%20code%20file/React_projects/portfolio_web/backend/server.js)**: Configures server startup, parses environment variables, configures CORS origins, and establishes connection to MongoDB database.
-* **[models.js](file:///d:/VS%20code%20file/React_projects/portfolio_web/backend/models.js)**: Holds the Mongoose structural database blueprints:
+* **[server.js](file:///d:/VS%20code%20file/React_projects/portfolio_web/backend/src/server.js)**: Configures server startup, parses environment variables, configures CORS origins, and establishes connection to MongoDB database.
+* **[models.js](file:///d:/VS%20code%20file/React_projects/portfolio_web/backend/src/models.js)**: Holds the Mongoose structural database blueprints:
   * `PersonalInfo`: Holds location, email, and the `resumes` version array `[{ id, title, url, isActive, createdAt }]`.
   * `About`: Narrative biographies, education metrics, and highlights.
   * `SkillCategory`: Skills welcome message references, capabilities, and nested skills list.
@@ -116,8 +117,8 @@ The backend routes API calls, connects MongoDB schemas, and pipes uploaded files
   * `ContactMessage`: Inbox messages submitted via the frontend.
   * `TechStack`: Ecosystem technology objects with names, brand icons, and hex color values.
   * `SkillsWelcome`: Dynamic intro text for the skills book.
-* **[routes.js](file:///d:/VS%20code%20file/React_projects/portfolio_web/backend/routes.js)**: Houses REST APIs, parses incoming files via `multer.memoryStorage()`, and pipes files to **Supabase Storage API**. Automatically separates folders (`resumes/`, `images/`, `others/`) depending on file types.
-* **[seed.js](file:///d:/VS%20code%20file/React_projects/portfolio_web/backend/seed.js)**: Seeds default profile mock data, including tech items and Codex skills categories, when the database is initialized.
+* **[routes.js](file:///d:/VS%20code%20file/React_projects/portfolio_web/backend/src/routes.js)**: Houses REST APIs, parses incoming files via `multer.memoryStorage()`, and pipes files to **Supabase Storage API**. Automatically separates folders (`resumes/`, `images/`, `others/`) depending on file types.
+* **[seed.js](file:///d:/VS%20code%20file/React_projects/portfolio_web/backend/src/seed.js)**: Seeds default profile mock data, including tech items and Codex skills categories, when the database is initialized.
 
 ---
 

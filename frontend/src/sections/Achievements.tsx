@@ -37,15 +37,23 @@ function Counter({ value, duration = 1500 }: CounterProps) {
     if (!hasStarted) return;
 
     let startTimestamp: number | null = null;
+    let frameId: number;
+
     const step = (timestamp: number) => {
       if (!startTimestamp) startTimestamp = timestamp;
       const progress = Math.min((timestamp - startTimestamp) / duration, 1);
       setCount(Math.floor(progress * value));
       if (progress < 1) {
-        window.requestAnimationFrame(step);
+        frameId = window.requestAnimationFrame(step);
       }
     };
-    window.requestAnimationFrame(step);
+    frameId = window.requestAnimationFrame(step);
+
+    return () => {
+      if (frameId) {
+        window.cancelAnimationFrame(frameId);
+      }
+    };
   }, [hasStarted, value, duration]);
 
   return <span ref={elementRef}>{count}</span>;

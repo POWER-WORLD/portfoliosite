@@ -1,7 +1,29 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import * as FaIcons from 'react-icons/fa';
-import { FaStar, FaBookOpen, FaChevronLeft, FaChevronRight, FaCheckCircle, FaBookmark } from 'react-icons/fa';
+import { 
+  FaStar, 
+  FaBookOpen, 
+  FaChevronLeft, 
+  FaChevronRight, 
+  FaCheckCircle, 
+  FaBookmark,
+  FaCode,
+  FaServer,
+  FaCloud,
+  FaLayerGroup,
+  FaToolbox,
+  FaDatabase,
+  FaMobile,
+  FaBrain,
+  FaPalette,
+  FaRocket,
+  FaTerminal,
+  FaShieldAlt,
+  FaDraftingCompass,
+  FaCogs,
+  FaUsers,
+  FaGlobe
+} from 'react-icons/fa';
 import { safeClamp } from '../utils/security';
 import SectionHeader from '../components/SectionHeader';
 
@@ -28,12 +50,38 @@ interface SkillsProps {
   welcome?: { title: string; message: string };
 }
 
+// Static lookup map for icons to enable bundler tree-shaking on react-icons/fa
+const FaIconsMap: Record<string, any> = {
+  FaStar, 
+  FaBookOpen, 
+  FaChevronLeft, 
+  FaChevronRight, 
+  FaCheckCircle, 
+  FaBookmark,
+  FaCode,
+  FaServer,
+  FaCloud,
+  FaLayerGroup,
+  FaToolbox,
+  FaDatabase,
+  FaMobile,
+  FaBrain,
+  FaPalette,
+  FaRocket,
+  FaTerminal,
+  FaShieldAlt,
+  FaDraftingCompass,
+  FaCogs,
+  FaUsers,
+  FaGlobe
+};
+
 function getIconComponent(icon: any) {
   if (typeof icon === 'string') {
-    const IconComponent = (FaIcons as any)[icon];
-    return IconComponent || FaIcons.FaCode;
+    const IconComponent = FaIconsMap[icon];
+    return IconComponent || FaCode;
   }
-  return icon || FaIcons.FaCode;
+  return icon || FaCode;
 }
 
 export default function Skills({ data, welcome }: SkillsProps) {
@@ -94,24 +142,27 @@ export default function Skills({ data, welcome }: SkillsProps) {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Keyboard navigation
+  const currentSpreadRef = useRef(currentSpread);
+  const mobilePageIndexRef = useRef(mobilePageIndex);
+
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowLeft') {
-        handlePrevPage();
-      } else if (e.key === 'ArrowRight') {
-        handleNextPage();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentSpread, animatingState, isMobile, mobilePageIndex]);
+    currentSpreadRef.current = currentSpread;
+  }, [currentSpread]);
 
-  if (categories.length === 0) {
-    return null;
-  }
+  useEffect(() => {
+    mobilePageIndexRef.current = mobilePageIndex;
+  }, [mobilePageIndex]);
 
-  const handleNextPage = () => {
+  // Sync index states when layout size changes (isMobile toggles)
+  useEffect(() => {
+    if (isMobile) {
+      setMobilePageIndex(currentSpreadRef.current * 2);
+    } else {
+      setCurrentSpread(Math.floor(mobilePageIndexRef.current / 2));
+    }
+  }, [isMobile]);
+
+  const handleNextPage = useCallback(() => {
     if (isMobile) {
       if (mobilePageIndex < totalPages - 1) {
         setMobileDirection(1);
@@ -123,9 +174,9 @@ export default function Skills({ data, welcome }: SkillsProps) {
         setAnimatingState('next');
       }
     }
-  };
+  }, [isMobile, mobilePageIndex, totalPages, currentSpread, totalSpreads, animatingState]);
 
-  const handlePrevPage = () => {
+  const handlePrevPage = useCallback(() => {
     if (isMobile) {
       if (mobilePageIndex > 0) {
         setMobileDirection(-1);
@@ -137,9 +188,9 @@ export default function Skills({ data, welcome }: SkillsProps) {
         setAnimatingState('prev');
       }
     }
-  };
+  }, [isMobile, mobilePageIndex, currentSpread, animatingState]);
 
-  const handleJumpToSpread = (spreadIdx: number) => {
+  const handleJumpToSpread = useCallback((spreadIdx: number) => {
     if (isMobile) {
       const pageIndex = spreadIdx * 2;
       setMobileDirection(pageIndex > mobilePageIndex ? 1 : -1);
@@ -154,7 +205,34 @@ export default function Skills({ data, welcome }: SkillsProps) {
         setAnimatingState('prev');
       }
     }
-  };
+  }, [isMobile, mobilePageIndex, currentSpread, animatingState]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeEl = document.activeElement as HTMLElement | null;
+      if (
+        activeEl &&
+        (activeEl.tagName === 'INPUT' ||
+         activeEl.tagName === 'TEXTAREA' ||
+         activeEl.isContentEditable)
+      ) {
+        return; // Ignore keypresses when typing in form fields
+      }
+
+      if (e.key === 'ArrowLeft') {
+        handlePrevPage();
+      } else if (e.key === 'ArrowRight') {
+        handleNextPage();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handlePrevPage, handleNextPage]);
+
+  if (categories.length === 0) {
+    return null;
+  }
 
   const handleAnimationEnd = () => {
     setCurrentSpread(targetSpread);
@@ -471,7 +549,8 @@ export default function Skills({ data, welcome }: SkillsProps) {
                     <div className="w-full h-2.5 rounded-full bg-white/[0.04] overflow-hidden p-0.5 border border-white/[0.04] relative">
                       <motion.div
                         initial={{ width: 0 }}
-                        animate={{ width: `${safeClamp(skill.level)}%` }}
+                        whileInView={{ width: `${safeClamp(skill.level)}%` }}
+                        viewport={{ once: true }}
                         transition={{ duration: 1.0, ease: 'easeOut', delay: 0.05 * skillIdx }}
                         className="h-full bg-gradient-to-r from-accent via-secondary to-accent rounded-full relative shadow-[0_0_10px_rgba(0,229,255,0.5)]"
                       />
@@ -556,8 +635,8 @@ export default function Skills({ data, welcome }: SkillsProps) {
             {/* Main book frame (wrapper) */}
             <div className="w-full relative select-none px-1">
               
-              {/* 1. Realistic Hardcover Book Backing */}
-              {/* <div className="absolute inset-y-[-14px] inset-x-[-18px] bg-gradient-to-br from-[#1c1d31] via-[#0d0e1b] to-[#04050a] rounded-[24px] border-[5px] border-[#2c2f4e] shadow-[0_25px_60px_rgba(0,0,0,0.95),_0_0_40px_rgba(108,99,255,0.08)] pointer-events-none z-0" /> */}
+              {/* 1. Realistic Hardcover Book Backing
+              <div className="absolute inset-y-[-14px] inset-x-[-18px] bg-gradient-to-br from-[#1c1d31] via-[#0d0e1b] to-[#04050a] rounded-[24px] border-[5px] border-[#1e213a] shadow-[0_25px_60px_rgba(0,0,0,0.95),_0_0_40px_rgba(108,99,255,0.08)] pointer-events-none z-0" />
               
               {/* 2. Metallic Gold/Brass Corner Protectors */}
               {/* Top Left */}
@@ -571,13 +650,13 @@ export default function Skills({ data, welcome }: SkillsProps) {
 
               {/* 3. Underneath Page Stack Sheets (left and right page thickness) */}
               {/* Left Stack */}
-              {/* <div className="absolute left-[-4px] top-[4px] bottom-[4px] w-[50%] bg-[#20e02390] border-y border-l border-white/[0.03] rounded-l-2xl shadow-md z-0 pointer-events-none" /> */}
-              {/* <div className="absolute left-[-8px] top-[8px] bottom-[8px] w-[50%] bg-[#d02f32] border-y border-l border-white/[0.02] rounded-l-2xl shadow-md z-0 pointer-events-none" /> */}
-              {/* <div className="absolute left-[-12px] top-[12px] bottom-[12px] w-[50%] bg-[#344ecf] border-y border-l border-white/[0.01] rounded-l-2xl shadow-md z-0 pointer-events-none" /> */}
+              {/* <div className="absolute left-[-4px] top-[4px] bottom-[4px] w-[50%] bg-[#080b1e]/90 border-y border-l border-white/[0.04] rounded-l-2xl shadow-md z-0 pointer-events-none" /> */}
+              {/* <div className="absolute left-[-8px] top-[8px] bottom-[8px] w-[50%] bg-[#080b1e]/80 border-y border-l border-white/[0.03] rounded-l-2xl shadow-md z-0 pointer-events-none" /> */}
+              {/* <div className="absolute left-[-12px] top-[12px] bottom-[12px] w-[50%] bg-[#080b1e]/70 border-y border-l border-white/[0.02] rounded-l-2xl shadow-md z-0 pointer-events-none" /> */}
               {/* Right Stack */}
-              {/* <div className="absolute right-[-4px] top-[4px] bottom-[4px] w-[50%] bg-[#1fdc52] border-y border-r border-white/[0.03] rounded-r-2xl shadow-md z-0 pointer-events-none" /> */}
-              {/* <div className="absolute right-[-8px] top-[8px] bottom-[8px] w-[50%] bg-[#c72323] border-y border-r border-white/[0.02] rounded-r-2xl shadow-md z-0 pointer-events-none" /> */}
-              {/* <div className="absolute right-[-12px] top-[12px] bottom-[12px] w-[50%] bg-[#4f24d0] border-y border-r border-white/[0.01] rounded-r-2xl shadow-md z-0 pointer-events-none" /> */}
+              {/* <div className="absolute right-[-4px] top-[4px] bottom-[4px] w-[50%] bg-[#080b1e]/90 border-y border-r border-white/[0.04] rounded-r-2xl shadow-md z-0 pointer-events-none" /> */}
+              {/* <div className="absolute right-[-8px] top-[8px] bottom-[8px] w-[50%] bg-[#080b1e]/80 border-y border-r border-white/[0.03] rounded-r-2xl shadow-md z-0 pointer-events-none" /> */}
+              {/* <div className="absolute right-[-12px] top-[12px] bottom-[12px] w-[50%] bg-[#080b1e]/70 border-y border-r border-white/[0.02] rounded-r-2xl shadow-md z-0 pointer-events-none" />  */}
 
               {/* Perspective book container */}
               <div className="book-perspective w-full h-[700px] relative overflow-visible flex rounded-[18px] border border-white/[0.05] z-10 animate-wave-gradient">

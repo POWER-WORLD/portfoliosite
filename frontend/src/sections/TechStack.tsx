@@ -1,7 +1,28 @@
 import { motion } from 'framer-motion';
 import { TECH_STACK_ICONS } from '../constants';
-import * as FaIcons from 'react-icons/fa';
-import * as SiIcons from 'react-icons/si';
+import {
+  SiReact,
+  SiTypescript,
+  SiJavascript,
+  SiNodedotjs,
+  SiMongodb,
+  SiNextdotjs,
+  SiTailwindcss,
+  SiFramer,
+  SiGraphql,
+  SiDocker,
+  SiGit,
+  SiGithub,
+  SiPython,
+  SiPostgresql,
+  SiMysql,
+  SiRedis,
+  SiFirebase,
+  SiSupabase,
+  SiFigma,
+  SiCodeclimate
+} from 'react-icons/si';
+import { FaCode, FaAws } from 'react-icons/fa';
 import SectionHeader from '../components/SectionHeader';
 
 interface TechItem {
@@ -15,11 +36,35 @@ interface TechStackProps {
   data?: TechItem[];
 }
 
+// Static lookup map to enable tree-shaking on react-icons
+const IconMap: Record<string, any> = {
+  SiReact,
+  SiTypescript,
+  SiJavascript,
+  SiNodedotjs,
+  SiMongodb,
+  SiNextdotjs,
+  SiTailwindcss,
+  SiFramermotion: SiFramer, // Map to correct existing SimpleIcon
+  SiGraphql,
+  SiDocker,
+  SiGit,
+  SiGithub,
+  SiPython,
+  SiPostgresql,
+  SiMysql,
+  SiRedis,
+  SiAmazonaws: FaAws, // Map to correct existing SimpleIcon
+  SiFirebase,
+  SiSupabase,
+  SiFigma,
+  SiCodeclimate,
+  FaCode
+};
+
 function getIconComponent(iconName: string) {
-  if (iconName.startsWith('Si')) {
-    return (SiIcons as any)[iconName] || SiIcons.SiCodeclimate;
-  }
-  return (FaIcons as any)[iconName] || FaIcons.FaCode;
+  const IconComponent = IconMap[iconName];
+  return IconComponent || FaCode;
 }
 
 export default function TechStack({ data }: TechStackProps) {
@@ -85,28 +130,32 @@ export default function TechStack({ data }: TechStackProps) {
               <motion.div
                 key={tech._id || idx}
                 variants={itemVariants}
-                animate={{
-                  y: [0, -8, 0],
-                }}
-                transition={{
-                  duration: randomDuration,
-                  repeat: Infinity,
-                  ease: 'easeInOut',
-                  delay: randomDelay,
-                }}
-                className="glass-panel px-6 py-3 rounded-full flex items-center justify-center gap-2.5 group hover:border-accent/40 hover:shadow-[0_0_20px_rgba(108,99,255,0.18)] transition-all duration-300 cursor-default"
               >
-                {/* Brand Logo Icon with Glow */}
-                <Icon
-                  style={{
-                    color: tech.color,
-                    filter: `drop-shadow(0 0 4px ${tech.color}66)`
+                <motion.div
+                  whileInView={{
+                    y: [0, -8, 0],
                   }}
-                  className="text-lg group-hover:scale-110 transition-transform duration-300"
-                />
-                <span className="text-sm font-semibold tracking-wide text-gray-300 group-hover:text-white transition-colors duration-300">
-                  {tech.name}
-                </span>
+                  viewport={{ once: false }}
+                  transition={{
+                    duration: randomDuration,
+                    repeat: Infinity,
+                    ease: 'easeInOut',
+                    delay: randomDelay,
+                  }}
+                  className="glass-panel px-6 py-3 rounded-full flex items-center justify-center gap-2.5 group hover:border-accent/40 hover:shadow-[0_0_20px_rgba(108,99,255,0.18)] transition-all duration-300 cursor-default"
+                >
+                  {/* Brand Logo Icon with Glow */}
+                  <Icon
+                    style={{
+                      color: tech.color,
+                      filter: `drop-shadow(0 0 4px ${tech.color}66)`
+                    }}
+                    className="text-lg group-hover:scale-110 transition-transform duration-300"
+                  />
+                  <span className="text-sm font-semibold tracking-wide text-gray-300 group-hover:text-white transition-colors duration-300">
+                    {tech.name}
+                  </span>
+                </motion.div>
               </motion.div>
             );
           })}

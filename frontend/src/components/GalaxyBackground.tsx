@@ -157,10 +157,14 @@ export default function GalaxyBackground() {
 
     window.addEventListener('scroll', handleScroll, { passive: true });
 
+    let resizeTimeout: any;
     const handleResize = () => {
       if (!canvas) return;
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
+      if (resizeTimeout) clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+      }, 100);
     };
 
     window.addEventListener('resize', handleResize);
@@ -274,7 +278,8 @@ export default function GalaxyBackground() {
     const nebulaClouds: NebulaCloud[] = [];
     const dustParticles: DustParticle[] = [];
 
-    const galaxyCount = 1350;
+    const isMobile = width < 768;
+    const galaxyCount = isMobile ? 500 : 1350;
     const maxRadius = Math.min(width, height) * 0.52;
 
     // A. Generate regular star particles in 3D sphere/spheroid
@@ -330,7 +335,7 @@ export default function GalaxyBackground() {
     }
 
     // B. Generate Nebula Clouds (Fuzzy rotating gas clouds in 3D)
-    const nebulaCount = 90;
+    const nebulaCount = isMobile ? 35 : 90;
     for (let i = 0; i < nebulaCount; i++) {
       const r = Math.pow(Math.random(), 1.6) * maxRadius;
       const theta = Math.random() * Math.PI * 2;
@@ -357,7 +362,7 @@ export default function GalaxyBackground() {
     }
 
     // C. Generate Dark Dust Lanes (light-absorbing lanes in 3D)
-    const dustCount = 300;
+    const dustCount = isMobile ? 120 : 300;
     for (let i = 0; i < dustCount; i++) {
       const r = (0.15 + Math.pow(Math.random(), 1.7) * 0.8) * maxRadius;
       const theta = Math.random() * Math.PI * 2;
@@ -380,7 +385,7 @@ export default function GalaxyBackground() {
 
     // 2. Generate Travel Stars (Depth tunnel background stars)
     const fallingStars: FallingStar[] = [];
-    const fallingStarCount = 380;
+    const fallingStarCount = isMobile ? 160 : 380;
     const fov = 650; 
 
     for (let i = 0; i < fallingStarCount; i++) {
@@ -408,7 +413,7 @@ export default function GalaxyBackground() {
 
     // 3. Generate Cosmic Dust (Vertical falling background embers)
     const cosmicDust: CosmicDust[] = [];
-    const cosmicDustCount = 150; 
+    const cosmicDustCount = isMobile ? 60 : 150; 
     for (let i = 0; i < cosmicDustCount; i++) {
       cosmicDust.push({
         x: Math.random() * width,
@@ -1133,13 +1138,30 @@ export default function GalaxyBackground() {
       });
 
       ctx.globalCompositeOperation = 'source-over';
-      animationId = requestAnimationFrame(render);
+      if (isTabVisible) {
+        animationId = requestAnimationFrame(render);
+      }
     };
+
+    let isTabVisible = true;
+    const handleVisibilityChange = () => {
+      const currentlyVisible = !document.hidden;
+      if (currentlyVisible && !isTabVisible) {
+        isTabVisible = true;
+        cancelAnimationFrame(animationId);
+        render();
+      } else {
+        isTabVisible = currentlyVisible;
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     render();
 
     return () => {
       cancelAnimationFrame(animationId);
+      if (resizeTimeout) clearTimeout(resizeTimeout);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleResize);

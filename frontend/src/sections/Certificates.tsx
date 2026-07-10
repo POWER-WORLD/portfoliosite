@@ -141,18 +141,23 @@ function ScrollRow({ items, direction, speed = 0.8, onCardClick, certsList }: Sc
   const [scrollLeftState, setScrollLeftState] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
 
-  // Auto-scroll logic using requestAnimationFrame with accumulator ref
+  // Auto-scroll logic using requestAnimationFrame with accumulator ref and IntersectionObserver
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
-    // Sync initial ref value
     scrollPosRef.current = container.scrollLeft;
-
+    let isIntersecting = false;
     let animationId: number;
 
+    const observer = new IntersectionObserver((entries) => {
+      isIntersecting = entries[0].isIntersecting;
+    }, { threshold: 0.05 });
+
+    observer.observe(container);
+
     const scroll = () => {
-      if (!isMouseDown && !isHovered) {
+      if (isIntersecting && !isMouseDown && !isHovered) {
         const oneSetWidth = container.scrollWidth / 2;
 
         if (direction === 'left') {
@@ -166,18 +171,22 @@ function ScrollRow({ items, direction, speed = 0.8, onCardClick, certsList }: Sc
             scrollPosRef.current += oneSetWidth;
           }
         }
-        // Round to nearest integer for browser compatibility
         container.scrollLeft = Math.round(scrollPosRef.current);
-      } else {
-        // Sync accumulator with actual container scroll position during drag
+      } else if (isMouseDown) {
         scrollPosRef.current = container.scrollLeft;
       }
       animationId = requestAnimationFrame(scroll);
     };
 
     animationId = requestAnimationFrame(scroll);
-    return () => cancelAnimationFrame(animationId);
+    return () => {
+      cancelAnimationFrame(animationId);
+      observer.disconnect();
+    };
   }, [direction, speed, isMouseDown, isHovered]);
+
+  const dragDistanceRef = useRef(0);
+  const dragStartCoordsRef = useRef({ x: 0, y: 0 });
 
   const handleMouseDown = (e: React.MouseEvent) => {
     const container = containerRef.current;
@@ -185,6 +194,8 @@ function ScrollRow({ items, direction, speed = 0.8, onCardClick, certsList }: Sc
     setIsMouseDown(true);
     setStartX(e.pageX - container.offsetLeft);
     setScrollLeftState(container.scrollLeft);
+    dragStartCoordsRef.current = { x: e.clientX, y: e.clientY };
+    dragDistanceRef.current = 0;
   };
 
   const handleMouseUp = () => {
@@ -200,6 +211,11 @@ function ScrollRow({ items, direction, speed = 0.8, onCardClick, certsList }: Sc
     const container = containerRef.current;
     if (!container || !isMouseDown) return;
     e.preventDefault();
+
+    const deltaX = e.clientX - dragStartCoordsRef.current.x;
+    const deltaY = e.clientY - dragStartCoordsRef.current.y;
+    dragDistanceRef.current = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
     const x = e.pageX - container.offsetLeft;
     const walk = (x - startX) * 1.5; // multiplier for drag speed
     
@@ -241,7 +257,11 @@ function ScrollRow({ items, direction, speed = 0.8, onCardClick, certsList }: Sc
               key={`${direction}-${idx}`}
               cert={cert}
               originalIdx={originalIdx}
-              onClick={() => onCardClick(cert)}
+              onClick={() => {
+                if (dragDistanceRef.current < 8) {
+                  onCardClick(cert);
+                }
+              }}
             />
           );
         })}

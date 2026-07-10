@@ -1,10 +1,19 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 export function useScrollSpy(ids: string[], options?: IntersectionObserverInit) {
   const [activeId, setActiveId] = useState<string>('');
 
+  const idsString = ids.join(',');
+  const optionsRef = useRef(options);
+
+  // Keep optionsRef up to date with any configuration changes without triggering the effect
   useEffect(() => {
-    const elements = ids
+    optionsRef.current = options;
+  }, [options]);
+
+  useEffect(() => {
+    const elements = idsString
+      .split(',')
       .map((id) => document.getElementById(id))
       .filter((el): el is HTMLElement => el !== null);
 
@@ -22,7 +31,7 @@ export function useScrollSpy(ids: string[], options?: IntersectionObserverInit) 
       {
         rootMargin: '-30% 0px -50% 0px', // Active when section fills the middle part of the screen
         threshold: 0,
-        ...options,
+        ...optionsRef.current,
       }
     );
 
@@ -32,7 +41,7 @@ export function useScrollSpy(ids: string[], options?: IntersectionObserverInit) 
       elements.forEach((el) => observer.unobserve(el));
       observer.disconnect();
     };
-  }, [ids, options]);
+  }, [idsString]);
 
   return activeId;
 }

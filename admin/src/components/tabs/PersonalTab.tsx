@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { adminApi } from '../api';
-import ConfirmModal from './ConfirmModal';
-import { sanitizeUrl } from '../utils/security';
+import { adminApi } from '../../services/api';
+import ConfirmModal from '../ConfirmModal';
+import { sanitizeUrl } from '../../utils/security';
 
 interface PersonalTabProps {
   initialInfo: any;

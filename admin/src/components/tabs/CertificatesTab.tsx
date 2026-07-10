@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { adminApi } from '../api';
+import { adminApi } from '../../services/api';
 import { FaPlus, FaTrash, FaEdit, FaTimes, FaAward, FaCrown } from 'react-icons/fa';
-import ConfirmModal from './ConfirmModal';
-import { sanitizeUrl } from '../utils/security';
+import ConfirmModal from '../ConfirmModal';
+import { sanitizeUrl } from '../../utils/security';
 
 interface CertificatesTabProps {
   initialCertificates: any[];

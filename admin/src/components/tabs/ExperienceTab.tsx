@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { adminApi } from '../api';
+import { adminApi } from '../../services/api';
 import { FaPlus, FaTrash, FaEdit, FaTimes, FaBriefcase, FaGraduationCap, FaBook, FaKeyboard, FaAward, FaHandsHelping, FaRocket } from 'react-icons/fa';
-import ConfirmModal from './ConfirmModal';
+import ConfirmModal from '../ConfirmModal';
 
 interface ExperienceTabProps {
   initialExperience: any[];

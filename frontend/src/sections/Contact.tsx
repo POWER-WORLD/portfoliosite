@@ -66,13 +66,13 @@ export default function Contact({ personalInfo }: ContactProps) {
     setErrorMessage('');
     
     try {
-      const success = await submitContactMessage(formState);
-      if (success) {
+      const result = await submitContactMessage(formState);
+      if (result.success) {
         setIsSuccess(true);
         setFormState({ name: '', email: '', subject: '', message: '' });
         setTimeout(() => setIsSuccess(false), 5000);
       } else {
-        setErrorMessage('Failed to transmit message. Please verify your connection.');
+        setErrorMessage(result.error || 'Failed to transmit message. Please verify your connection.');
       }
     } catch (err) {
       console.error(err);
@@ -193,10 +193,11 @@ export default function Contact({ personalInfo }: ContactProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Name */}
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-gray-300 uppercase tracking-wide">
+                <label htmlFor="contact-name" className="text-xs font-semibold text-gray-300 uppercase tracking-wide">
                   Name
                 </label>
                 <input
+                  id="contact-name"
                   type="text"
                   name="name"
                   value={formState.name}
@@ -211,10 +212,11 @@ export default function Contact({ personalInfo }: ContactProps) {
 
               {/* Email */}
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-gray-300 uppercase tracking-wide">
+                <label htmlFor="contact-email" className="text-xs font-semibold text-gray-300 uppercase tracking-wide">
                   Email
                 </label>
                 <input
+                  id="contact-email"
                   type="email"
                   name="email"
                   value={formState.email}
@@ -230,10 +232,11 @@ export default function Contact({ personalInfo }: ContactProps) {
 
             {/* Subject */}
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-gray-300 uppercase tracking-wide">
+              <label htmlFor="contact-subject" className="text-xs font-semibold text-gray-300 uppercase tracking-wide">
                 Subject
               </label>
               <input
+                id="contact-subject"
                 type="text"
                 name="subject"
                 value={formState.subject}
@@ -248,10 +251,11 @@ export default function Contact({ personalInfo }: ContactProps) {
 
             {/* Message */}
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-gray-300 uppercase tracking-wide">
+              <label htmlFor="contact-message" className="text-xs font-semibold text-gray-300 uppercase tracking-wide">
                 Message
               </label>
               <textarea
+                id="contact-message"
                 name="message"
                 value={formState.message}
                 onChange={handleInputChange}

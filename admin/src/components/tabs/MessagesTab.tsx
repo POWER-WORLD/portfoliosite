@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { adminApi } from '../api';
+import { adminApi } from '../../services/api';
 import { 
   FaEnvelope, 
   FaTrash, 
@@ -9,7 +9,7 @@ import {
   FaExternalLinkAlt, 
   FaInbox 
 } from 'react-icons/fa';
-import ConfirmModal from './ConfirmModal';
+import ConfirmModal from '../ConfirmModal';
 
 interface Message {
   _id: string;

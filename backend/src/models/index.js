@@ -137,6 +137,3 @@ export const AdminPassword = mongoose.model('AdminPassword', AdminPasswordSchema
 export const ContactMessage = mongoose.model('ContactMessage', ContactMessageSchema);
 export const TechStack = mongoose.model('TechStack', TechStackSchema);
 export const SkillsWelcome = mongoose.model('SkillsWelcome', SkillsWelcomeSchema);
-
-
-

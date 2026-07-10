@@ -47,9 +47,9 @@ export async function fetchPortfolioData(retries = 2, delayMs = 1000): Promise<a
 }
 
 /**
- * Sends contact message with timeout and error handling.
+ * Sends contact message with timeout and detailed error reporting.
  */
-export async function submitContactMessage(formData: { name: string; email: string; subject: string; message: string }) {
+export async function submitContactMessage(formData: { name: string; email: string; subject: string; message: string }): Promise<{ success: boolean; error?: string }> {
   try {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
@@ -64,10 +64,18 @@ export async function submitContactMessage(formData: { name: string; email: stri
     });
     clearTimeout(timeoutId);
 
-    return res.ok;
-  } catch (error) {
+    if (res.ok) {
+      return { success: true };
+    } else {
+      const errData = await res.json().catch(() => ({}));
+      return { success: false, error: errData.error || `Server error: ${res.statusText} (${res.status})` };
+    }
+  } catch (error: any) {
     console.error('Failed to submit contact message:', error);
-    return false;
+    if (error.name === 'AbortError') {
+      return { success: false, error: 'Transmission timed out. Please try again.' };
+    }
+    return { success: false, error: 'Connection error. Please check your internet connectivity.' };
   }
 }
 

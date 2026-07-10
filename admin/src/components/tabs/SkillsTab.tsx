@@ -1,15 +1,65 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { adminApi } from '../api';
-import * as FaIcons from 'react-icons/fa';
-import { FaTrash, FaPlus, FaSave, FaEye, FaEdit, FaCheck, FaArrowLeft } from 'react-icons/fa';
-import ConfirmModal from './ConfirmModal';
-import { safeClamp } from '../utils/security';
+import { adminApi } from '../../services/api';
+import { 
+  FaTrash, 
+  FaPlus, 
+  FaSave, 
+  FaEye, 
+  FaEdit, 
+  FaCheck, 
+  FaArrowLeft,
+  FaCode,
+  FaServer,
+  FaCloud,
+  FaLayerGroup,
+  FaToolbox,
+  FaDatabase,
+  FaMobile,
+  FaBrain,
+  FaPalette,
+  FaRocket,
+  FaTerminal,
+  FaShieldAlt,
+  FaDraftingCompass,
+  FaCogs,
+  FaUsers,
+  FaGlobe
+} from 'react-icons/fa';
+import ConfirmModal from '../ConfirmModal';
+import { safeClamp } from '../../utils/security';
 
 interface SkillsTabProps {
   initialSkills: any[];
   initialWelcome?: { title: string; message: string };
   onRefresh: () => void;
 }
+
+// Static lookup map for icons to enable bundler tree-shaking on react-icons/fa
+const FaIconsMap: Record<string, any> = {
+  FaTrash, 
+  FaPlus, 
+  FaSave, 
+  FaEye, 
+  FaEdit, 
+  FaCheck, 
+  FaArrowLeft,
+  FaCode,
+  FaServer,
+  FaCloud,
+  FaLayerGroup,
+  FaToolbox,
+  FaDatabase,
+  FaMobile,
+  FaBrain,
+  FaPalette,
+  FaRocket,
+  FaTerminal,
+  FaShieldAlt,
+  FaDraftingCompass,
+  FaCogs,
+  FaUsers,
+  FaGlobe
+};
 
 export const ICON_OPTIONS = [
   { name: 'FaCode', label: 'Code & Frontend (FaCode)', category: 'Frontend' },
@@ -49,7 +99,7 @@ export const PROFICIENCY_TAGS = [
 ];
 
 function RenderIcon({ iconName, className }: { iconName: string; className?: string }) {
-  const IconComponent = (FaIcons as any)[iconName] || FaIcons.FaCode;
+  const IconComponent = FaIconsMap[iconName] || FaCode;
   return <IconComponent className={className} />;
 }
 
@@ -761,7 +811,7 @@ export default function SkillsTab({ initialSkills, initialWelcome, onRefresh }: 
                               {sk.tag}
                             </span>
                           )}
-                          <span style={{ color: '#00e5ff', fontFamily: 'monospace', fontWeight: 700 }}>{sk.level}%</span>
+                          <span style={{ color: '#00e5ff', fontFamily: 'monospace', fontStyle: 'normal', fontWeight: 700 }}>{sk.level}%</span>
                         </div>
                       </div>
                       <div style={{ width: '100%', height: '6px', borderRadius: '3px', background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>

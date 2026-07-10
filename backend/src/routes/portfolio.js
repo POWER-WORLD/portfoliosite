@@ -12,10 +12,12 @@ import {
   Experience, 
   Certificate, 
   Achievement,
+  AdminPassword,
   ContactMessage,
   TechStack,
   SkillsWelcome
-} from './models.js';
+} from '../models/index.js';
+import { authMiddleware } from '../middleware/auth.js';
 
 // Load environmental variables
 dotenv.config();
@@ -40,22 +42,6 @@ const upload = multer({
     fileSize: 25 * 1024 * 1024, // 25MB max limit (matches the frontend config)
   }
 });
-
-// Middleware to verify JWT token
-export function authMiddleware(req, res, next) {
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ error: 'Unauthorized: Missing token' });
-  }
-  const token = authHeader.split(' ')[1];
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'portfolio_secret_key');
-    req.admin = decoded;
-    next();
-  } catch (error) {
-    return res.status(401).json({ error: 'Unauthorized: Invalid token' });
-  }
-}
 
 // ----------------------------------------------------
 // FILE UPLOADS (SUPABASE STORAGE)
@@ -116,24 +102,33 @@ router.post('/upload', authMiddleware, upload.single('file'), async (req, res) =
 // ----------------------------------------------------
 router.post('/auth/login', async (req, res) => {
   const { password } = req.body;
-  if (!password) {
-    return res.status(400).json({ error: 'Password is required' });
+  if (!password || typeof password !== 'string') {
+    return res.status(400).json({ error: 'Password string is required' });
   }
   try {
-    // Load .env variables if not already set in environment
-    dotenv.config();
-
-    const envPassword = process.env.ADMIN_PASSWORD;
-    if (!envPassword) {
-      return res.status(500).json({ error: 'ADMIN_PASSWORD environment variable is not configured.' });
+    const adminRecord = await AdminPassword.findOne();
+    if (!adminRecord) {
+      // Fallback behavior if database is not seeded with AdminPassword hash
+      const envPassword = process.env.ADMIN_PASSWORD;
+      if (!envPassword) {
+        return res.status(500).json({ error: 'Admin credentials not configured.' });
+      }
+      if (password !== envPassword) {
+        return res.status(401).json({ error: 'Invalid admin password' });
+      }
+    } else {
+      const isMatch = await bcrypt.compare(password, adminRecord.hash);
+      if (!isMatch) {
+        return res.status(401).json({ error: 'Invalid admin password' });
+      }
     }
 
-    if (password !== envPassword) {
-      return res.status(401).json({ error: 'Invalid admin password' });
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      return res.status(500).json({ error: 'Server authentication secret is not configured.' });
     }
-
     // Generate JWT token
-    const token = jwt.sign({ role: 'admin' }, process.env.JWT_SECRET || 'portfolio_secret_key', { expiresIn: '7d' });
+    const token = jwt.sign({ role: 'admin' }, secret, { expiresIn: '7d' });
     return res.json({ token });
   } catch (error) {
     console.error('Login error:', error);
@@ -631,4 +626,3 @@ router.post('/messages/:id/reply', authMiddleware, async (req, res) => {
 });
 
 export default router;
-

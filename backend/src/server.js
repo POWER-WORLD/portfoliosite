@@ -2,9 +2,22 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import apiRoutes from './routes.js';
+import apiRoutes from './routes/index.js';
 
 dotenv.config();
+
+// Strict environment validation checks on server startup
+if (!process.env.JWT_SECRET) {
+  console.error("CRITICAL CONFIGURATION ERROR: Missing required environment variable 'JWT_SECRET'.");
+  process.exit(1);
+}
+
+// Log warning for optional Supabase variables
+const optionalEnv = ['SUPABASE_DB_URL', 'SUPABASE_DB_KEY', 'SUPABASE_BUCKET'];
+const missingOptional = optionalEnv.filter(key => !process.env[key]);
+if (missingOptional.length > 0) {
+  console.warn(`[Warning] Missing optional environment variables: ${missingOptional.join(', ')}. Some file upload services might be limited.`);
+}
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -67,6 +80,11 @@ app.get('/health', (req, res) => {
   res.json({ status: 'healthy', db: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected' });
 });
 
+// 404 Route Not Found fallback handler
+app.use((req, res, next) => {
+  res.status(404).json({ error: 'API Route Not Found' });
+});
+
 // Global error handler (ensures CORS headers are preserved even on 500 errors)
 app.use((err, req, res, next) => {
   console.error('Unhandled server error:', err);
@@ -95,4 +113,5 @@ mongoose.connect(mongoUri)
   })
   .catch((err) => {
     console.error('MongoDB connection error:', err);
+    process.exit(1);
   });
