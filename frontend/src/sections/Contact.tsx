@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaEnvelope, FaMapMarkerAlt, FaPaperPlane, FaCheckCircle, FaLinkedin, FaGithub } from 'react-icons/fa';
-import { PERSONAL_INFO } from '../constants';
+import { FaEnvelope, FaMapMarkerAlt, FaPaperPlane, FaCheckCircle } from 'react-icons/fa';
+import { PERSONAL_INFO, SOCIAL_LINKS } from '../constants';
 import { submitContactMessage } from '../services/api';
 import { sanitizeUrl } from '../utils/security';
 import SectionHeader from '../components/SectionHeader';
@@ -15,6 +15,11 @@ interface ContactProps {
 
 export default function Contact({ personalInfo }: ContactProps) {
   const profile = personalInfo && (personalInfo.email || personalInfo.location) ? personalInfo : PERSONAL_INFO;
+
+  const contactSocials = SOCIAL_LINKS.filter(s => s.showInContact);
+  const halfLength = Math.ceil(contactSocials.length / 2);
+  const firstRowSocials = contactSocials.slice(0, halfLength);
+  const secondRowSocials = contactSocials.slice(halfLength);
 
   const [formState, setFormState] = useState({
     name: '',
@@ -159,25 +164,50 @@ export default function Contact({ personalInfo }: ContactProps) {
           </div>
 
           {/* Social icons */}
-          <motion.div variants={itemVariants} className="flex items-center gap-4 pt-4">
-            <a
-              href={sanitizeUrl('https://github.com')}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-4 rounded-2xl border border-white/[0.06] bg-white/[0.02] hover:border-accent/40 hover:text-accent hover:shadow-[0_0_15px_rgba(108,99,255,0.2)] text-gray-400 hover:text-white transition-all duration-300 text-xl"
-              aria-label="GitHub"
-            >
-              <FaGithub />
-            </a>
-            <a
-              href={sanitizeUrl('https://linkedin.com')}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-4 rounded-2xl border border-white/[0.06] bg-white/[0.02] hover:border-secondary/40 hover:text-secondary hover:shadow-[0_0_15px_rgba(0,229,255,0.2)] text-gray-400 hover:text-white transition-all duration-300 text-xl"
-              aria-label="LinkedIn"
-            >
-              <FaLinkedin />
-            </a>
+          <motion.div variants={itemVariants} className="flex flex-col gap-4 pt-4">
+            <div className="flex items-center gap-4">
+              {firstRowSocials.map((social, i) => {
+                const Icon = social.icon;
+                return (
+                  <a
+                    key={i}
+                    href={sanitizeUrl(social.url)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`p-4 rounded-2xl border border-white/[0.06] bg-white/[0.02] text-gray-400 hover:text-white transition-all duration-300 text-xl ${
+                      social.colorType === 'secondary'
+                        ? 'hover:border-secondary/40 hover:text-secondary hover:shadow-[0_0_15px_rgba(0,229,255,0.2)]'
+                        : 'hover:border-accent/40 hover:text-accent hover:shadow-[0_0_15px_rgba(108,99,255,0.2)]'
+                    }`}
+                    aria-label={social.ariaLabel}
+                  >
+                    <Icon />
+                  </a>
+                );
+              })}
+            </div>
+
+            <div className="flex items-center gap-4">
+              {secondRowSocials.map((social, i) => {
+                const Icon = social.icon;
+                return (
+                  <a
+                    key={i}
+                    href={sanitizeUrl(social.url)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`p-4 rounded-2xl border border-white/[0.06] bg-white/[0.02] text-gray-400 hover:text-white transition-all duration-300 text-xl ${
+                      social.colorType === 'secondary'
+                        ? 'hover:border-secondary/40 hover:text-secondary hover:shadow-[0_0_15px_rgba(0,229,255,0.2)]'
+                        : 'hover:border-accent/40 hover:text-accent hover:shadow-[0_0_15px_rgba(108,99,255,0.2)]'
+                    }`}
+                    aria-label={social.ariaLabel}
+                  >
+                    <Icon />
+                  </a>
+                );
+              })}
+            </div>
           </motion.div>
         </div>
 

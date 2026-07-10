@@ -1,5 +1,5 @@
 import React from 'react';
-import { SOCIAL_LINKS, PERSONAL_INFO } from '../constants';
+import { PERSONAL_INFO } from '../constants';
 import { FaUserShield, FaExternalLinkAlt } from 'react-icons/fa';
 
 interface FooterProps {
@@ -59,22 +59,6 @@ export default function Footer({ personalInfo }: FooterProps) {
             <span>Admin Portal</span>
             <FaExternalLinkAlt className="text-[10px] text-secondary/70 group-hover:text-white transition-colors duration-300" />
           </a>
-
-          {/* Social Icons list */}
-          <div className="flex items-center gap-3">
-            {SOCIAL_LINKS.map((social, i) => (
-              <a
-                key={i}
-                href={social.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={social.label}
-                className="p-2.5 rounded-full border border-white/[0.06] bg-white/[0.02] text-gray-400 hover:text-white hover:border-accent/40 hover:shadow-[0_0_12px_rgba(108,99,255,0.2)] transition-all duration-300 text-sm"
-              >
-                <social.icon />
-              </a>
-            ))}
-          </div>
         </div>
       </div>
     </footer>

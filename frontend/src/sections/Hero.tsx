@@ -3,29 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   FaArrowRight, 
   FaDownload, 
-  FaGithub, 
-  FaLinkedin, 
-  FaEnvelope, 
-  FaTwitter,
-  FaInfoCircle,
-  FaDiscord
+  FaInfoCircle
 } from 'react-icons/fa';
 import { sanitizeUrl } from '../utils/security';
-
-// Hardcoded Hero Profile Details (Only Resume URL is dynamic via props from Admin Panel)
-const HERO_STATIC_DATA = {
-  name: 'PAWAN KUMAR',
-  title: 'Algorithmic Software Developer By Implementing AI',
-  tagline: 'Transforming complex business requirements into elegant, high-performance software solutions with clean, scalable code.',
-  availability: 'WELCOME TO MY UNIVERSE',
-  socials: [
-    { name: 'GitHub', icon: FaGithub, url: 'https://github.com/POWER-WORLD' },
-    { name: 'LinkedIn', icon: FaLinkedin, url: 'https://www.linkedin.com/in/pawankumar3253702/' },
-    { name: 'Twitter', icon: FaTwitter, url: 'https://x.com/Pawan3253702' },
-    { name: 'Email', icon: FaEnvelope, url: 'mailto:pk0403564@gmail.com' },
-    { name: 'Discord', icon: FaDiscord, url: 'https://discord.com/users/pawankumar3253702' },
-  ],
-};
+import { PERSONAL_INFO, SOCIAL_LINKS } from '../constants';
 
 // Preset wave gradient color themes applied to each word of the name
 const WORD_GRADIENT_THEMES = [
@@ -139,7 +120,7 @@ export default function Hero({ data, resumeUrl: propResumeUrl }: HeroProps) {
     },
   };
 
-  const nameWords = HERO_STATIC_DATA.name.trim().split(/\s+/);
+  const nameWords = PERSONAL_INFO.name.trim().split(/\s+/);
 
   return (
     <section
@@ -177,7 +158,7 @@ export default function Hero({ data, resumeUrl: propResumeUrl }: HeroProps) {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-400"></span>
             </span>
-            <span>{HERO_STATIC_DATA.availability}</span>
+            <span>{PERSONAL_INFO.availability}</span>
           </div>
         </motion.div>
 
@@ -241,7 +222,7 @@ export default function Hero({ data, resumeUrl: propResumeUrl }: HeroProps) {
           variants={itemVariants}
           className="font-orbitron font-extrabold text-lg sm:text-2xl md:text-3xl lg:text-4xl tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-300 to-blue-500 animate-wave-gradient bg-[length:200%_200%] text-center my-3 sm:my-4 drop-shadow-[0_0_20px_rgba(0,229,255,0.5)]"
         >
-          {HERO_STATIC_DATA.title}
+          {PERSONAL_INFO.title}
         </motion.h2>
 
         {/* 4. Tagline (2-line centered clean text, matching reference image) */}
@@ -249,7 +230,7 @@ export default function Hero({ data, resumeUrl: propResumeUrl }: HeroProps) {
           variants={itemVariants}
           className="text-slate-400 text-sm sm:text-base md:text-lg max-w-xl mx-auto leading-relaxed text-center mb-8 px-4 font-sans font-normal"
         >
-          {HERO_STATIC_DATA.tagline}
+          {PERSONAL_INFO.tagline}
         </motion.p>
 
         {/* 5. CTA Buttons (Side-by-Side Capsules matching reference image) */}
@@ -282,7 +263,7 @@ export default function Hero({ data, resumeUrl: propResumeUrl }: HeroProps) {
 
         {/* 6. Social Links (Centered Glass Circles matching reference image) */}
         <motion.div variants={itemVariants} className="flex items-center justify-center gap-4">
-          {HERO_STATIC_DATA.socials.map((social, i) => {
+          {SOCIAL_LINKS.filter(social => social.showInHero).map((social, i) => {
             const Icon = social.icon;
             const safeSocialUrl = sanitizeUrl(social.url);
             return (
@@ -291,7 +272,7 @@ export default function Hero({ data, resumeUrl: propResumeUrl }: HeroProps) {
                 href={safeSocialUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label={social.name}
+                aria-label={social.ariaLabel}
                 title={social.name}
                 whileHover={{ y: -4, scale: 1.15 }}
                 whileTap={{ scale: 0.9 }}

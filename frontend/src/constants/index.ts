@@ -1,8 +1,12 @@
 import { 
   FaGithub, 
   FaLinkedin, 
-  FaEnvelope
+  FaEnvelope,
+  FaDiscord,
+  FaTwitter,
+  FaHackerrank
 } from 'react-icons/fa';
+import { SiCodechef, SiLeetcode } from 'react-icons/si';
 
 export interface NavItem {
   label: string;
@@ -19,19 +23,98 @@ export const NAV_ITEMS: NavItem[] = [
   { label: 'Contact', id: 'contact' },
 ];
 
-export const SOCIAL_LINKS = [
-  { icon: FaGithub, url: 'https://github.com', label: 'GitHub' },
-  { icon: FaLinkedin, url: 'https://linkedin.com', label: 'LinkedIn' },
-  { icon: FaEnvelope, url: 'mailto:', label: 'Email' },
+export interface SocialLink {
+  name: string;
+  icon: React.ComponentType<any>;
+  url: string;
+  ariaLabel: string;
+  colorType: 'accent' | 'secondary';
+  showInHero: boolean;
+  showInContact: boolean;
+}
+
+export const SOCIAL_LINKS: SocialLink[] = [
+  {
+    name: 'LinkedIn',
+    icon: FaLinkedin,
+    url: 'https://www.linkedin.com/in/pawankumar3253702/',
+    ariaLabel: 'LinkedIn',
+    colorType: 'secondary',
+    showInHero: true,
+    showInContact: true,
+  },
+  {
+    name: 'Email',
+    icon: FaEnvelope,
+    url: 'mailto:pk0403564@gmail.com',
+    ariaLabel: 'Email',
+    colorType: 'accent',
+    showInHero: false,
+    showInContact: true,
+  },
+  {
+    name: 'Discord',
+    icon: FaDiscord,
+    url: 'https://discord.com/users/pawankumar3253702',
+    ariaLabel: 'Discord',
+    colorType: 'accent',
+    showInHero: false,
+    showInContact: true,
+  },
+  {
+    name: 'Twitter',
+    icon: FaTwitter,
+    url: 'https://x.com/Pawan3253702',
+    ariaLabel: 'Twitter',
+    colorType: 'accent',
+    showInHero: false,
+    showInContact: true,
+  },
+  {
+    name: 'GitHub',
+    icon: FaGithub,
+    url: 'https://github.com/POWER-WORLD',
+    ariaLabel: 'GitHub',
+    colorType: 'accent',
+    showInHero: true,
+    showInContact: true,
+  },
+  {
+    name: 'LeetCode',
+    icon: SiLeetcode,
+    url: 'https://leetcode.com/u/pawankumar3253702/',
+    ariaLabel: 'LeetCode',
+    colorType: 'accent',
+    showInHero: true,
+    showInContact: true,
+  },
+  {
+    name: 'HackerRank',
+    icon: FaHackerrank,
+    url: 'https://www.hackerrank.com/profile/pk3253702',
+    ariaLabel: 'HackerRank',
+    colorType: 'accent',
+    showInHero: true,
+    showInContact: true,
+  },
+  {
+    name: 'Codechef',
+    icon: SiCodechef,
+    url: 'https://www.codechef.com/users/pk3253702',
+    ariaLabel: 'Codechef',
+    colorType: 'accent',
+    showInHero: true,
+    showInContact: true,
+  },
 ];
 
 export const PERSONAL_INFO = {
-  name: 'Pawan Kumar',
-  title: 'Full Stack & React Engineer',
-  tagline: 'Crafting high-performance, responsive, and visually stunning web applications.',
-  location: '',
-  email: '',
-  resumeUrl: '#',
+  name: 'PAWAN KUMAR',
+  title: 'Algorithmic Software Developer By Implementing AI',
+  tagline: 'Transforming complex business requirements into elegant, high-performance software solutions with clean, scalable code.',
+  availability: 'WELCOME TO MY UNIVERSE',
+  location: 'Dehradun, Uttarakhand, India(248007)',
+  email: 'pk0403564@gmail.com',
 };
 
 export const ABOUT_DATA = {
