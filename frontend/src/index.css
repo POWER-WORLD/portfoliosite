@@ -472,3 +472,33 @@ html.lenis, html.lenis body {
 .animate-auto-tilt {
   animation: autoTilt 6s ease-in-out infinite;
 }
+
+/* ==========================================================================
+   TechStack Section — CSS-variable-dependent rules
+   These four rules use color-mix(in srgb, var(--pill-color) …) which cannot
+   be expressed as Tailwind arbitrary values.  Everything else in TechStack.tsx
+   is pure Tailwind.
+   ========================================================================== */
+
+/* Pill hover: brand-colored border + layered glow */
+.tech-pill:hover {
+  border-color: color-mix(in srgb, var(--pill-color) 45%, transparent);
+  box-shadow:
+    0 0 18px color-mix(in srgb, var(--pill-color) 30%, transparent),
+    0 4px 20px rgba(0, 0, 0, 0.4),
+    inset 0 0 12px color-mix(in srgb, var(--pill-color) 8%, transparent);
+}
+
+/* Icon: subtle brand-colored drop-shadow at rest */
+.tech-pill__icon {
+  filter: drop-shadow(0 0 3px color-mix(in srgb, var(--pill-color) 50%, transparent));
+}
+
+/* Icon: intensified brand glow on hover */
+.tech-pill:hover .tech-pill__icon {
+  filter: drop-shadow(0 0 7px var(--pill-color));
+}
+
+/* Marquee per-row speed override via CSS custom property */
+.animate-scroll-left  { animation-duration: var(--marquee-speed, 40s); }
+.animate-scroll-right { animation-duration: var(--marquee-speed, 40s); }
