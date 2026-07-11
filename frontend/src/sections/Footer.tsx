@@ -1,17 +1,20 @@
 import React from 'react';
-import { PERSONAL_INFO } from '../constants';
 import { FaUserShield, FaExternalLinkAlt } from 'react-icons/fa';
+import type { PersonalInfo } from '../constants';
 
 interface FooterProps {
-  personalInfo?: {
-    name: string;
-  };
+  /** personalInfo from MongoDB passed down from App.tsx */
+  personalInfo?: Partial<PersonalInfo>;
 }
 
 export default function Footer({ personalInfo }: FooterProps) {
-  const profile = personalInfo && personalInfo.name ? personalInfo : PERSONAL_INFO;
+  // All content comes from the DB; degrade gracefully if backend is offline
+  const profileName = personalInfo?.name ?? '';
+  const firstName = profileName
+    ? profileName.trim().split(/\s+/)[0].toUpperCase()
+    : 'PAWAN';
+
   const currentYear = new Date().getFullYear();
-  const firstName = (profile.name || 'PAWAN').split(' ')[0].toUpperCase();
 
   const handleScrollToTop = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -21,16 +24,14 @@ export default function Footer({ personalInfo }: FooterProps) {
     });
     const handled = !window.dispatchEvent(event);
     if (!handled) {
-      window.scrollTo({
-        top: 0,
-        behavior: 'smooth',
-      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
   return (
     <footer className="w-full border-t border-white/[0.06] bg-bg-dark/40 backdrop-blur-md relative select-none z-10 py-10">
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
+
         {/* Animated logo signature */}
         <a
           href="#home"
@@ -40,14 +41,15 @@ export default function Footer({ personalInfo }: FooterProps) {
           {firstName}<span className="text-white">.</span>INFO
         </a>
 
-        {/* Copyright notice */}
+        {/* Copyright notice — uses DB name; shows firstName if name not yet loaded */}
         <p className="text-xs text-gray-500 font-medium tracking-wide text-center">
-          &copy; {currentYear} {profile.name || 'Pawan Kumar'}. All Rights Reserved. Built with love by {firstName}KUMAR<span className="text-white">.</span>INFO.
+          &copy; {currentYear}{' '}
+          {profileName || `${firstName}KUMAR`}. All Rights Reserved.{' '}
+          Built with love by {firstName}KUMAR<span className="text-white">.</span>INFO.
         </p>
 
-        {/* Right Actions: Admin Portal Link + Social Links */}
+        {/* Admin Portal link */}
         <div className="flex flex-wrap items-center justify-center gap-4">
-          {/* Admin Portal External Link */}
           <a
             href="https://pawankumar123admin.onrender.com"
             target="_blank"

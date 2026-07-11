@@ -1,20 +1,20 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaEnvelope, FaMapMarkerAlt, FaPaperPlane, FaCheckCircle } from 'react-icons/fa';
-import { PERSONAL_INFO, SOCIAL_LINKS } from '../constants';
+import { SOCIAL_LINKS } from '../constants';
+import type { PersonalInfo } from '../constants';
 import { submitContactMessage } from '../services/api';
 import { sanitizeUrl } from '../utils/security';
 import SectionHeader from '../components/SectionHeader';
 
 interface ContactProps {
-  personalInfo?: {
-    email?: string;
-    location?: string;
-  };
+  /** personalInfo from MongoDB, passed down from App.tsx */
+  personalInfo?: Partial<PersonalInfo>;
 }
 
 export default function Contact({ personalInfo }: ContactProps) {
-  const profile = personalInfo && (personalInfo.email || personalInfo.location) ? personalInfo : PERSONAL_INFO;
+  // All contact info (email, location) comes from DB; degrade gracefully if offline
+  const profile = personalInfo ?? {};
 
   const contactSocials = SOCIAL_LINKS.filter(s => s.showInContact);
   const halfLength = Math.ceil(contactSocials.length / 2);

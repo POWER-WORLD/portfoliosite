@@ -1,10 +1,12 @@
 import mongoose from 'mongoose';
 
 // Personal Info Schema
+// All defaults are intentionally empty — real values are seeded via seed.js
+// or entered through the Admin Panel. Never hardcode personal info here.
 const PersonalInfoSchema = new mongoose.Schema({
-  name: { type: String, default: 'Pawan Kumar' },
-  title: { type: String, default: 'Full Stack & React Engineer' },
-  tagline: { type: String, default: 'Crafting high-performance web applications.' },
+  name: { type: String, default: '' },
+  title: { type: String, default: '' },
+  tagline: { type: String, default: '' },
   location: { type: String, default: '' },
   email: { type: String, default: '' },
   resumeUrl: { type: String, default: '#' },

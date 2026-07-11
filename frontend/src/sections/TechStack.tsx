@@ -1,5 +1,4 @@
 import { motion } from 'framer-motion';
-import { TECH_STACK_ICONS } from '../constants';
 import {
   SiReact,
   SiTypescript,
@@ -68,6 +67,13 @@ function getIconComponent(iconName: string) {
 }
 
 export default function TechStack({ data }: TechStackProps) {
+  // Only render when DB data exists — tech stack is managed exclusively via MongoDB
+  const techItems: TechItem[] = data && data.length > 0 ? data : [];
+
+  if (techItems.length === 0) {
+    return null;
+  }
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -84,23 +90,6 @@ export default function TechStack({ data }: TechStackProps) {
       transition: { type: 'spring' as const, stiffness: 100, damping: 15 },
     },
   };
-
-  // Fallback to static mock constants if database has no records or backend is offline
-  const techItems: TechItem[] = data && data.length > 0 
-    ? data 
-    : (TECH_STACK_ICONS.map(t => ({
-        name: t.name,
-        color: t.color,
-        icon: t.name === 'React' ? 'SiReact' :
-              t.name === 'TypeScript' ? 'SiTypescript' :
-              t.name === 'Node.js' ? 'SiNodedotjs' :
-              t.name === 'MongoDB' ? 'SiMongodb' :
-              t.name === 'Next.js' ? 'SiNextdotjs' :
-              t.name === 'Tailwind CSS' ? 'SiTailwindcss' :
-              t.name === 'Framer Motion' ? 'SiFramermotion' :
-              t.name === 'GraphQL' ? 'SiGraphql' :
-              t.name === 'Docker' ? 'SiDocker' : 'SiGit'
-      })) as TechItem[]);
 
   return (
     <section id="techstack" className="w-full py-8 md:py-12 scroll-mt-20 relative select-none overflow-hidden bg-transparent">
