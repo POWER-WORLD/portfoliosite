@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaEnvelope } from 'react-icons/fa';
 import { NAV_ITEMS } from '../constants';
-import { useScrollLock } from '../hooks/useScrollLock';
 import { sanitizeUrl } from '../utils/security';
 
 interface NavbarProps {
