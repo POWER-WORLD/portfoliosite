@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { adminApi } from '../../services/api';
 import ConfirmModal from '../ConfirmModal';
-import { FaKey, FaLock, FaTrash, FaPlus, FaToggleOn, FaToggleOff, FaShieldAlt } from 'react-icons/fa';
+import { FaKey, FaTrash, FaPlus, FaToggleOn, FaToggleOff, FaShieldAlt } from 'react-icons/fa';
 
 export default function PasswordManagementTab() {
   // Admin login password state
