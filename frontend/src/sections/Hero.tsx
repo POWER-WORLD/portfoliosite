@@ -8,6 +8,7 @@ import {
 import { sanitizeUrl } from '../utils/security';
 import { PERSONAL_INFO, SOCIAL_LINKS } from '../constants';
 import type { PersonalInfo } from '../constants';
+import { verifyResumePassword } from '../services/api';
 
 // ─── Name word gradient themes — one per word, cycles if name has more words ───
 const WORD_GRADIENT_THEMES = [
@@ -78,10 +79,16 @@ export default function Hero({ data }: HeroProps) {
     name: heroName = '',
     title: heroTitle = '',
     tagline: heroTagline = '',
-    resumeUrl: activeResumeUrl = '',
+    hasResume = false,
   } = data ?? {};
 
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Passcode modal states
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [passcode, setPasscode] = useState(['', '', '', '']);
+  const [passcodeError, setPasscodeError] = useState<string | null>(null);
+  const [verifying, setVerifying] = useState(false);
 
   // ── Scroll helpers ──────────────────────────────────────────────────────────
   const handleScrollToSection = (sectionId: string) => {
@@ -98,18 +105,86 @@ export default function Hero({ data }: HeroProps) {
     }
   };
 
-  // ── Resume download ─────────────────────────────────────────────────────────
+  // ── Resume download button click ───────────────────────────────────────────
   const handleDownloadClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    if (!activeResumeUrl || activeResumeUrl === '#') {
+    if (!hasResume) {
       setToastMessage('Resume update pending from Admin Panel.');
       setTimeout(() => setToastMessage(null), 3500);
       return;
     }
-    const success = downloadResumeFile(activeResumeUrl, heroName);
-    if (!success) {
-      setToastMessage('Could not initiate download. Please check the Admin link.');
-      setTimeout(() => setToastMessage(null), 3500);
+    // Reset password state and open modal
+    setPasscode(['', '', '', '']);
+    setPasscodeError(null);
+    setShowPasswordModal(true);
+  };
+
+  // ── Passcode inputs change handler ─────────────────────────────────────────
+  const handleInputChange = (value: string, index: number) => {
+    const cleanVal = value.replace(/\D/g, ''); // Numeric only
+    if (!cleanVal) {
+      const newPass = [...passcode];
+      newPass[index] = '';
+      setPasscode(newPass);
+      return;
+    }
+
+    const newPass = [...passcode];
+    newPass[index] = cleanVal.slice(-1); // Only store last entered digit
+    setPasscode(newPass);
+    setPasscodeError(null);
+
+    // Auto-focus next input field
+    if (index < 3) {
+      const nextEl = document.getElementById(`digit-${index + 1}`);
+      nextEl?.focus();
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
+    if (e.key === 'Backspace') {
+      const newPass = [...passcode];
+      if (newPass[index]) {
+        newPass[index] = '';
+        setPasscode(newPass);
+      } else if (index > 0) {
+        newPass[index - 1] = '';
+        setPasscode(newPass);
+        const prevEl = document.getElementById(`digit-${index - 1}`);
+        prevEl?.focus();
+      }
+    }
+  };
+
+  const handleVerifySubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const codeStr = passcode.join('');
+    if (codeStr.length !== 4) {
+      setPasscodeError('Please enter all 4 digits.');
+      return;
+    }
+
+    setVerifying(true);
+    setPasscodeError(null);
+    try {
+      const res = await verifyResumePassword(codeStr);
+      if (res.success && res.resumeUrl) {
+        setToastMessage('Passcode verified! Initiating download...');
+        setTimeout(() => setToastMessage(null), 3500);
+        
+        setShowPasswordModal(false);
+        setPasscode(['', '', '', '']);
+        
+        downloadResumeFile(res.resumeUrl, heroName);
+      } else {
+        setPasscodeError(res.error || 'Invalid passcode. Please try again.');
+        setPasscode(['', '', '', '']);
+        document.getElementById('digit-0')?.focus();
+      }
+    } catch (err: any) {
+      setPasscodeError('An error occurred during verification. Please try again.');
+    } finally {
+      setVerifying(false);
     }
   };
 
@@ -261,21 +336,28 @@ export default function Hero({ data }: HeroProps) {
             <FaArrowRight className="group-hover:translate-x-1 transition-transform duration-300 text-xs" />
           </button>
 
-          {/* Download Resume */}
-          <button
-            type="button"
-            onClick={handleDownloadClick}
-            className="w-full sm:w-auto flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-full border border-white/10 hover:border-accent/40 bg-bg-dark/40 hover:bg-bg-dark/60 text-white font-semibold text-sm tracking-wide backdrop-blur-md shadow-[0_0_15px_rgba(0,0,0,0.3)] hover:shadow-[0_0_20px_rgba(108,99,255,0.25)] hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer group"
-          >
-            <span className="font-display">Download Resume</span>
-            <FaDownload className="text-xs group-hover:-translate-y-0.5 transition-transform duration-300 text-cyan-400" />
-            {activeResumeUrl && activeResumeUrl !== '#' && (
-              <span
-                className="flex h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.9)] ml-1 animate-pulse"
-                title="Resume Ready"
-              />
-            )}
-          </button>
+          {/* Download Resume with Tooltip wrapper */}
+          <div className="relative group/tooltip w-full sm:w-auto">
+            <button
+              type="button"
+              onClick={handleDownloadClick}
+              className="w-full sm:w-auto flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-full border border-white/10 hover:border-accent/40 bg-bg-dark/40 hover:bg-bg-dark/60 text-white font-semibold text-sm tracking-wide backdrop-blur-md shadow-[0_0_15px_rgba(0,0,0,0.3)] hover:shadow-[0_0_20px_rgba(108,99,255,0.25)] hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer group"
+            >
+              <span className="font-display">Download Resume</span>
+              <FaDownload className="text-xs group-hover:-translate-y-0.5 transition-transform duration-300 text-cyan-400" />
+              {hasResume && (
+                <span
+                  className="flex h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.9)] ml-1 animate-pulse"
+                  title="Resume Ready"
+                />
+              )}
+            </button>
+            
+            {/* Tooltip on hover */}
+            <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-3 px-3.5 py-2 bg-slate-950/90 border border-white/10 rounded-xl text-[10px] sm:text-xs text-cyan-400 opacity-0 group-hover/tooltip:opacity-100 transition-opacity duration-300 shadow-xl whitespace-nowrap z-25 font-mono select-none pointer-events-none tracking-wider uppercase">
+              contact for password
+            </div>
+          </div>
         </motion.div>
 
         {/* ── 6. Social Links ───────────────────────────────────────────────── */}
@@ -321,6 +403,112 @@ export default function Hero({ data }: HeroProps) {
           />
         </div>
       </motion.div>
+
+      {/* ── Passcode Modal ────────────────────────────────────────────────── */}
+      <AnimatePresence>
+        {showPasswordModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            {/* Backdrop Blur */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowPasswordModal(false)}
+              className="absolute inset-0 bg-slate-950/80 backdrop-blur-md"
+            />
+
+            {/* Modal Card */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+              className="relative w-full max-w-md overflow-hidden rounded-3xl border border-white/10 bg-slate-900/40 p-8 backdrop-blur-xl shadow-2xl z-10 text-center"
+            >
+              {/* Close Button */}
+              <button
+                type="button"
+                onClick={() => setShowPasswordModal(false)}
+                className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors duration-200 cursor-pointer text-lg"
+              >
+                &times;
+              </button>
+
+              {/* Title & Description */}
+              <div className="mb-6 flex flex-col items-center">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-900/20 text-cyan-400 border border-cyan-500/30 shadow-[0_0_15px_rgba(0,229,255,0.15)]">
+                  <FaDownload className="text-lg" />
+                </div>
+                <h3 className="text-xl font-orbitron font-extrabold text-white tracking-wide">
+                  Unlock Resume Download
+                </h3>
+                <p className="mt-2 text-xs sm:text-sm text-slate-400 leading-relaxed max-w-xs">
+                  Please enter the 4-digit passcode to verify authorization and proceed with the download.
+                </p>
+              </div>
+
+              {/* Passcode Inputs Form */}
+              <form onSubmit={handleVerifySubmit}>
+                <div className="flex justify-center gap-3 mb-4">
+                  {passcode.map((digit, index) => (
+                    <input
+                      key={index}
+                      id={`digit-${index}`}
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      maxLength={1}
+                      value={digit}
+                      onChange={(e) => handleInputChange(e.target.value, index)}
+                      onKeyDown={(e) => handleKeyDown(e, index)}
+                      className={`w-12 h-14 text-center text-xl font-bold bg-slate-950/40 text-white border ${
+                        passcodeError ? 'border-red-500/50 focus:border-red-500 animate-pulse' : 'border-white/10 focus:border-cyan-400'
+                      } rounded-xl focus:outline-none focus:shadow-[0_0_12px_rgba(6,182,212,0.2)] transition-all duration-200`}
+                      autoFocus={index === 0}
+                      required
+                    />
+                  ))}
+                </div>
+
+                {/* Error message */}
+                {passcodeError && (
+                  <motion.p
+                    initial={{ opacity: 0, y: -5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-xs text-red-400 font-semibold mb-4"
+                  >
+                    {passcodeError}
+                  </motion.p>
+                )}
+
+                {/* Verify Button */}
+                <button
+                  type="submit"
+                  disabled={verifying}
+                  className="w-full py-3.5 rounded-xl bg-gradient-to-r from-purple-500 via-indigo-500 to-cyan-400 text-slate-950 font-bold text-sm tracking-wide shadow-[0_0_15px_rgba(0,229,255,0.2)] hover:shadow-[0_0_25px_rgba(0,229,255,0.4)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 disabled:opacity-50 cursor-pointer"
+                >
+                  {verifying ? 'Verifying Passcode...' : 'Verify & Download'}
+                </button>
+
+                <p className="mt-4 text-[10px] text-slate-500 font-mono tracking-wide uppercase">
+                  Don't have a code? Please{' '}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowPasswordModal(false);
+                      handleScrollToSection('contact');
+                    }}
+                    className="text-cyan-400 hover:text-cyan-300 underline cursor-pointer transition-colors duration-200"
+                  >
+                    contact me
+                  </button>{' '}
+                  to request access.
+                </p>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }

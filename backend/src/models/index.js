@@ -103,6 +103,13 @@ const AdminPasswordSchema = new mongoose.Schema({
   hash: { type: String, required: true }
 });
 
+// Resume Download Password Schema
+const ResumePasswordSchema = new mongoose.Schema({
+  code: { type: String, required: true, unique: true },
+  label: { type: String, default: '' },
+  isActive: { type: Boolean, default: true }
+}, { timestamps: true });
+
 // Contact Message Schema
 const ContactMessageSchema = new mongoose.Schema({
   name: { type: String, required: true },
@@ -136,6 +143,7 @@ export const Experience = mongoose.model('Experience', ExperienceSchema);
 export const Certificate = mongoose.model('Certificate', CertificateSchema);
 export const Achievement = mongoose.model('Achievement', AchievementSchema);
 export const AdminPassword = mongoose.model('AdminPassword', AdminPasswordSchema);
+export const ResumePassword = mongoose.model('ResumePassword', ResumePasswordSchema);
 export const ContactMessage = mongoose.model('ContactMessage', ContactMessageSchema);
 export const TechStack = mongoose.model('TechStack', TechStackSchema);
 export const SkillsWelcome = mongoose.model('SkillsWelcome', SkillsWelcomeSchema);

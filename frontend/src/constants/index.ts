@@ -212,5 +212,5 @@ export interface PersonalInfo {
   tagline: string;
   location: string;
   email: string;
-  resumeUrl: string;
+  hasResume?: boolean;
 }

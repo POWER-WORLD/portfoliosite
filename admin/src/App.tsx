@@ -9,6 +9,7 @@ import TechStackTab from './components/tabs/TechStackTab';
 import ErrorBoundary from './components/ErrorBoundary';
 import { adminApi, removeToken, getToken } from './services/api';
 import MessagesTab from './components/tabs/MessagesTab';
+import PasswordManagementTab from './components/tabs/PasswordManagementTab';
 import { 
   FaUser, 
   FaCode, 
@@ -19,11 +20,12 @@ import {
   FaBars, 
   FaTimes,
   FaLaptopCode,
-  FaEnvelope
+  FaEnvelope,
+  FaKey
 } from 'react-icons/fa';
 
 
-type TabType = 'personal' | 'skills' | 'projects' | 'experience' | 'certs' | 'techstack' | 'messages';
+type TabType = 'personal' | 'skills' | 'projects' | 'experience' | 'certs' | 'techstack' | 'messages' | 'passwords';
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
@@ -156,6 +158,10 @@ export default function App() {
         return (
           <MessagesTab />
         );
+      case 'passwords':
+        return (
+          <PasswordManagementTab />
+        );
       default:
         return <div>Tab not found</div>;
     }
@@ -263,6 +269,15 @@ export default function App() {
                   <FaEnvelope className="nav-icon" /> Messages Inbox
                 </button>
               </li>
+              <li className="nav-item">
+                <button 
+                  type="button" 
+                  onClick={() => { setActiveTab('passwords'); setSidebarOpen(false); }} 
+                  className={`nav-link ${activeTab === 'passwords' ? 'active' : ''}`}
+                >
+                  <FaKey className="nav-icon" /> Security & Passwords
+                </button>
+              </li>
             </nav>
           </div>
 
@@ -292,6 +307,7 @@ export default function App() {
                 {activeTab === 'certs' && 'Credentials & Metrics'}
                 {activeTab === 'techstack' && 'Technologies & Tools'}
                 {activeTab === 'messages' && 'Visitor Messages & Inquiries'}
+                {activeTab === 'passwords' && 'Passcode & Admin Security'}
               </h1>
               <p className="page-subtitle">
                 {activeTab === 'personal' && 'Manage your display information, narrative biography, and education history.'}
@@ -301,6 +317,7 @@ export default function App() {
                 {activeTab === 'certs' && 'Modify your digital certifications and count metrics.'}
                 {activeTab === 'techstack' && 'Manage selectable technology items, brand icons, and hex colors.'}
                 {activeTab === 'messages' && 'View, manage, and reply to messages sent by visitors from your portfolio contact form.'}
+                {activeTab === 'passwords' && 'Manage resume download numeric passwords and update your admin login credentials.'}
               </p>
             </div>
           </header>

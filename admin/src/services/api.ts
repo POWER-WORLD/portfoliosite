@@ -269,6 +269,37 @@ export const adminApi = {
     });
   },
 
+  getResumePasswords: async () => {
+    return request('/resume/passwords');
+  },
+
+  addResumePassword: async (data: { code: string; label: string; isActive?: boolean }) => {
+    return request('/resume/passwords', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  updateResumePassword: async (id: string, data: { code?: string; label?: string; isActive?: boolean }) => {
+    return request(`/resume/passwords/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  deleteResumePassword: async (id: string) => {
+    return request(`/resume/passwords/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  changeAdminPassword: async (data: { currentPassword: string; newPassword: string }) => {
+    return request('/auth/change-password', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
   uploadFile: async (file: File): Promise<{ url: string }> => {
     const formData = new FormData();
     formData.append('file', file);

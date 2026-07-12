@@ -13,6 +13,7 @@ import {
   Certificate, 
   Achievement,
   AdminPassword,
+  ResumePassword,
   ContactMessage,
   TechStack,
   SkillsWelcome
@@ -106,21 +107,18 @@ router.post('/auth/login', async (req, res) => {
     return res.status(400).json({ error: 'Password string is required' });
   }
   try {
-    const adminRecord = await AdminPassword.findOne();
+    let adminRecord = await AdminPassword.findOne();
     if (!adminRecord) {
-      // Fallback behavior if database is not seeded with AdminPassword hash
-      const envPassword = process.env.ADMIN_PASSWORD;
-      if (!envPassword) {
-        return res.status(500).json({ error: 'Admin credentials not configured.' });
-      }
-      if (password !== envPassword) {
-        return res.status(401).json({ error: 'Invalid admin password' });
-      }
-    } else {
-      const isMatch = await bcrypt.compare(password, adminRecord.hash);
-      if (!isMatch) {
-        return res.status(401).json({ error: 'Invalid admin password' });
-      }
+      // Fallback/auto-create a default admin password if database is not seeded
+      const salt = await bcrypt.genSalt(10);
+      const defaultHash = await bcrypt.hash('admin123', salt);
+      adminRecord = new AdminPassword({ hash: defaultHash });
+      await adminRecord.save();
+    }
+
+    const isMatch = await bcrypt.compare(password, adminRecord.hash);
+    if (!isMatch) {
+      return res.status(401).json({ error: 'Invalid admin password' });
     }
 
     const secret = process.env.JWT_SECRET;
@@ -141,12 +139,50 @@ router.get('/auth/verify', authMiddleware, (req, res) => {
   res.json({ valid: true });
 });
 
+// Change admin login password
+router.put('/auth/change-password', authMiddleware, async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  if (!currentPassword || !newPassword) {
+    return res.status(400).json({ error: 'Current password and new password are required' });
+  }
+  try {
+    let adminRecord = await AdminPassword.findOne();
+    if (!adminRecord) {
+      // Fallback/auto-create a default admin password if database is not seeded
+      const salt = await bcrypt.genSalt(10);
+      const defaultHash = await bcrypt.hash('admin123', salt);
+      adminRecord = new AdminPassword({ hash: defaultHash });
+      await adminRecord.save();
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, adminRecord.hash);
+    if (!isMatch) {
+      return res.status(401).json({ error: 'Invalid current password' });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    adminRecord.hash = await bcrypt.hash(newPassword, salt);
+    await adminRecord.save();
+
+    return res.json({ success: true, message: 'Admin login password updated successfully' });
+  } catch (error) {
+    console.error('Change admin password error:', error);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // ----------------------------------------------------
 // PUBLIC PORTFOLIO FEED
 // ----------------------------------------------------
 router.get('/portfolio', async (req, res) => {
   try {
-    const personalInfo = await PersonalInfo.findOne() || {};
+    const rawPersonalInfo = await PersonalInfo.findOne() || {};
+    const personalInfo = rawPersonalInfo.toObject ? rawPersonalInfo.toObject() : { ...rawPersonalInfo };
+    const hasResume = !!(personalInfo.resumeUrl && personalInfo.resumeUrl !== '#');
+    delete personalInfo.resumeUrl;
+    delete personalInfo.resumes;
+    personalInfo.hasResume = hasResume;
+
     const about = await About.findOne() || {};
     const skills = await SkillCategory.find() || [];
     const projects = await Project.find() || [];
@@ -622,6 +658,132 @@ router.post('/messages/:id/reply', authMiddleware, async (req, res) => {
   } catch (error) {
     console.error('Error replying to message:', error);
     res.status(500).json({ error: error.message || 'Failed to record reply' });
+  }
+});
+
+// ----------------------------------------------------
+// RESUME DOWNLOAD PASSWORDS MANAGEMENT (ADMIN & PUBLIC)
+// ----------------------------------------------------
+
+// Verify a 4-digit code and return active resume url (PUBLIC)
+router.post('/resume/verify', async (req, res) => {
+  const { password } = req.body;
+  if (!password || typeof password !== 'string') {
+    return res.status(400).json({ error: 'Password string is required' });
+  }
+
+  // Validate format (exactly 4 digits)
+  if (!/^\d{4}$/.test(password)) {
+    return res.status(400).json({ error: 'Password must be exactly 4 digits' });
+  }
+
+  try {
+    const matchedPass = await ResumePassword.findOne({ code: password, isActive: true });
+    if (!matchedPass) {
+      return res.status(401).json({ error: 'Invalid or deactivated passcode' });
+    }
+
+    const personalInfo = await PersonalInfo.findOne();
+    if (!personalInfo || !personalInfo.resumeUrl || personalInfo.resumeUrl === '#') {
+      return res.status(404).json({ error: 'Resume file is not available at the moment' });
+    }
+
+    return res.json({ resumeUrl: personalInfo.resumeUrl });
+  } catch (error) {
+    console.error('Verify resume password error:', error);
+    return res.status(500).json({ error: 'Server error during verification' });
+  }
+});
+
+// List all download passwords (ADMIN ONLY)
+router.get('/resume/passwords', authMiddleware, async (req, res) => {
+  try {
+    const passwords = await ResumePassword.find().sort({ createdAt: -1 });
+    return res.json(passwords);
+  } catch (error) {
+    console.error('Fetch resume passwords error:', error);
+    return res.status(500).json({ error: 'Failed to fetch resume passwords' });
+  }
+});
+
+// Create new download password (ADMIN ONLY)
+router.post('/resume/passwords', authMiddleware, async (req, res) => {
+  const { code, label, isActive } = req.body;
+  if (!code || typeof code !== 'string') {
+    return res.status(400).json({ error: 'Password code is required' });
+  }
+
+  if (!/^\d{4}$/.test(code)) {
+    return res.status(400).json({ error: 'Password must be exactly 4 digits' });
+  }
+
+  try {
+    // Check if code already exists
+    const existing = await ResumePassword.findOne({ code });
+    if (existing) {
+      return res.status(400).json({ error: 'This passcode already exists. Please choose a unique 4-digit code.' });
+    }
+
+    const newPass = new ResumePassword({
+      code,
+      label: label || '',
+      isActive: isActive !== undefined ? isActive : true
+    });
+    await newPass.save();
+    return res.status(201).json(newPass);
+  } catch (error) {
+    console.error('Create resume password error:', error);
+    return res.status(500).json({ error: 'Failed to create resume password' });
+  }
+});
+
+// Update download password (ADMIN ONLY)
+router.put('/resume/passwords/:id', authMiddleware, async (req, res) => {
+  const { code, label, isActive } = req.body;
+  
+  if (code !== undefined) {
+    if (typeof code !== 'string' || !/^\d{4}$/.test(code)) {
+      return res.status(400).json({ error: 'Password must be exactly 4 digits' });
+    }
+  }
+
+  try {
+    const current = await ResumePassword.findById(req.params.id);
+    if (!current) {
+      return res.status(404).json({ error: 'Password not found' });
+    }
+
+    // Check uniqueness if code is being changed
+    if (code !== undefined && code !== current.code) {
+      const existing = await ResumePassword.findOne({ code });
+      if (existing) {
+        return res.status(400).json({ error: 'This passcode already exists. Please choose a unique 4-digit code.' });
+      }
+      current.code = code;
+    }
+
+    if (label !== undefined) current.label = label;
+    if (isActive !== undefined) current.isActive = isActive;
+
+    await current.save();
+    return res.json(current);
+  } catch (error) {
+    console.error('Update resume password error:', error);
+    return res.status(500).json({ error: 'Failed to update resume password' });
+  }
+});
+
+// Delete download password (ADMIN ONLY)
+router.delete('/resume/passwords/:id', authMiddleware, async (req, res) => {
+  try {
+    const deleted = await ResumePassword.findByIdAndDelete(req.params.id);
+    if (!deleted) {
+      return res.status(404).json({ error: 'Password not found' });
+    }
+    return res.json({ success: true, message: 'Password deleted successfully' });
+  } catch (error) {
+    console.error('Delete resume password error:', error);
+    return res.status(500).json({ error: 'Failed to delete resume password' });
   }
 });
 

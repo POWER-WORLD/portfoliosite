@@ -45,20 +45,22 @@ portfolio_web/
 │   └── src/
 │       ├── components/           # UI Layout blocks (GalaxyBackground, SectionHeader, etc.)
 │       ├── layouts/              # Main layout enclosing smooth scroll & background container
-│       ├── sections/             # Content sections (Hero, About, Codex Skills, Projects, etc.)
-│       ├── services/             # Client-side API connectors
-│       └── utils/                # Sanitization & input clamping utilities
+│       ├── sections/             # Content sections (Hero, About, Skills, Projects, etc.)
+│       ├── services/             # Client-side API connectors (api.ts)
+│       └── utils/                # Sanitization & input clamping utilities (security.ts)
 ├── admin/                        # Content Management System (CMS) Dashboard (React, TS, Vite)
 │   └── src/
-│       ├── components/           # Tab managers (Personal, Skills, Tech Stack, Projects, etc.)
-│       ├── utils/                # Security helpers & modal confirmation controls
-│       └── api.ts                # Axios/Fetch wrapper injecting Bearer token authentication
+│       ├── components/           # Base components (ConfirmModal.tsx, ErrorBoundary.tsx, Login.tsx)
+│       │   └── tabs/             # Tab components (PersonalTab, SkillsTab, TechStackTab, ProjectsTab, ExperienceTab, CertificatesTab, MessagesTab)
+│       ├── services/             # Client-side admin API connectors (api.ts)
+│       └── utils/                # Security helpers (security.ts)
 ├── backend/                      # Node.js Express REST API server
 │   └── src/                      # Source directory
-│       ├── models.js             # Mongoose collection schemas for MongoDB
-│       ├── routes.js             # API endpoints, validations & Supabase file storage client
+│       ├── middleware/           # Express middleware (auth.js)
+│       ├── models/               # Mongoose schemas (index.js)
+│       ├── routes/               # API route handlers (index.js, portfolio.js)
 │       ├── seed.js               # Development & production initial database seeder
-│       └── server.js             # Server configurations, CORS middleware, and DB connection
+│       └── server.js             # Server configuration, CORS setup, and DB connection
 ├── render.yaml                   # Infrastructure blueprint for Render One-Click deployment
 └── walkthrough.md                # System-wide walkthrough and implementation documentation (This file)
 ```
@@ -76,10 +78,10 @@ The public-facing portfolio is built with interactive graphics, premium typograp
 * **[Hero Section](file:///d:/VS%20code%20file/React_projects/portfolio_web/frontend/src/sections/Hero.tsx)**: Displays the primary heading and dynamic resume links. Uses Framer Motion letter-by-letter spring animation with customized multi-word linear gradients. Supports auto-converting Google Drive links into direct download vectors.
 * **[About Section](file:///d:/VS%20code%20file/React_projects/portfolio_web/frontend/src/sections/About.tsx)**: Renders the narrative biography, highlighted achievements, and academic timeline.
 * **[Skills Section (Codex Book)](file:///d:/VS%20code%20file/React_projects/portfolio_web/frontend/src/sections/Skills.tsx)**: Displays skills as a realistic **Interactive Knowledge Codex** (3D book-style layout) where users can flip pages using corner arrows, table of contents links, or keyboard arrows. Automatically collapses into a single-card layout on mobile viewports with responsive bottom pagination buttons (Turn Back/Next) and native touch swipe gestures (`touch-pan-y` support).
+* **[Tech Stack Section](file:///d:/VS%20code%20file/React_projects/portfolio_web/frontend/src/sections/TechStack.tsx)**: High-performance scrolling marquee layout displaying technologies and tools in continuous motion, with micro-animations, neon dropshadow glow effects, and hover-to-pause interactions.
 * **[Projects Section](file:///d:/VS%20code%20file/React_projects/portfolio_web/frontend/src/sections/Projects.tsx)**: Filterable grid categorized dynamically by tags. Incorporates a modal window to preview selected items.
-* **[Experience Section](file:///d:/VS%20code%20file/React_projects/portfolio_web/frontend/src/sections/Experience.tsx)**: Interactive timeline representing company associations, roles, and job descriptions.
+* **[Experience Section](file:///d:/VS%20code%20file/React_projects/portfolio_web/frontend/src/sections/Experience.tsx)**: Interactive timeline representing company associations, roles, categories, and job descriptions.
 * **[Certificates Section](file:///d:/VS%20code%20file/React_projects/portfolio_web/frontend/src/sections/Certificates.tsx)**: Dynamic grid containing professional certifications with link vectors and modal previews.
-* **[Tech Stack Section](file:///d:/VS%20code%20file/React_projects/portfolio_web/frontend/src/sections/TechStack.tsx)**: Dynamic floating bubble layout showing framework logos with neon color dropshadow glows.
 * **[Achievements Section](file:///d:/VS%20code%20file/React_projects/portfolio_web/frontend/src/sections/Achievements.tsx)**: Displays key statistics counters representing experience metrics.
 * **[Contact Section](file:///d:/VS%20code%20file/React_projects/portfolio_web/frontend/src/sections/Contact.tsx)**: Glassmorphic form allowing visitors to send messages. Incorporates client-side email format checking and success banners.
 * **[Footer](file:///d:/VS%20code%20file/React_projects/portfolio_web/frontend/src/sections/Footer.tsx)**: Renders social networking connectors.
@@ -91,33 +93,37 @@ The public-facing portfolio is built with interactive graphics, premium typograp
 ### B. Admin CMS Panel (`/admin`)
 The protected admin console offers a responsive workspace to maintain portfolio contents in real time:
 
-* **[App Entry Guard](file:///d:/VS%20code%20file/React_projects/portfolio_web/admin/src/App.tsx)**: Handles JWT validation. Dispatches `admin-session-expired` events to clear state and redirect to the login overlay on credentials invalidation.
-* **[PersonalTab](file:///d:/VS%20code%20file/React_projects/portfolio_web/admin/src/components/PersonalTab.tsx)**: Edits base bio details, display name, biography highlights, and education arrays. Houses a **Resume Versioning Collection** to upload multiple resumes, select which resume is active across the site, and delete historical PDF versions.
-* **[SkillsTab](file:///d:/VS%20code%20file/React_projects/portfolio_web/admin/src/components/SkillsTab.tsx)**: Customizes the Codex Book welcome title and page introduction. Manages skill categories (Title, Icon component names, and domain capabilities) and nested skills (Name, Tag, and Percentage sliders).
-* **[TechStackTab](file:///d:/VS%20code%20file/React_projects/portfolio_web/admin/src/components/TechStackTab.tsx)**: Provides full CRUD controls for the floating bubbles. Allows selection of brand icons from prefixes (SimpleIcons/FontAwesome) and dynamic hex colors.
-* **[ProjectsTab](file:///d:/VS%20code%20file/React_projects/portfolio_web/admin/src/components/ProjectsTab.tsx)**: Updates projects showcase. Uploads file objects directly to Supabase storage to store cover pictures.
-* **[ExperienceTab](file:///d:/VS%20code%20file/React_projects/portfolio_web/admin/src/components/ExperienceTab.tsx)**: Manages employment records.
-* **[CertificatesTab](file:///d:/VS%20code%20file/React_projects/portfolio_web/admin/src/components/CertificatesTab.tsx)**: Coordinates credentials lists and achievement numbers.
+* **[App Entry Guard & Router](file:///d:/VS%20code%20file/React_projects/portfolio_web/admin/src/App.tsx)**: Configures global layouts and sidebar navigation menus. Dispatches `admin-session-expired` events to clear state and redirect to the login overlay on credentials invalidation.
+* **[Login Component](file:///d:/VS%20code%20file/React_projects/portfolio_web/admin/src/components/Login.tsx)**: Displays credentials challenge form before granting dashboard access.
+* **[PersonalTab](file:///d:/VS%20code%20file/React_projects/portfolio_web/admin/src/components/tabs/PersonalTab.tsx)**: Edits base bio details, display name, biography highlights, and education arrays. Houses a **Resume Versioning Collection** to upload multiple resumes, select which resume is active across the site, and delete historical PDF versions.
+* **[SkillsTab](file:///d:/VS%20code%20file/React_projects/portfolio_web/admin/src/components/tabs/SkillsTab.tsx)**: Customizes the Codex Book welcome title and page introduction. Manages skill categories (Title, Icon component names, and domain capabilities) and nested skills (Name, Tag, and Percentage sliders).
+* **[TechStackTab](file:///d:/VS%20code%20file/React_projects/portfolio_web/admin/src/components/tabs/TechStackTab.tsx)**: Provides full CRUD controls for the scrolling marquee tools. Allows selection of brand icons from prefixes (SimpleIcons/FontAwesome) and dynamic hex colors.
+* **[ProjectsTab](file:///d:/VS%20code%20file/React_projects/portfolio_web/admin/src/components/tabs/ProjectsTab.tsx)**: Updates projects showcase. Uploads file objects directly to Supabase storage to store cover pictures.
+* **[ExperienceTab](file:///d:/VS%20code%20file/React_projects/portfolio_web/admin/src/components/tabs/ExperienceTab.tsx)**: Manages employment and project milestones, separating them by type categories (work, internship, academic, freelance, etc.).
+* **[CertificatesTab](file:///d:/VS%20code%20file/React_projects/portfolio_web/admin/src/components/tabs/CertificatesTab.tsx)**: Coordinates credentials lists, cover uploads, and numerical achievement metrics.
+* **[MessagesTab](file:///d:/VS%20code%20file/React_projects/portfolio_web/admin/src/components/tabs/MessagesTab.tsx)**: An inbox panel monitoring contact inquiries. Admins can view incoming messages, reply via native email app templates, save replies in the DB context, delete specific items, and batch delete the entire inbox history.
 * **[ConfirmModal](file:///d:/VS%20code%20file/React_projects/portfolio_web/admin/src/components/ConfirmModal.tsx)**: Global modal protecting against accidental deletions.
+* **[ErrorBoundary](file:///d:/VS%20code%20file/React_projects/portfolio_web/admin/src/components/ErrorBoundary.tsx)**: Captures dashboard panel crashes and prompts safe reloads.
 
 ---
 
 ### C. Backend API & Storage (`/backend`)
 The backend routes API calls, connects MongoDB schemas, and pipes uploaded files to cloud storage:
 
-* **[server.js](file:///d:/VS%20code%20file/React_projects/portfolio_web/backend/src/server.js)**: Configures server startup, parses environment variables, configures CORS origins, and establishes connection to MongoDB database.
-* **[models.js](file:///d:/VS%20code%20file/React_projects/portfolio_web/backend/src/models.js)**: Holds the Mongoose structural database blueprints:
+* **[server.js](file:///d:/VS%20code%20file/React_projects/portfolio_web/backend/src/server.js)**: Configures server startup, parses environment variables, configures CORS origins, registers routing gateways, and establishes connection to MongoDB database.
+* **[models/index.js](file:///d:/VS%20code%20file/React_projects/portfolio_web/backend/src/models/index.js)**: Holds the Mongoose structural database blueprints:
   * `PersonalInfo`: Holds location, email, and the `resumes` version array `[{ id, title, url, isActive, createdAt }]`.
   * `About`: Narrative biographies, education metrics, and highlights.
   * `SkillCategory`: Skills welcome message references, capabilities, and nested skills list.
-  * `Project`: Project titles, descriptions, categories (Strict category enum check), tags, and cover image URLs.
-  * `Experience`: Employment periods, companies, roles, and descriptions.
-  * `Certificate`: Issued date, titles, organizations, and credential urls.
-  * `Achievement`: Numerical metrics and labels.
-  * `ContactMessage`: Inbox messages submitted via the frontend.
+  * `Project`: Project titles, descriptions, categories (strict category enum checks), tags, and cover image URLs.
+  * `Experience`: Employment periods, companies, roles, descriptions, categories (work, internship, freelance, volunteer, etc.), and learning outcomes.
+  * `Certificate`: Issued date, titles, organizations, credential urls, and cover image URLs.
+  * `Achievement`: Numerical metrics, labels, and suffixes.
+  * `ContactMessage`: Inbox messages submitted via the frontend, including an array of logged replies.
   * `TechStack`: Ecosystem technology objects with names, brand icons, and hex color values.
   * `SkillsWelcome`: Dynamic intro text for the skills book.
-* **[routes.js](file:///d:/VS%20code%20file/React_projects/portfolio_web/backend/src/routes.js)**: Houses REST APIs, parses incoming files via `multer.memoryStorage()`, and pipes files to **Supabase Storage API**. Automatically separates folders (`resumes/`, `images/`, `others/`) depending on file types.
+* **[routes/portfolio.js](file:///d:/VS%20code%20file/React_projects/portfolio_web/backend/src/routes/portfolio.js)**: Houses REST APIs, parses incoming files via `multer.memoryStorage()`, and pipes files to **Supabase Storage API**. Automatically separates folders (`resumes/`, `images/`, `others/`) depending on file types.
+* **[middleware/auth.js](file:///d:/VS%20code%20file/React_projects/portfolio_web/backend/src/middleware/auth.js)**: Guards administrative routes by verifying JSON Web Tokens (JWT) inside request headers.
 * **[seed.js](file:///d:/VS%20code%20file/React_projects/portfolio_web/backend/src/seed.js)**: Seeds default profile mock data, including tech items and Codex skills categories, when the database is initialized.
 
 ---
@@ -128,6 +134,7 @@ The REST API exposes the following endpoints, secured by authorization middlewar
 
 | Method | Endpoint | Authorization | Description |
 | :--- | :--- | :--- | :--- |
+| `GET` | `/health` | Public | Performs server self-check, checking database connection status. |
 | `GET` | `/api/portfolio` | Public | Fetches complete portfolio configuration payload in a single query. |
 | `POST` | `/api/contact` | Public | Submits a contact message from visitors. |
 | `POST` | `/api/auth/login` | Public | Validates admin password against env config. Returns JWT valid for 7 days. |
@@ -156,9 +163,13 @@ The REST API exposes the following endpoints, secured by authorization middlewar
 | `POST` | `/api/achievements` | Admin Required | Appends a numerical metric indicator. |
 | `PUT` | `/api/achievements/:id` | Admin Required | Edits a metric indicator. |
 | `DELETE`| `/api/achievements/:id` | Admin Required | Removes a metric indicator. |
-| `POST` | `/api/techstack` | Admin Required | Creates a floating bubble technology item. |
+| `POST` | `/api/techstack` | Admin Required | Creates a scrolling marquee technology item. |
 | `PUT` | `/api/techstack/:id` | Admin Required | Modifies a technology item's name, color, or icon. |
 | `DELETE`| `/api/techstack/:id` | Admin Required | Deletes a technology item. |
+| `GET` | `/api/messages` | Admin Required | Retrieves contact messages submitted by visitors. |
+| `POST` | `/api/messages/:id/reply` | Admin Required | Records email replies in the database (marked as replied). |
+| `DELETE`| `/api/messages/:id` | Admin Required | Removes a single contact message. |
+| `DELETE`| `/api/messages` | Admin Required | Bulk clears the entire message inbox. |
 
 ---
 
@@ -166,8 +177,8 @@ The REST API exposes the following endpoints, secured by authorization middlewar
 
 Solid protection layers are integrated on both client and server applications:
 
-### Client-Side Security & Validation ([security.ts](file:///d:/VS%20code%20file/React_projects/portfolio_web/frontend/src/utils/security.ts))
-1. **URL Sanitization (`sanitizeUrl`)**: Intercepts URLs to block dangerous scripts (e.g. `javascript:`, `vbscript:`, or `data:text/html`). Restricts outputs to protocols like `http:`, `https:`, `mailto:`, `tel:`, or safe `data:image/` / `data:application/pdf` vectors.
+### Client-Side Security & Validation
+1. **URL Sanitization (`sanitizeUrl`)** ([frontend security.ts](file:///d:/VS%20code%20file/React_projects/portfolio_web/frontend/src/utils/security.ts) & [admin security.ts](file:///d:/VS%20code%20file/React_projects/portfolio_web/admin/src/utils/security.ts)): Intercepts URLs to block dangerous scripts (e.g. `javascript:`, `vbscript:`, or `data:text/html`). Restricts outputs to protocols like `http:`, `https:`, `mailto:`, `tel:`, or safe `data:image/` / `data:application/pdf` vectors.
 2. **Numeric Clamping (`safeClamp`)**: Validates skills ratings values (ranging from `0` to `100`%) to prevent visual overflows or invalid types.
 
 ### Server-Side Protection

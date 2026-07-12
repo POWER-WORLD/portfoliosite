@@ -79,3 +79,28 @@ export async function submitContactMessage(formData: { name: string; email: stri
   }
 }
 
+/**
+ * Verifies a 4-digit download passcode and returns the resume download URL.
+ */
+export async function verifyResumePassword(password: string): Promise<{ success: boolean; resumeUrl?: string; error?: string }> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/resume/verify`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ password }),
+    });
+
+    const data = await res.json().catch(() => ({}));
+    if (res.ok) {
+      return { success: true, resumeUrl: data.resumeUrl };
+    } else {
+      return { success: false, error: data.error || 'Incorrect passcode. Please try again.' };
+    }
+  } catch (error: any) {
+    console.error('Passcode verification error:', error);
+    return { success: false, error: 'Connection error. Please try again.' };
+  }
+}
+
