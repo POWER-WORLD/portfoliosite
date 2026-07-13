@@ -179,8 +179,29 @@ router.get('/portfolio', async (req, res) => {
     const rawPersonalInfo = await PersonalInfo.findOne() || {};
     const personalInfo = rawPersonalInfo.toObject ? rawPersonalInfo.toObject() : { ...rawPersonalInfo };
     const hasResume = !!(personalInfo.resumeUrl && personalInfo.resumeUrl !== '#');
-    delete personalInfo.resumeUrl;
-    delete personalInfo.resumes;
+    
+    // Check if the request is from an authenticated admin, so we don't hide resumes for them
+    const authHeader = req.headers.authorization;
+    let isAdmin = false;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.split(' ')[1];
+      const secret = process.env.JWT_SECRET;
+      if (secret) {
+        try {
+          const decoded = jwt.verify(token, secret);
+          if (decoded && decoded.role === 'admin') {
+            isAdmin = true;
+          }
+        } catch (error) {
+          // Token is invalid or expired, treat as regular public request
+        }
+      }
+    }
+
+    if (!isAdmin) {
+      delete personalInfo.resumeUrl;
+      delete personalInfo.resumes;
+    }
     personalInfo.hasResume = hasResume;
 
     const about = await About.findOne() || {};
