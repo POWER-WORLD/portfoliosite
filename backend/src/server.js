@@ -2,6 +2,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import compression from 'compression';
 import apiRoutes from './routes/index.js';
 
 dotenv.config();
@@ -20,6 +21,7 @@ if (missingOptional.length > 0) {
 }
 
 const app = express();
+app.use(compression());
 const PORT = process.env.PORT || 5000;
 
 // Enable CORS for development and production domains dynamically

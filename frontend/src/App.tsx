@@ -34,42 +34,77 @@ interface PortfolioData {
   achievements: any[];
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Client-side cache initializer (Stale-While-Revalidate pattern)
+// ─────────────────────────────────────────────────────────────────────────────
+const getCachedPortfolioData = (): PortfolioData | null => {
+  try {
+    const cached = localStorage.getItem('portfolio_data_cache');
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      // Ensure the cached data has critical properties before returning it
+      if (parsed && parsed.personalInfo && parsed.about && parsed.skills) {
+        return parsed;
+      }
+    }
+  } catch (err) {
+    console.warn('[Cache] Failed to parse local storage portfolio data:', err);
+  }
+  return null;
+};
+
 function App() {
-  const [portfolioData, setPortfolioData] = useState<PortfolioData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [portfolioData, setPortfolioData] = useState<PortfolioData | null>(getCachedPortfolioData);
+  const [loading, setLoading] = useState<boolean>(!portfolioData);
 
   useEffect(() => {
     let isMounted = true;
+
+    // Revalidate in the background
     fetchPortfolioData().then((data: PortfolioData | null) => {
       if (isMounted) {
-        if (data) setPortfolioData(data);
+        if (data) {
+          setPortfolioData(data);
+          try {
+            localStorage.setItem('portfolio_data_cache', JSON.stringify(data));
+          } catch (err) {
+            console.warn('[Cache] Failed to save portfolio data to local storage:', err);
+          }
+        }
         setLoading(false);
       }
     });
+
     return () => {
       isMounted = false;
     };
   }, []);
 
+  if (loading || !portfolioData) {
+    return (
+      <ErrorBoundary>
+        <MainLayout>
+          <PortfolioSkeleton />
+        </MainLayout>
+      </ErrorBoundary>
+    );
+  }
+
   return (
     <ErrorBoundary>
       <MainLayout>
-        {loading ? (
-          <PortfolioSkeleton />
-        ) : (
-          <>
-            <Hero         data={portfolioData?.personalInfo} />
-            <About        data={portfolioData?.about} />
-            <Skills       data={portfolioData?.skills}  welcome={portfolioData?.skillsWelcome} />
-            <Projects     data={portfolioData?.projects} />
-            <Experience   data={portfolioData?.experience} />
-            <Certificates data={portfolioData?.certificates} />
-            <TechStack    data={portfolioData?.techStack} />
-            <Achievements data={portfolioData?.achievements} />
-            <Contact      personalInfo={portfolioData?.personalInfo} />
-            <Footer       personalInfo={portfolioData?.personalInfo} />
-          </>
-        )}
+        <>
+          <Hero         data={portfolioData.personalInfo} />
+          <About        data={portfolioData.about} />
+          <Skills       data={portfolioData.skills} welcome={portfolioData.skillsWelcome} />
+          <Projects     data={portfolioData.projects} />
+          <Experience   data={portfolioData.experience} />
+          <Certificates data={portfolioData.certificates} />
+          <TechStack    data={portfolioData.techStack} />
+          <Achievements data={portfolioData.achievements} />
+          <Contact      personalInfo={portfolioData.personalInfo} />
+          <Footer       personalInfo={portfolioData.personalInfo} />
+        </>
       </MainLayout>
     </ErrorBoundary>
   );

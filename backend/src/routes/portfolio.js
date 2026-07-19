@@ -25,6 +25,28 @@ dotenv.config();
 
 const router = express.Router();
 
+// ----------------------------------------------------
+// MEMORY CACHE SETUP FOR PUBLIC PORTFOLIO PAYLOAD
+// ----------------------------------------------------
+let cachedPortfolioData = null;
+
+const clearPortfolioCache = () => {
+  cachedPortfolioData = null;
+};
+
+// Invalidate cache on any database write operation
+router.use((req, res, next) => {
+  if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(req.method)) {
+    // Exclude read-only POST operations to prevent unnecessary cache invalidation
+    const isReadOnlyPost = ['/auth/login', '/resume/verify'].some(path => req.path.endsWith(path));
+    if (!isReadOnlyPost) {
+      clearPortfolioCache();
+    }
+  }
+  next();
+});
+
+
 // Initialize Supabase Client
 const supabaseUrl = process.env.SUPABASE_DB_URL;
 const supabaseKey = process.env.SUPABASE_DB_KEY;
@@ -176,8 +198,47 @@ router.put('/auth/change-password', authMiddleware, async (req, res) => {
 // ----------------------------------------------------
 router.get('/portfolio', async (req, res) => {
   try {
-    const rawPersonalInfo = await PersonalInfo.findOne() || {};
-    const personalInfo = rawPersonalInfo.toObject ? rawPersonalInfo.toObject() : { ...rawPersonalInfo };
+    if (!cachedPortfolioData) {
+      const [
+        rawPersonalInfo,
+        about,
+        skills,
+        projects,
+        experience,
+        certificates,
+        achievements,
+        techStack,
+        skillsWelcome
+      ] = await Promise.all([
+        PersonalInfo.findOne(),
+        About.findOne(),
+        SkillCategory.find(),
+        Project.find(),
+        Experience.find().sort({ createdAt: -1 }),
+        Certificate.find(),
+        Achievement.find(),
+        TechStack.find(),
+        SkillsWelcome.findOne()
+      ]);
+
+      cachedPortfolioData = {
+        personalInfo: rawPersonalInfo ? (rawPersonalInfo.toObject ? rawPersonalInfo.toObject() : rawPersonalInfo) : {},
+        about: about ? (about.toObject ? about.toObject() : about) : {},
+        skills: skills || [],
+        projects: projects || [],
+        experience: experience || [],
+        certificates: certificates || [],
+        achievements: achievements || [],
+        techStack: techStack || [],
+        skillsWelcome: skillsWelcome || {
+          title: 'Welcome to My Tech Stack',
+          message: 'This book showcases my core competencies, architectural capabilities, and tech stack proficiencies.'
+        }
+      };
+    }
+
+    // Deep copy personalInfo to safely delete fields for public view without mutating cache
+    const personalInfo = JSON.parse(JSON.stringify(cachedPortfolioData.personalInfo));
     const hasResume = !!(personalInfo.resumeUrl && personalInfo.resumeUrl !== '#');
     
     // Check if the request is from an authenticated admin, so we don't hide resumes for them
@@ -204,28 +265,16 @@ router.get('/portfolio', async (req, res) => {
     }
     personalInfo.hasResume = hasResume;
 
-    const about = await About.findOne() || {};
-    const skills = await SkillCategory.find() || [];
-    const projects = await Project.find() || [];
-    const experience = await Experience.find().sort({ createdAt: -1 }) || [];
-    const certificates = await Certificate.find() || [];
-    const achievements = await Achievement.find() || [];
-    const techStack = await TechStack.find() || [];
-    const skillsWelcome = await SkillsWelcome.findOne() || {
-      title: 'Welcome to My Tech Stack',
-      message: 'This book showcases my core competencies, architectural capabilities, and tech stack proficiencies.'
-    };
-
     res.json({
       personalInfo,
-      about,
-      skills,
-      projects,
-      experience,
-      certificates,
-      achievements,
-      techStack,
-      skillsWelcome
+      about: cachedPortfolioData.about,
+      skills: cachedPortfolioData.skills,
+      projects: cachedPortfolioData.projects,
+      experience: cachedPortfolioData.experience,
+      certificates: cachedPortfolioData.certificates,
+      achievements: cachedPortfolioData.achievements,
+      techStack: cachedPortfolioData.techStack,
+      skillsWelcome: cachedPortfolioData.skillsWelcome
     });
   } catch (error) {
     console.error('Fetch portfolio error:', error);
